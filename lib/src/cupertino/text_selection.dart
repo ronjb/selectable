@@ -12,7 +12,7 @@ import '../selection_controls.dart';
 // ignore_for_file: avoid_positional_boolean_parameters, avoid_setters_without_getters, omit_local_variable_types, avoid_as, cascade_invocations, avoid_types_on_closure_parameters
 
 /// Text selection controls that follows iOS design conventions.
-final SelectionControls tecCupertinoTextSelectionControls = _CupertinoTextSelectionControls();
+final SelectionControls exCupertinoTextSelectionControls = _CupertinoTextSelectionControls();
 
 // Read off from the output on iOS 12. This color does not vary with the
 // application's theme color.

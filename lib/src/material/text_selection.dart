@@ -12,7 +12,7 @@ import '../selection_controls.dart';
 // ignore_for_file: omit_local_variable_types, curly_braces_in_flow_control_structures, cascade_invocations, prefer_const_constructors
 
 /// Text selection controls that follow the Material Design specification.
-final SelectionControls tecMaterialTextSelectionControls = _MaterialTextSelectionControls();
+final SelectionControls exMaterialTextSelectionControls = _MaterialTextSelectionControls();
 
 const double _kHandleSize = 22.0;
 const double _kButtonPadding = 10.0;

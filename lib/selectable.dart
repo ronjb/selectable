@@ -219,8 +219,8 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
       _selection
         ..usingCupertinoControls = _useCupertinoSelectionControls(context)
         ..controls = _selection.usingCupertinoControls
-            ? tecCupertinoTextSelectionControls
-            : tecMaterialTextSelectionControls;
+            ? exCupertinoTextSelectionControls
+            : exMaterialTextSelectionControls;
     }
 
     // Ignore taps if text is not selected, because the child might want to handle them.

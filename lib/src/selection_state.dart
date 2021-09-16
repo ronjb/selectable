@@ -256,7 +256,7 @@ class SelectionState {
               (isRightAnchorParagraph ? _rightAnchor!.textSel.end : paragraph.trimmedSel.end);
 
           // Collect the selection rects and text, if not empty.
-          final ts = tecCreateTextSelection(paragraph.text,
+          final ts = createTextSelection(paragraph.text,
               baseOffset: start, extentOffset: end, trim: false);
           if (ts != null) {
             final selectionRects = paragraph.rectsForSelection(ts);

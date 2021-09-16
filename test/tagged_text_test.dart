@@ -24,7 +24,7 @@ void main() {
         rect: Rect.zero,
         index: 0,
         text: text,
-        trimmedSel: tecCreateTextSelection(text)!);
+        trimmedSel: createTextSelection(text)!);
     var i = 0;
     final result = paragraph.visitChildSpans((span, index) {
       // ignore: avoid_as
@@ -42,7 +42,7 @@ void main() {
         rect: Rect.zero,
         index: 0,
         text: text,
-        trimmedSel: tecCreateTextSelection(text)!);
+        trimmedSel: createTextSelection(text)!);
     expect(
       SelectionAnchor(
         0,

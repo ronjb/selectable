@@ -107,7 +107,7 @@ class SelectionParagraph {
     final span = rp.text;
     if (span is TextSpan) {
       final text = span.toPlainText(includeSemanticsLabels: false, includePlaceholders: true);
-      final trimmedSel = tecCreateTextSelection(text);
+      final trimmedSel = createTextSelection(text);
       if (trimmedSel != null) {
         final offset = rp.renderBox.getTransformTo(ancestor).getTranslation();
         final size = rp.textSize;
@@ -171,7 +171,7 @@ class SelectionParagraph {
     bool trim = true,
   }) {
     if (range != null) {
-      final ts = tecCreateTextSelection(text,
+      final ts = createTextSelection(text,
           baseOffset: range.start, extentOffset: range.end, trim: trim);
       if (ts != null && ts.isValid && (trim == false || !ts.isCollapsed)) {
         final rects = rectsForSelection(ts);
@@ -267,7 +267,7 @@ class SelectionParagraph {
 ///
 /// Returns null if the resulting string would be empty.
 ///
-TextSelection? tecCreateTextSelection(
+TextSelection? createTextSelection(
   String str, {
   int? baseOffset,
   int? extentOffset,

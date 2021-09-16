@@ -26,7 +26,7 @@ import 'package:selectable/selectable.dart';
 And use `Selectable` where appropriate. For example:
 
 ```dart
-TecSelectable(
+Selectable(
     child: widgetWithTextWidgets,
     selectionColor: Colors.orange.withAlpha(75),
     showSelection: _showSelection,
