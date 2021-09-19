@@ -2,27 +2,12 @@ import 'package:float_column/float_column.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:provider/provider.dart';
 import 'package:selectable/selectable.dart';
 
 // ignore_for_file: prefer_mixin, avoid_print, prefer_const_constructors, unused_element
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => Counter(),
-      child: MyApp(),
-    ),
-  );
-}
-
-class Counter with ChangeNotifier {
-  int value = 0;
-
-  void increment() {
-    value += 1;
-    notifyListeners();
-  }
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -32,9 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: MyHomePage(),
     );
   }
@@ -59,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (_isTextSelected != _selectionController.isTextSelected) {
         _isTextSelected = _selectionController.isTextSelected;
         print(_isTextSelected ? 'Text is selected' : 'Text is not selected');
+        if (mounted) setState(() {});
       }
       // if (_selectionController.rects != null) {
       //   print('selection rects: ${_selectionController.rects}');
@@ -79,142 +63,146 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Demo Home Page'),
+        title: const Text('Selectable Example'),
       ),
-      body: ListView(
+      body: SingleChildScrollView(
         controller: _scrollController,
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Selectable(
-              selectionController: _selectionController,
-              scrollController: _scrollController,
-              selectionColor: Colors.orange.withAlpha(75),
-              showSelection: _showSelection,
-              showPopup: true,
-              popupMenuItems: [
-                SelectableMenuItem(type: SelectableMenuItemType.copy),
-                SelectableMenuItem(
-                  title: 'Foo! :)',
-                  isEnabled: (controller) {
-                    print(
-                        'SelectableMenuItem Foo, isEnabled, selected text: ${controller!.text}');
-                    return controller.isTextSelected;
-                  },
-                  handler: (controller) {
-                    showDialog<void>(
-                      context: context,
-                      barrierDismissible: true,
-                      builder: (builder) {
-                        return AlertDialog(
-                          contentPadding: EdgeInsets.zero,
-                          content: Container(
-                            padding: EdgeInsets.all(16),
-                            child: Text(controller!.text!),
-                          ),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        );
-                      },
+        child: Selectable(
+          selectionController: _selectionController,
+          scrollController: _scrollController,
+          selectionColor: Colors.orange.withAlpha(75),
+          showSelection: _showSelection,
+          showPopup: true,
+          popupMenuItems: [
+            SelectableMenuItem(type: SelectableMenuItemType.copy),
+            SelectableMenuItem(
+              title: 'Foo! :)',
+              isEnabled: (controller) {
+                print('SelectableMenuItem Foo, isEnabled, selected text: ${controller!.text}');
+                return controller.isTextSelected;
+              },
+              handler: (controller) {
+                showDialog<void>(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (builder) {
+                    return AlertDialog(
+                      contentPadding: EdgeInsets.zero,
+                      content: Container(
+                        padding: EdgeInsets.all(16),
+                        child: Text(controller!.text!),
+                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     );
-                    return true;
                   },
+                );
+                return true;
+              },
+            ),
+          ],
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Long press on a word to select it, then drag the selection controls to change the selection.',
+                  style: Theme.of(context).textTheme.headline5,
                 ),
-              ],
-              child: Column(
-                //mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text('\n\n'),
-                  const Text(
-                      'The purpose of lorem ipsum is to create a natural looking block of text (sentence, paragraph, page, etc.) that doesn\'t distract from the layout. A practice not without controversy...'),
-                  const Text('https://flutter.dev'),
-                  const Text('You have pushed the button this many times:'),
-                  Consumer<Counter>(
-                    builder: (context, counter, child) => Text(
-                      '${counter.value}',
-                      style: Theme.of(context).textTheme.headline4,
+                FloatColumn(
+                  children: [
+                    const SizedBox(height: 16),
+                    Floatable(
+                        float: FCFloat.end,
+                        clear: FCClear.both,
+                        padding: EdgeInsetsDirectional.only(start: 16),
+                        maxWidthPercentage: 0.333,
+                        child: Container(height: 150, color: Colors.orange)),
+                    WrappableText(
+                      text: TextSpan(
+                        text: 'Indent Example',
+                        style: Theme.of(context).textTheme.headline4,
+                      ),
                     ),
-                  ),
-                  FloatColumn(
-                    children: [
-                      Floatable(
-                          float: FCFloat.start,
-                          clear: FCClear.both,
-                          clearMinSpacing: 40,
-                          maxWidthPercentage: 0.333,
-                          child: Container(
-                            height: 200,
-                            color: Colors.blue,
-                            margin: Directionality.of(context) == TextDirection.ltr
-                                ? const EdgeInsets.only(right: 8)
-                                : const EdgeInsets.only(left: 8),
-                          )),
-                      const WrappableText(
-                        indent: 20,
-                        text: TextSpan(text: text1, style: textStyle2),
-                        textAlign: TextAlign.justify,
+                    const WrappableText(
+                      indent: 40,
+                      text: TextSpan(text: text1, style: textStyle2),
+                      textAlign: TextAlign.justify,
+                    ),
+                    const SizedBox(height: 16),
+                    Floatable(
+                        float: FCFloat.start,
+                        clear: FCClear.both,
+                        padding: EdgeInsetsDirectional.only(end: 16, top: 8),
+                        maxWidthPercentage: 0.333,
+                        child: Container(height: 150, color: Colors.blue)),
+                    WrappableText(
+                      text: TextSpan(
+                        text: 'Hanging Indent Example',
+                        style: Theme.of(context).textTheme.headline4,
                       ),
-                      WrappableText(
-                        indent: -20,
-                        text: TextSpan(
-                          children: [_span],
-                          style: textStyle1,
-                          //style: Theme.of(context).textTheme.display1,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text.rich(
-                    _span,
-                    style: textStyle2,
-                    //style: Theme.of(context).textTheme.display1,
-                  ),
-                ],
-              ),
+                    ),
+                    WrappableText(
+                      indent: -40,
+                      padding: const EdgeInsets.only(left: 40),
+                      text: const TextSpan(children: [_span], style: textStyle1),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text.rich(
+                  _span,
+                  style: textStyle2,
+                  //style: Theme.of(context).textTheme.display1,
+                ),
+                Text('\n\n\n\n\n\n\n\n'),
+              ],
             ),
           ),
-        ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //Provider.of<Counter>(context, listen: false).increment();
+      floatingActionButton: _isTextSelected
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                //Provider.of<Counter>(context, listen: false).increment();
 
-          setState(() {
-            _showSelection = !_showSelection;
-          });
+                setState(() {
+                  _showSelection = !_showSelection;
+                });
 
-          // if (_selectionController.isTextSelected) {
-          //   _selectionController.deselectAll();
-          // }
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+                // if (_selectionController.isTextSelected) {
+                //   _selectionController.deselectAll();
+                // }
+              },
+              //tooltip: 'Increment',
+              //child: Icon(Icons.add),
+              label: Text(_showSelection ? 'hide selection' : 'show selection'),
+            )
+          : null,
     );
   }
 }
 
 // cspell: disable
 const text1 =
-    '''The purpose of lorem ipsum is to create a natural looking block of text (sentence, paragraph, page, etc.) that doesn't distract from the layout. A practice not without controversy, laying out pages with meaningless filler text can be very useful when the focus is meant to be on design, not content.''';
+    '''Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.''';
 const text2 =
-    '''orem ipsum is to create a natural looking block of text (sentence, paragraph, page, etc.) that doesn't distract from the layout. A practice not without controversy, laying out pages with meaningless filler text can be very useful when the focus is meant to be on design, not content.''';
+    '''onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.''';
 
-final _span = TaggedTextSpan(
+const _span = TaggedTextSpan(
   tag: 'tag',
   children: <TextSpan>[
-    TextSpan(style: TextStyle(color: Colors.red), text: 'T'),
-    TextSpan(style: TextStyle(color: Colors.blue), text: 'h'),
-    TextSpan(style: TextStyle(color: Colors.green), text: 'e'),
-    TextSpan(style: TextStyle(color: Colors.green), text: ' '),
-    TextSpan(style: TextStyle(color: Colors.red), text: 'pu'),
-    TextSpan(style: TextStyle(color: Colors.blue), text: 'rp'),
-    TextSpan(style: TextStyle(color: Colors.green), text: 'ose '),
-    TextSpan(style: TextStyle(color: Colors.red), text: 'o'),
-    TextSpan(style: TextStyle(color: Colors.blue), text: 'f '),
-    TextSpan(style: TextStyle(color: Colors.green), text: 'l'),
-    const TextSpan(style: TextStyle(color: Colors.black), text: text2),
-    TextSpan(style: textStyle2.copyWith(color: Colors.green), text: ' Abcdefg'),
-  ], 
+    TextSpan(style: TextStyle(color: Colors.red), text: 'Lor'),
+    TextSpan(style: TextStyle(color: Colors.blue), text: 'em i'),
+    TextSpan(style: TextStyle(color: Colors.green), text: 'psu'),
+    TextSpan(style: TextStyle(color: Colors.red), text: 'm do'),
+    TextSpan(style: TextStyle(color: Colors.blue), text: 'lor'),
+    TextSpan(style: TextStyle(color: Colors.green), text: ' sit '),
+    TextSpan(style: TextStyle(color: Colors.red), text: 'ame'),
+    TextSpan(style: TextStyle(color: Colors.blue), text: 't, c'),
+    TextSpan(style: TextStyle(color: Colors.black), text: text2),
+    // TextSpan(style: textStyle2.copyWith(color: Colors.green), text: ' Abcdefg'),
+  ],
 );
 
 const TextStyle textStyle1 = TextStyle(
