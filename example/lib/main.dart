@@ -60,9 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
         _isTextSelected = _selectionController.isTextSelected;
         print(_isTextSelected ? 'Text is selected' : 'Text is not selected');
       }
-      if (_selectionController.rects != null) {
-        print('selection rects: ${_selectionController.rects}');
-      }
+      // if (_selectionController.rects != null) {
+      //   print('selection rects: ${_selectionController.rects}');
+      // }
     });
   }
 
