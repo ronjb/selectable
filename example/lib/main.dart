@@ -17,7 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
       home: MyHomePage(),
     );
   }
@@ -41,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _selectionController.addListener(() {
       if (_isTextSelected != _selectionController.isTextSelected) {
         _isTextSelected = _selectionController.isTextSelected;
-        print(_isTextSelected ? 'Text is selected' : 'Text is not selected');
+        // print(_isTextSelected ? 'Text is selected' : 'Text is not selected');
         if (mounted) setState(() {});
       }
       // if (_selectionController.rects != null) {
@@ -70,16 +71,17 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Selectable(
           selectionController: _selectionController,
           scrollController: _scrollController,
-          selectionColor: Colors.orange.withAlpha(75),
+          // selectionColor: Colors.orange.withAlpha(75),
           showSelection: _showSelection,
+          selectWordOnDoubleTap: true,
           showPopup: true,
           popupMenuItems: [
             SelectableMenuItem(type: SelectableMenuItemType.copy),
             SelectableMenuItem(
               title: 'Foo! :)',
               isEnabled: (controller) {
-                print('SelectableMenuItem Foo, isEnabled, selected text: ${controller!.text}');
-                return controller.isTextSelected;
+                // print('SelectableMenuItem Foo, isEnabled, selected text: ${controller!.text}');
+                return controller!.isTextSelected;
               },
               handler: (controller) {
                 showDialog<void>(
@@ -200,7 +202,7 @@ const _span = TaggedTextSpan(
     TextSpan(style: TextStyle(color: Colors.green), text: ' sit '),
     TextSpan(style: TextStyle(color: Colors.red), text: 'ame'),
     TextSpan(style: TextStyle(color: Colors.blue), text: 't, c'),
-    TextSpan(style: TextStyle(color: Colors.black), text: text2),
+    TextSpan(text: text2),
     // TextSpan(style: textStyle2.copyWith(color: Colors.green), text: ' Abcdefg'),
   ],
 );
@@ -209,14 +211,11 @@ const TextStyle textStyle1 = TextStyle(
   fontSize: 20,
   fontWeight: FontWeight.normal,
   height: 1.5,
-  color: Colors.black,
-  backgroundColor: Color(0xFFEEEEEE),
 );
 
 const TextStyle textStyle2 = TextStyle(
   fontSize: 20,
   fontWeight: FontWeight.normal,
   height: 1.5,
-  color: Colors.black,
   backgroundColor: Colors.transparent,
 );

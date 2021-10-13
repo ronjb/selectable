@@ -1,5 +1,6 @@
 library selectable;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -29,6 +30,8 @@ class Selectable extends StatefulWidget {
     required this.child,
     this.selectionColor,
     this.showSelection = true,
+    this.selectWordOnLongPress = true,
+    this.selectWordOnDoubleTap = false,
     this.showPopup = true,
     this.popupMenuItems,
     this.selectionController,
@@ -39,6 +42,8 @@ class Selectable extends StatefulWidget {
   final Widget child;
   final Color? selectionColor;
   final bool showSelection;
+  final bool selectWordOnLongPress;
+  final bool selectWordOnDoubleTap;
   final bool showPopup;
   final Iterable<SelectableMenuItem>? popupMenuItems;
   final SelectableController? selectionController;
@@ -231,10 +236,20 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
       children: <Widget>[
         GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onLongPressStart: (details) => _localTapOrLongPressPt = details.localPosition,
-          onLongPress: () => _onLongPressOrDoubleTap(_localTapOrLongPressPt),
+          onLongPressStart: widget.selectWordOnLongPress
+              ? (details) => _localTapOrLongPressPt = details.localPosition
+              : null,
+          onLongPress: widget.selectWordOnLongPress
+              ? () => _onLongPressOrDoubleTap(_localTapOrLongPressPt)
+              : null,
           onTapDown: ignoreTap ? null : (details) => _localTapOrLongPressPt = details.localPosition,
           onTap: ignoreTap ? null : () => _onTap(_localTapOrLongPressPt),
+          onDoubleTapDown: widget.selectWordOnDoubleTap
+              ? (details) => _localTapOrLongPressPt = details.localPosition
+              : null,
+          onDoubleTap: widget.selectWordOnDoubleTap
+              ? () => _onLongPressOrDoubleTap(_localTapOrLongPressPt)
+              : null,
           child: IgnorePointer(
             // Ignore gestures (e.g. taps) on the child if text is selected.
             ignoring: _selectionPt != null || _selection.isTextSelected,
@@ -260,9 +275,20 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
                   widget.topOverlayHeight,
                 );
 
-                final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                // This is how the selection color is set in the Flutter 2.5.2
+                // version of src/material/selectable_text.dart, except that
+                // it uses opacity of 0.40, which I think looks too dark.
+                const opacity = 0.25;
                 final selectionColor = widget.selectionColor ??
-                    (isDarkMode ? Colors.blue[300]!.withAlpha(75) : Colors.blue.withAlpha(50));
+                    TextSelectionTheme.of(context).selectionColor ??
+                    (_selection.usingCupertinoControls
+                        ? CupertinoTheme.of(context).primaryColor.withOpacity(opacity)
+                        : Theme.of(context).colorScheme.primary.withOpacity(opacity));
+
+                // For reference, this is how we used to set it:
+                // final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                // final selectionColor = widget.selectionColor ??
+                //     (isDarkMode ? Colors.blue[300]!.withAlpha(75) : Colors.blue.withAlpha(50));
 
                 // dmPrint('selection.update resulted in ${_selection.rects?.length ?? 0} selection rects');
                 _selectionPt = _handleType = null;

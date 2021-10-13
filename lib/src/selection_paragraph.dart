@@ -104,18 +104,22 @@ class SelectionParagraph {
 
     if (!rp.renderBox.hasSize) return null;
 
-    final span = rp.text;
-    if (span is TextSpan) {
-      final text = span.toPlainText(includeSemanticsLabels: false, includePlaceholders: true);
-      final trimmedSel = createTextSelection(text);
-      if (trimmedSel != null) {
-        final offset = rp.renderBox.getTransformTo(ancestor).getTranslation();
-        final size = rp.textSize;
-        final rect = Rect.fromLTWH(
-            offset.x + rp.offset.dx, offset.y + rp.offset.dy, size.width, size.height);
-        return SelectionParagraph(
-            rp: rp, rect: rect, index: index, text: text, trimmedSel: trimmedSel);
+    try {
+      final span = rp.text;
+      if (span is TextSpan) {
+        final text = span.toPlainText(includeSemanticsLabels: false, includePlaceholders: true);
+        final trimmedSel = createTextSelection(text);
+        if (trimmedSel != null) {
+          final offset = rp.renderBox.getTransformTo(ancestor).getTranslation();
+          final size = rp.textSize;
+          final rect = Rect.fromLTWH(
+              offset.x + rp.offset.dx, offset.y + rp.offset.dy, size.width, size.height);
+          return SelectionParagraph(
+              rp: rp, rect: rect, index: index, text: text, trimmedSel: trimmedSel);
+        }
       }
+    } catch (e) {
+      dmPrint('In Selectable, SelectionParagraph.from(): $e');
     }
 
     return null;
@@ -171,16 +175,16 @@ class SelectionParagraph {
     bool trim = true,
   }) {
     if (range != null) {
-      final ts = createTextSelection(text,
-          baseOffset: range.start, extentOffset: range.end, trim: trim);
+      final ts =
+          createTextSelection(text, baseOffset: range.start, extentOffset: range.end, trim: trim);
       if (ts != null && ts.isValid && (trim == false || !ts.isCollapsed)) {
         final rects = rectsForSelection(ts);
         if (rects.isNotEmpty) {
           return SelectionAnchor(index, ts, rects);
         }
       } else {
-        dmPrint(
-            'Word not found, invalid text selection: $ts, with text range: $range, in string "$text"');
+        dmPrint('Word not found, invalid text selection: '
+            '$ts, with text range: $range, in string "$text"');
       }
     }
     return null;

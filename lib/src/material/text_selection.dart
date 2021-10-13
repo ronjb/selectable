@@ -210,13 +210,16 @@ class _MaterialTextSelectionControls extends SelectionControls {
   /// Builder for material-style text selection handles.
   @override
   Widget buildHandle(BuildContext context, TextSelectionHandleType type, double textHeight) {
+    final ThemeData theme = Theme.of(context);
+    final Color handleColor =
+        TextSelectionTheme.of(context).selectionHandleColor ?? theme.colorScheme.primary;
     final Widget handle = SizedBox(
       width: _kHandleSize,
       height: _kHandleSize,
       child: CustomPaint(
         painter: _TextSelectionHandlePainter(
-            color:
-                Color.fromARGB(255, 64, 156, 255)), // Theme.of(context).textSelectionHandleColor),
+          color: handleColor,
+        ),
       ),
     );
 
