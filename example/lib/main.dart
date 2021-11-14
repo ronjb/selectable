@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:selectable/selectable.dart';
 
-// ignore_for_file: prefer_mixin, avoid_print, prefer_const_constructors, unused_element
+// ignore_for_file: prefer_mixin, avoid_print, prefer_const_constructors
+// ignore_for_file: unused_element
 
 void main() {
   runApp(MyApp());
@@ -80,7 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
             SelectableMenuItem(
               title: 'Foo! :)',
               isEnabled: (controller) {
-                // print('SelectableMenuItem Foo, isEnabled, selected text: ${controller!.text}');
+                // print('SelectableMenuItem Foo, isEnabled, selected text:
+                // ${controller!.text}');
                 return controller!.isTextSelected;
               },
               handler: (controller) {
@@ -94,7 +96,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: EdgeInsets.all(16),
                         child: Text(controller!.text!),
                       ),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     );
                   },
                 );
@@ -108,7 +111,8 @@ class _MyHomePageState extends State<MyHomePage> {
               //mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  'Long press on a word to select it, then drag the selection controls to change the selection.',
+                  'Long press on a word to select it, then drag the selection '
+                  'controls to change the selection.',
                   style: Theme.of(context).textTheme.headline5,
                 ),
                 FloatColumn(
@@ -147,7 +151,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     WrappableText(
                       indent: -40,
                       padding: const EdgeInsets.only(left: 40),
-                      text: const TextSpan(children: [_span], style: textStyle1),
+                      text:
+                          const TextSpan(children: [_span], style: textStyle1),
                     ),
                   ],
                 ),
@@ -186,10 +191,19 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 // cspell: disable
-const text1 =
-    '''Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.''';
-const text2 =
-    '''onsectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.''';
+const text1 = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '
+    'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim '
+    'ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut '
+    'aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit '
+    'in voluptate velit esse cillum dolore eu fugiat nulla pariatur. '
+    'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui '
+    'officia deserunt mollit anim id est laborum.';
+const text2 = 'onsectetur adipiscing elit, sed do eiusmod tempor incididunt '
+    'ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud '
+    'exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. '
+    'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum '
+    'dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non '
+    'proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
 
 const _span = TaggedTextSpan(
   tag: 'tag',
@@ -203,7 +217,6 @@ const _span = TaggedTextSpan(
     TextSpan(style: TextStyle(color: Colors.red), text: 'ame'),
     TextSpan(style: TextStyle(color: Colors.blue), text: 't, c'),
     TextSpan(text: text2),
-    // TextSpan(style: textStyle2.copyWith(color: Colors.green), text: ' Abcdefg'),
   ],
 );
 

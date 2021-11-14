@@ -1,10 +1,15 @@
+// Copyright (c) 2021 Ron Booth. All rights reserved.
+// Use of this source code is governed by a license that can be found in the
+// LICENSE file.
+
 import 'package:float_column/float_column.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 ///
-/// Mixin for tag classes that should be split along with the text span they are tagging.
+/// Mixin for tag classes that should be split along with the text span they
+/// are tagging.
 ///
 mixin SplittableTextSpanTag<T> {
   List<T> splitWith(TextSpan span, {required int atCharacter});
@@ -90,7 +95,8 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
     // If this span was split, and its tag is splittable, split the tag too.
     if (result.length == 2 && tag is SplittableTextSpanTag) {
       assert(result.first is TaggedTextSpan && result.last is TaggedTextSpan);
-      final splitTags = (tag as SplittableTextSpanTag).splitWith(this, atCharacter: initialIndex);
+      final splitTags = (tag as SplittableTextSpanTag)
+          .splitWith(this, atCharacter: initialIndex);
       assert(splitTags.length == 2);
       result[0] = (result[0] as TaggedTextSpan).copyWith(tag: splitTags.first);
       result[1] = (result[1] as TaggedTextSpan).copyWith(tag: splitTags.last);
@@ -111,7 +117,8 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
           index.value -= text.length;
         } else {
           final result = [
-            span.copyWith(text: text.substring(0, index.value), noChildren: true),
+            span.copyWith(
+                text: text.substring(0, index.value), noChildren: true),
             span.copyWith(text: text.substring(index.value)),
           ];
           index.value = 0;
@@ -121,7 +128,8 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
 
       final children = span.children;
       if (children != null && children.isNotEmpty) {
-        // If the text.length was equal to index.value, split the text and children.
+        // If the text.length was equal to index.value, split the text and
+        // children.
         if (index.value == 0) {
           return [
             span.copyWith(text: text, noChildren: true),
@@ -138,7 +146,8 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
               span.copyWith(noText: true, children: result.last),
             ];
           } else if (result.length == 1) {
-            // Only true if the number of characters in all the children was equal to index.value.
+            // Only true if the number of characters in all the children was
+            // equal to index.value.
             assert(listEquals<InlineSpan>(result.first, children));
           } else {
             assert(false);

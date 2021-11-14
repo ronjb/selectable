@@ -20,7 +20,8 @@ void main() {
     ]);
     const text = '012345';
     final paragraph = SelectionParagraph(
-        rp: RenderParagraphAdapter(RenderParagraph(span, textDirection: TextDirection.rtl)),
+        rp: RenderParagraphAdapter(
+            RenderParagraph(span, textDirection: TextDirection.rtl)),
         rect: Rect.zero,
         index: 0,
         text: text,
@@ -35,10 +36,12 @@ void main() {
   });
 
   test('anchor.taggedTextWithParagraphs', () {
-    final span = TextSpan(children: [tts('0'), tts('1'), tts('2'), tts('3'), tts('4'), tts('5')]);
+    final span = TextSpan(
+        children: [tts('0'), tts('1'), tts('2'), tts('3'), tts('4'), tts('5')]);
     const text = '012345';
     final paragraph = SelectionParagraph(
-        rp: RenderParagraphAdapter(RenderParagraph(span, textDirection: TextDirection.rtl)),
+        rp: RenderParagraphAdapter(
+            RenderParagraph(span, textDirection: TextDirection.rtl)),
         rect: Rect.zero,
         index: 0,
         text: text,
@@ -95,11 +98,13 @@ void main() {
 
   test('TaggedText', () {
     final tt = TaggedText(_VerseTag(1, 2, 3), r'"test" \text', 0);
-    expect(tt.toString(), r'{ "tag": [1, 2, 3], "index": 0, "text": "\"test\" \\text" }');
+    expect(tt.toString(),
+        r'{ "tag": [1, 2, 3], "index": 0, "text": "\"test\" \\text" }');
   });
 }
 
-TaggedTextSpan tts(String text, [String? tag]) => TaggedTextSpan(text: text, tag: tag ?? text);
+TaggedTextSpan tts(String text, [String? tag]) =>
+    TaggedTextSpan(text: text, tag: tag ?? text);
 
 @immutable
 class _VerseTag {

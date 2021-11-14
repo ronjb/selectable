@@ -1,3 +1,7 @@
+// Copyright (c) 2021 Ron Booth. All rights reserved.
+// Use of this source code is governed by a license that can be found in the
+// LICENSE file.
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -42,8 +46,11 @@ class SelectablePanGestureDetector extends StatelessWidget {
     this.behavior,
     this.excludeFromSemantics = false,
     this.dragStartBehavior = DragStartBehavior.start,
-  })  : assert(excludeFromSemantics != null), // ignore: unnecessary_null_comparison
-        assert(dragStartBehavior != null), // ignore: unnecessary_null_comparison
+  })  :
+        // ignore: unnecessary_null_comparison
+        assert(excludeFromSemantics != null),
+        // ignore: unnecessary_null_comparison
+        assert(dragStartBehavior != null),
         super(key: key);
 
   ///
@@ -125,7 +132,8 @@ class SelectablePanGestureDetector extends StatelessWidget {
   ///
   /// If set to [DragStartBehavior.start], gesture drag behavior will
   /// begin upon the detection of a drag gesture. If set to
-  /// [DragStartBehavior.down] it will begin when a down event is first detected.
+  /// [DragStartBehavior.down] it will begin when a down event is first
+  /// detected.
   ///
   /// In general, setting this to [DragStartBehavior.start] will make drag
   /// animation smoother and setting it to [DragStartBehavior.down] will make
@@ -148,8 +156,8 @@ class SelectablePanGestureDetector extends StatelessWidget {
   Widget build(BuildContext context) {
     return RawGestureDetector(
       gestures: {
-        SelectablePanGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<SelectablePanGestureRecognizer>(
+        SelectablePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+            SelectablePanGestureRecognizer>(
           () => SelectablePanGestureRecognizer(),
           (instance) {
             instance
@@ -171,7 +179,8 @@ class SelectablePanGestureDetector extends StatelessWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(EnumProperty<DragStartBehavior>('startBehavior', dragStartBehavior));
+    properties.add(
+        EnumProperty<DragStartBehavior>('startBehavior', dragStartBehavior));
   }
 }
 
@@ -182,7 +191,8 @@ class SelectablePanGestureRecognizer extends PanGestureRecognizer {
   ///
   /// Create a gesture recognizer for tracking movement on a plane.
   ///
-  SelectablePanGestureRecognizer({Object? debugOwner}) : super(debugOwner: debugOwner) {
+  SelectablePanGestureRecognizer({Object? debugOwner})
+      : super(debugOwner: debugOwner) {
     onDown = _onDown;
   }
 

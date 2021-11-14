@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.1.3] - November 14, 2021
+
+* Updated to create a SelectableController for use internally if one is not provided.
+
 ## [0.1.2] - October 12, 2021
 
 * Added `bool selectWordOnLongPress` and `bool selectWordOnDoubleTap` to the Selectable constructor. To not break current usage, selectWordOnLongPress defaults to true, and selectWordOnDoubleTap defaults to false.

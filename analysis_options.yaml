@@ -5,8 +5,6 @@
 
 include: package:flutter_lints_plus/flutter.yaml
 
-# Analyzer settings
-# See: https://github.com/dart-lang/sdk/blob/master/pkg/analyzer/lib/error/error.dart
 analyzer:
   errors:
     missing_return: error

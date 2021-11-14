@@ -1,3 +1,7 @@
+// Copyright (c) 2021 Ron Booth. All rights reserved.
+// Use of this source code is governed by a license that can be found in the
+// LICENSE file.
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,9 +19,11 @@ export 'material/text_selection.dart';
 /// An interface for building the selection UI, to be provided by the
 /// implementor of the popup menu widget.
 abstract class SelectionControls {
-  // Adapted from TextSelectionControls in flutter/lib/src/widgets/text_selection.dart
+  // Adapted from TextSelectionControls in
+  // flutter/lib/src/widgets/text_selection.dart
 
-  Widget buildHandle(BuildContext context, TextSelectionHandleType type, double textLineHeight);
+  Widget buildHandle(BuildContext context, TextSelectionHandleType type,
+      double textLineHeight);
 
   Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight);
 
@@ -44,7 +50,8 @@ mixin SelectionDelegate {
 
 enum SelectableMenuItemType { copy, define, webSearch, other }
 
-typedef SelectableMenuItemHandlerFunc = bool Function(SelectableController? controller);
+typedef SelectableMenuItemHandlerFunc = bool Function(
+    SelectableController? controller);
 
 @immutable
 class SelectableMenuItem {

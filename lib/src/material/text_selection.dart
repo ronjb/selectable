@@ -9,16 +9,19 @@ import 'package:flutter/widgets.dart';
 import '../common.dart';
 import '../selection_controls.dart';
 
-// ignore_for_file: omit_local_variable_types, curly_braces_in_flow_control_structures, cascade_invocations, prefer_const_constructors
+// ignore_for_file: omit_local_variable_types
+// ignore_for_file: curly_braces_in_flow_control_structures
+// ignore_for_file: cascade_invocations, prefer_const_constructors
 
 /// Text selection controls that follow the Material Design specification.
-final SelectionControls exMaterialTextSelectionControls = _MaterialTextSelectionControls();
+final SelectionControls exMaterialTextSelectionControls =
+    _MaterialTextSelectionControls();
 
 const double _kHandleSize = 22.0;
 const double _kButtonPadding = 10.0;
 
-// Minimal padding from all edges of the selection popup menu to all edges of the
-// viewport.
+// Minimal padding from all edges of the selection popup menu to all edges of
+// the viewport.
 const double _kPopupMenuScreenPadding = 8.0;
 const double _kPopupMenuHeight = 44.0;
 const double _kPopupMenuContentDistance = 8.0;
@@ -77,21 +80,24 @@ class _Button extends StatelessWidget {
   final bool? isDarkMode;
   final void Function()? onPressed;
 
-  const _Button({Key? key, this.title, this.isDarkMode, this.onPressed}) : super(key: key);
+  const _Button({Key? key, this.title, this.isDarkMode, this.onPressed})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) => TextButton(
         child: Text(
           title!,
-          style: popupMenuTextStyle.copyWith(color: isDarkMode! ? Colors.white : Colors.black),
+          style: popupMenuTextStyle.copyWith(
+              color: isDarkMode! ? Colors.white : Colors.black),
         ),
-        style: TextButton.styleFrom(padding: EdgeInsets.symmetric(horizontal: _kButtonPadding)),
+        style: TextButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: _kButtonPadding)),
         onPressed: onPressed,
       );
 }
 
-/// Centers the popup menu around the given position, ensuring that it remains on
-/// screen.
+/// Centers the popup menu around the given position, ensuring that it remains
+/// on screen.
 class _TextSelectionPopupMenuLayout extends SingleChildLayoutDelegate {
   const _TextSelectionPopupMenuLayout(this.maxWidth, this.position);
 
@@ -117,11 +123,6 @@ class _TextSelectionPopupMenuLayout extends SingleChildLayoutDelegate {
       x = _kPopupMenuScreenPadding;
     else if (x + childSize.width > maxWidth - _kPopupMenuScreenPadding)
       x = maxWidth - childSize.width - _kPopupMenuScreenPadding;
-
-    // if (y < _kPopupMenuScreenPadding)
-    //   y = _kPopupMenuScreenPadding;
-    // else if (y + childSize.height > screenSize.height - _kPopupMenuScreenPadding)
-    //   y = screenSize.height - childSize.height - _kPopupMenuScreenPadding;
 
     return Offset(x, y);
   }
@@ -155,7 +156,8 @@ class _TextSelectionHandlePainter extends CustomPainter {
 class _MaterialTextSelectionControls extends SelectionControls {
   /// Returns the size of the Material handle.
   @override
-  Size getHandleSize(double textLineHeight) => const Size(_kHandleSize, _kHandleSize);
+  Size getHandleSize(double textLineHeight) =>
+      const Size(_kHandleSize, _kHandleSize);
 
   /// Builder for material-style copy/paste text selection popup menu.
   @override
@@ -168,14 +170,16 @@ class _MaterialTextSelectionControls extends SelectionControls {
     assert(debugCheckHasMediaQuery(context));
     assert(debugCheckHasMaterialLocalizations(context));
 
-    const double popupMenuHeightNeeded =
-        _kPopupMenuScreenPadding + _kPopupMenuHeight + _kPopupMenuContentDistance;
+    const double popupMenuHeightNeeded = _kPopupMenuScreenPadding +
+        _kPopupMenuHeight +
+        _kPopupMenuContentDistance;
 
     var localBarTopY = 0.0;
 
     // Will fit above?
     if (selectionRects!.first.top - viewport.top >= popupMenuHeightNeeded) {
-      localBarTopY = math.min(viewport.bottom - (_kPopupMenuContentDistance * 3.0),
+      localBarTopY = math.min(
+          viewport.bottom - (_kPopupMenuContentDistance * 3.0),
           selectionRects.first.top - _kPopupMenuContentDistance);
     }
 
@@ -195,8 +199,9 @@ class _MaterialTextSelectionControls extends SelectionControls {
       localBarTopY = viewport.center.dy;
     }
 
-    final Offset preciseMidpoint =
-        Offset((selectionRects.last.left + selectionRects.first.right) / 2.0, localBarTopY);
+    final Offset preciseMidpoint = Offset(
+        (selectionRects.last.left + selectionRects.first.right) / 2.0,
+        localBarTopY);
 
     return CustomSingleChildLayout(
       delegate: _TextSelectionPopupMenuLayout(
@@ -209,10 +214,12 @@ class _MaterialTextSelectionControls extends SelectionControls {
 
   /// Builder for material-style text selection handles.
   @override
-  Widget buildHandle(BuildContext context, TextSelectionHandleType type, double textHeight) {
+  Widget buildHandle(
+      BuildContext context, TextSelectionHandleType type, double textHeight) {
     final ThemeData theme = Theme.of(context);
     final Color handleColor =
-        TextSelectionTheme.of(context).selectionHandleColor ?? theme.colorScheme.primary;
+        TextSelectionTheme.of(context).selectionHandleColor ??
+            theme.colorScheme.primary;
     final Widget handle = SizedBox(
       width: _kHandleSize,
       height: _kHandleSize,

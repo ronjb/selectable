@@ -1,3 +1,7 @@
+// Copyright (c) 2021 Ron Booth. All rights reserved.
+// Use of this source code is governed by a license that can be found in the
+// LICENSE file.
+
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
@@ -115,9 +119,11 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
     if (lastLine == null) return [rect!];
     if (firstLine!.bottom >= lastLine!.top) return [firstLine!, lastLine!];
     return [
-      Rect.fromLTRB(firstLine!.left, firstLine!.top, rect!.right, firstLine!.bottom),
+      Rect.fromLTRB(
+          firstLine!.left, firstLine!.top, rect!.right, firstLine!.bottom),
       Rect.fromLTRB(rect.left, firstLine!.bottom, rect.right, lastLine!.top),
-      Rect.fromLTRB(rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
+      Rect.fromLTRB(
+          rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
     ];
   }
 }
@@ -180,9 +186,11 @@ extension SelectableExtOnIterableOfTextBox on Iterable<TextBox> {
     if (lastLine == null) return [rect!];
     if (firstLine!.bottom >= lastLine!.top) return [firstLine!, lastLine!];
     return [
-      Rect.fromLTRB(firstLine!.left, firstLine!.top, rect!.right, firstLine!.bottom),
+      Rect.fromLTRB(
+          firstLine!.left, firstLine!.top, rect!.right, firstLine!.bottom),
       Rect.fromLTRB(rect.left, firstLine!.bottom, rect.right, lastLine!.top),
-      Rect.fromLTRB(rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
+      Rect.fromLTRB(
+          rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
     ];
   }
 }
@@ -244,8 +252,8 @@ extension SelectableTextBoxExt on TextBox {
   /// [Offset], consider [translate].
   ///
   TextBox shift(Offset offset) {
-    return TextBox.fromLTRBD(
-        left + offset.dx, top + offset.dy, right + offset.dx, bottom + offset.dy, direction);
+    return TextBox.fromLTRBD(left + offset.dx, top + offset.dy,
+        right + offset.dx, bottom + offset.dy, direction);
   }
 
   ///
@@ -256,15 +264,16 @@ extension SelectableTextBoxExt on TextBox {
   /// components, consider [shift].
   ///
   TextBox translate(double translateX, double translateY) {
-    return TextBox.fromLTRBD(
-        left + translateX, top + translateY, right + translateX, bottom + translateY, direction);
+    return TextBox.fromLTRBD(left + translateX, top + translateY,
+        right + translateX, bottom + translateY, direction);
   }
 
   ///
   /// Returns a new text box with edges moved outwards by the given delta.
   ///
   TextBox inflate(double delta) {
-    return TextBox.fromLTRBD(left - delta, top - delta, right + delta, bottom + delta, direction);
+    return TextBox.fromLTRBD(
+        left - delta, top - delta, right + delta, bottom + delta, direction);
   }
 
   ///

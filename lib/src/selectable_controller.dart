@@ -1,3 +1,7 @@
+// Copyright (c) 2021 Ron Booth. All rights reserved.
+// Use of this source code is governed by a license that can be found in the
+// LICENSE file.
+
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -66,10 +70,15 @@ class SelectableController extends ChangeNotifier {
   /// Updates the selection. This is called by Selectable when the selection
   /// changes. It should not be called by other code.
   ///
-  /// Returns `true` iff one of the properties changed and `notifyListeners` was called.
+  /// Returns `true` iff one of the properties changed and `notifyListeners`
+  /// was called.
   ///
-  bool updateSelection(TaggedText? start, TaggedText? end, String? text, List<Rect>? rects) {
-    if (text != _text || !areEqualLists(rects, _rects) || start != _start || end != _end) {
+  bool updateSelection(
+      TaggedText? start, TaggedText? end, String? text, List<Rect>? rects) {
+    if (text != _text ||
+        !areEqualLists(rects, _rects) ||
+        start != _start ||
+        end != _end) {
       _start = start;
       _end = end;
       _text = text;

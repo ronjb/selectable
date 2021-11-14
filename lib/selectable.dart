@@ -1,3 +1,7 @@
+// Copyright (c) 2021 Ron Booth. All rights reserved.
+// Use of this source code is governed by a license that can be found in the
+// LICENSE file.
+
 library selectable;
 
 import 'package:flutter/cupertino.dart';
@@ -12,7 +16,10 @@ import 'src/tagged_text.dart';
 
 export 'src/selectable_controller.dart';
 export 'src/selection_controls.dart'
-    show SelectableMenuItem, SelectableMenuItemType, SelectableMenuItemHandlerFunc;
+    show
+        SelectableMenuItem,
+        SelectableMenuItemType,
+        SelectableMenuItemHandlerFunc;
 export 'src/selection_paragraph.dart';
 export 'src/tagged_text.dart';
 export 'src/tagged_text_span.dart';
@@ -59,12 +66,15 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
   final GlobalKey _childKey = GlobalKey();
 
   SelectableController? _selectionController;
+  bool _weOwnSelCtrlr = true;
+  bool get _widgetOwnsSelCtrlr => !_weOwnSelCtrlr;
+
   ScrollController? _scrollController;
   ScrollPosition? _scrollPosition;
 
   final _selection = SelectionState();
 
-  /// The local offset of the long press, double-tap, or drag; or `null` if none.
+  /// The local offset of the long press, double-tap, or drag; or null if none.
   Offset? _selectionPt;
 
   Offset? _localTapOrLongPressPt;
@@ -89,11 +99,27 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
   }
 
   void update() {
-    if (!identical(_selectionController, widget.selectionController)) {
+    if (_selectionController == null ||
+        (!identical(_selectionController, widget.selectionController) &&
+            (_widgetOwnsSelCtrlr || widget.selectionController != null))) {
+      // First, remove the listener and, if we own it, dispose of the current
+      // controller.
       if (_selectionController != null) {
         _selectionController!.removeListener(_selectionControllerListener);
+        if (_weOwnSelCtrlr) _selectionController!.dispose();
+        _selectionController = null;
       }
-      _selectionController = widget.selectionController;
+
+      // Next, save a reference to the widget's controller, or create a new controller.
+      if (widget.selectionController != null) {
+        _selectionController = widget.selectionController;
+        _weOwnSelCtrlr = false;
+      } else {
+        _selectionController = SelectableController();
+        _weOwnSelCtrlr = true;
+      }
+
+      // And finally, call `updateSelection` and `addListener` on the new controller.
       if (_selectionController != null) {
         _selectionController!
           ..updateSelection(_start, _end, _selectedText, _rects)
@@ -107,7 +133,8 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
     if (_selectionController != null) {
       if (!_selectionController!.isTextSelected && _selection.isTextSelected) {
         _refresh(_selection.clear);
-      } else if (_selectionController!.isTextSelected && _selection.showPopupMenu) {
+      } else if (_selectionController!.isTextSelected &&
+          _selection.showPopupMenu) {
         // The selection changed, so the menu needs to be refreshed.
         // dmPrint('Refreshing the menu because selection changed...');
         _refresh();
@@ -118,7 +145,11 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
   @override
   void dispose() {
     _selectionController?.removeListener(_selectionControllerListener);
+    if (_weOwnSelCtrlr) _selectionController?.dispose();
+    _selectionController = null;
+
     _removeListenerFromScrollController();
+
     super.dispose();
   }
 
@@ -127,7 +158,8 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
   bool _hasChangedScrollController(ScrollController? scrollController) {
     return _scrollController != scrollController ||
         (scrollController != null &&
-            (!scrollController.hasClients || scrollController.position != _scrollPosition));
+            (!scrollController.hasClients ||
+                scrollController.position != _scrollPosition));
   }
 
   void _checkForChangedScrollController(ScrollController? scrollController) {
@@ -136,10 +168,12 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
       if (scrollController?.hasClients ?? false) {
         _scrollController = scrollController;
         _scrollPosition = _scrollController!.position;
-        _scrollController!.position.isScrollingNotifier.addListener(_isScrollingListener);
+        _scrollController!.position.isScrollingNotifier
+            .addListener(_isScrollingListener);
         // dmPrint('Selectable: Added listener to scroll controller.');
       } else if (scrollController != null) {
-        // dmPrint('Selectable: Cannot add listener, scrollController.hasClients is false.');
+        // dmPrint('Selectable: Cannot add listener, scrollController.hasClients
+        // is false.');
       }
     }
   }
@@ -149,7 +183,8 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
       // dmPrint('Selectable: Removed listener from scroll controller.');
     }
     if (_scrollController?.hasClients ?? false) {
-      _scrollController!.position.isScrollingNotifier.removeListener(_isScrollingListener);
+      _scrollController!.position.isScrollingNotifier
+          .removeListener(_isScrollingListener);
     }
     _scrollController = null;
     _scrollPosition = null;
@@ -201,7 +236,8 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
   @override
   Widget build(BuildContext context) {
     // Add post-frame-callback?
-    if (_selectionController != null || _hasChangedScrollController(widget.scrollController)) {
+    if (_selectionController != null ||
+        _hasChangedScrollController(widget.scrollController)) {
       WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
         // If the selected text changed, call `onSelectedTextChanged`.
         if (_selectionController != null &&
@@ -212,8 +248,11 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
           _start = _selection.startTaggedText;
           _end = _selection.endTaggedText;
           _selectedText = _selection.selectedText;
-          _rects = _selection.rects == null ? null : List.of(_selection.rects!); // shallow copy
-          _selectionController?.updateSelection(_start, _end, _selectedText, _rects);
+          _rects = _selection.rects == null
+              ? null
+              : List.of(_selection.rects!); // shallow copy
+          _selectionController?.updateSelection(
+              _start, _end, _selectedText, _rects);
         }
 
         _checkForChangedScrollController(widget.scrollController);
@@ -242,7 +281,9 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
           onLongPress: widget.selectWordOnLongPress
               ? () => _onLongPressOrDoubleTap(_localTapOrLongPressPt)
               : null,
-          onTapDown: ignoreTap ? null : (details) => _localTapOrLongPressPt = details.localPosition,
+          onTapDown: ignoreTap
+              ? null
+              : (details) => _localTapOrLongPressPt = details.localPosition,
           onTap: ignoreTap ? null : () => _onTap(_localTapOrLongPressPt),
           onDoubleTapDown: widget.selectWordOnDoubleTap
               ? (details) => _localTapOrLongPressPt = details.localPosition
@@ -258,13 +299,16 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
           ),
         ),
         if (widget.showSelection &&
-            (_selectionPt != null || _selection.isTextSelected || _selection.showParagraphRects))
+            (_selectionPt != null ||
+                _selection.isTextSelected ||
+                _selection.showParagraphRects))
           Positioned.fill(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // dmPrint('Calling selection.update($_selectionPt, $_handleType)');
 
-                final renderObject = _childKey.currentContext!.findRenderObject();
+                final renderObject =
+                    _childKey.currentContext!.findRenderObject();
                 //renderObject?.layout(constraints, parentUsesSize: true);
 
                 _selection.update(
@@ -282,8 +326,13 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
                 final selectionColor = widget.selectionColor ??
                     TextSelectionTheme.of(context).selectionColor ??
                     (_selection.usingCupertinoControls
-                        ? CupertinoTheme.of(context).primaryColor.withOpacity(opacity)
-                        : Theme.of(context).colorScheme.primary.withOpacity(opacity));
+                        ? CupertinoTheme.of(context)
+                            .primaryColor
+                            .withOpacity(opacity)
+                        : Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(opacity));
 
                 // For reference, this is how we used to set it:
                 // final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -293,12 +342,14 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
                 // dmPrint('selection.update resulted in ${_selection.rects?.length ?? 0} selection rects');
                 _selectionPt = _handleType = null;
 
-                if ((_selection.rects?.isNotEmpty ?? false) || _selection.showParagraphRects) {
+                if ((_selection.rects?.isNotEmpty ?? false) ||
+                    _selection.showParagraphRects) {
                   return Stack(
                     children: [
                       if (_selection.rects?.isNotEmpty ?? false)
                         ..._selection.rects!
-                            .map<Widget>((r) => _ColoredRect(rect: r, color: selectionColor))
+                            .map<Widget>((r) =>
+                                _ColoredRect(rect: r, color: selectionColor))
                             .toList(),
                       ..._selection.buildSelectionControls(
                         context,
@@ -308,7 +359,8 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
                         widget.scrollController,
                         widget.topOverlayHeight,
                       ),
-                      if (_selection.showParagraphRects && _selection.cachedParagraphs != null)
+                      if (_selection.showParagraphRects &&
+                          _selection.cachedParagraphs != null)
                         ..._selection.cachedParagraphs!
                             .map<Widget>(
                               (p) => _ColoredRect(
@@ -340,7 +392,8 @@ class _SelectableState extends State<Selectable> with SelectionDelegate {
   //
 
   @override
-  Iterable<SelectableMenuItem> get menuItems => widget.popupMenuItems ?? _defaultMenuItems;
+  Iterable<SelectableMenuItem> get menuItems =>
+      widget.popupMenuItems ?? _defaultMenuItems;
 
   @override
   SelectableController? get controller => _selectionController;

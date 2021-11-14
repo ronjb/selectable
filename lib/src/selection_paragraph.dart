@@ -1,3 +1,7 @@
+// Copyright (c) 2021 Ron Booth. All rights reserved.
+// Use of this source code is governed by a license that can be found in the
+// LICENSE file.
+
 import 'dart:math' as math;
 
 import 'package:equatable/equatable.dart';
@@ -20,8 +24,10 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
   final List<Rect> rects;
 
   const SelectionAnchor(this.paragraph, this.textSel, this.rects)
-      // ignore: unnecessary_null_comparison
-      : assert(paragraph != null && paragraph >= 0 && textSel != null && rects != null);
+      :
+        // ignore: unnecessary_null_comparison
+        assert(paragraph != null && textSel != null && rects != null),
+        assert(paragraph >= 0);
 
   SelectionAnchor copyInflated(double delta) => SelectionAnchor(
         paragraph,
@@ -51,7 +57,8 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
   ///
   /// Creates and returns the [TaggedText] object for this anchor.
   ///
-  TaggedText? taggedTextWithParagraphs(List<SelectionParagraph> paragraphs, {bool end = false}) {
+  TaggedText? taggedTextWithParagraphs(List<SelectionParagraph> paragraphs,
+      {bool end = false}) {
     TaggedText? taggedText;
     if (paragraphs.length > paragraph) {
       taggedText = paragraphs[paragraph]
@@ -60,8 +67,10 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
           .taggedTextForIndex(end ? textSel.end : textSel.start, end: end);
     }
     if (taggedText == null) {
-      dmPrint('ERROR: Selectable taggedTextForIndex(${end ? textSel.end : textSel.start},'
-          ' end: ${end ? 'true' : 'false'}) failed for string: ${paragraphs[paragraph].rp?.text}');
+      dmPrint('ERROR: Selectable '
+          'taggedTextForIndex(${end ? textSel.end : textSel.start},'
+          ' end: ${end ? 'true' : 'false'}) failed for string: '
+          '${paragraphs[paragraph].rp?.text}');
       assert(false);
     }
     return taggedText;
@@ -87,12 +96,12 @@ class SelectionParagraph {
   });
 
   ///
-  /// Returns a new `SelectionParagraph` or `null` if the given `RenderTextMixin`
-  /// has no size (i.e. has not undergone layout), or if its `text` is empty or
-  /// just whitespace.
+  /// Returns a new `SelectionParagraph` or `null` if the given
+  /// `RenderTextMixin` has no size (i.e. has not undergone layout), or if
+  /// its `text` is empty or just whitespace.
   ///
-  /// [ancestor] must be an ancestor of the given `RenderTextMixin`, and is used to
-  /// determine the offset of this paragraph's rect.
+  /// [ancestor] must be an ancestor of the given `RenderTextMixin`, and is
+  /// used to determine the offset of this paragraph's rect.
   ///
   static SelectionParagraph? from(
     RenderTextMixin rp, {
@@ -107,15 +116,20 @@ class SelectionParagraph {
     try {
       final span = rp.text;
       if (span is TextSpan) {
-        final text = span.toPlainText(includeSemanticsLabels: false, includePlaceholders: true);
+        final text = span.toPlainText(
+            includeSemanticsLabels: false, includePlaceholders: true);
         final trimmedSel = createTextSelection(text);
         if (trimmedSel != null) {
           final offset = rp.renderBox.getTransformTo(ancestor).getTranslation();
           final size = rp.textSize;
-          final rect = Rect.fromLTWH(
-              offset.x + rp.offset.dx, offset.y + rp.offset.dy, size.width, size.height);
+          final rect = Rect.fromLTWH(offset.x + rp.offset.dx,
+              offset.y + rp.offset.dy, size.width, size.height);
           return SelectionParagraph(
-              rp: rp, rect: rect, index: index, text: text, trimmedSel: trimmedSel);
+              rp: rp,
+              rect: rect,
+              index: index,
+              text: text,
+              trimmedSel: trimmedSel);
         }
       }
     } catch (e) {
@@ -126,7 +140,8 @@ class SelectionParagraph {
   }
 
   ///
-  /// Returns a copy of this paragraph with zero or more property values updated.
+  /// Returns a copy of this paragraph with zero or more property values
+  /// updated.
   ///
   SelectionParagraph copyWith({
     RenderTextMixin? rp,
@@ -151,7 +166,8 @@ class SelectionParagraph {
     bool onlyIfInRect = true,
     bool trim = true,
   }) {
-    return anchorAtRange(wordBoundaryAtPt(pt, onlyIfInRect: onlyIfInRect), trim: trim);
+    return anchorAtRange(wordBoundaryAtPt(pt, onlyIfInRect: onlyIfInRect),
+        trim: trim);
   }
 
   ///
@@ -175,8 +191,8 @@ class SelectionParagraph {
     bool trim = true,
   }) {
     if (range != null) {
-      final ts =
-          createTextSelection(text, baseOffset: range.start, extentOffset: range.end, trim: trim);
+      final ts = createTextSelection(text,
+          baseOffset: range.start, extentOffset: range.end, trim: trim);
       if (ts != null && ts.isValid && (trim == false || !ts.isCollapsed)) {
         final rects = rectsForSelection(ts);
         if (rects.isNotEmpty) {
@@ -194,14 +210,19 @@ class SelectionParagraph {
   /// Returns the list of `Rect`s for the given [selection].
   ///
   List<Rect> rectsForSelection(TextSelection selection) {
-    assert(selection != null && rp != null); // ignore: unnecessary_null_comparison
+    assert(
+        selection != null && rp != null); // ignore: unnecessary_null_comparison
     // ignore: unnecessary_null_comparison
     if (selection != null) {
       final boxes = rp!.getBoxesForSelection(selection);
       if (boxes.isNotEmpty) {
-        return boxes.mergedToSelectionRects().map((r) => r.translate(rect.left, rect.top)).toList();
+        return boxes
+            .mergedToSelectionRects()
+            .map((r) => r.translate(rect.left, rect.top))
+            .toList();
       } else {
-        dmPrint('getBoxesForSelection($selection) returned no boxes in string "$text"');
+        dmPrint('getBoxesForSelection($selection) returned no boxes in '
+            'string "$text"');
       }
     }
     return [];
@@ -220,15 +241,17 @@ class SelectionParagraph {
       // If the `pt` is on the right side of the last letter of a word,
       // `getPositionForOffset` returns the position AFTER the word, so
       // we subtract 1 from the position to counteract that.
-      final range = rp!.getWordBoundary(
-          textPosition.offset == 0 ? textPosition : TextPosition(offset: textPosition.offset - 1));
+      final range = rp!.getWordBoundary(textPosition.offset == 0
+          ? textPosition
+          : TextPosition(offset: textPosition.offset - 1));
       if (range.start >= 0 && range.end > range.start) {
         // If the `pt` is on the left side of the first letter of a word,
         // the range will be of the whitespace before the word, so check
         // for that...
         if (textPosition.offset > 0 &&
             range.end == range.start + 1 &&
-            _isWhitespace(text.substring(range.start, range.end).codeUnitAt(0))) {
+            _isWhitespace(
+                text.substring(range.start, range.end).codeUnitAt(0))) {
           return rp!.getWordBoundary(textPosition);
         }
         return range;
@@ -240,8 +263,8 @@ class SelectionParagraph {
   }
 
   ///
-  /// Walks this paragraph's `InlineSpan` and its descendants in pre-order and calls [visitor]
-  /// for each span that has text.
+  /// Walks this paragraph's `InlineSpan` and its descendants in pre-order and
+  /// calls [visitor] for each span that has text.
   ///
   /// When [visitor] returns true, the walk will continue. When [visitor]
   /// returns false, then the walk will end.
@@ -310,9 +333,11 @@ bool _skip(int rune) {
 /// Built by referencing the _isWhitespace functions in
 /// https://api.flutter.dev/flutter/quiver.strings/isWhitespace.html
 /// and
-/// https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/rendering/editable.dart
+/// https://github.com/flutter/flutter/blob/master/packages/
+/// flutter/lib/src/rendering/editable.dart
 ///
-/// Tested using an if statement vs. a set.contains(), and using the set was three times as fast!
+/// Tested using an if statement vs. a set.contains(), and using the set was
+/// three times as fast!
 ///
 /// For more info on unicode chars see http://www.unicode.org/charts/ or
 /// https://www.compart.com/en/unicode/U+00A0
@@ -355,7 +380,8 @@ const _whitespace = <int>{
 // ignore_for_file: unused_element
 
 ///
-/// Returns an iterable list of tags in the given [span] or an empty list if none.
+/// Returns an iterable list of tags in the given [span] or an empty list if
+/// none.
 ///
 Iterable<Object> _tagsFromSpan(InlineSpan span) {
   if (span is TaggedTextSpan) return [span.tag];
@@ -390,11 +416,13 @@ extension on InlineSpan {
   ///   includesPlaceholders: includePlaceholders,
   /// );
   /// ```
-  TaggedText? taggedTextForIndex(int index, {bool includesPlaceholders = true, bool end = false}) {
+  TaggedText? taggedTextForIndex(int index,
+      {bool includesPlaceholders = true, bool end = false}) {
     // ignore: unnecessary_null_comparison
     assert(index != null && index >= 0);
     final idx = _Index(end ? math.max(0, index - 1) : index);
-    final span = _spanWithIndex(idx, includesPlaceholders: includesPlaceholders);
+    final span =
+        _spanWithIndex(idx, includesPlaceholders: includesPlaceholders);
     if (span != null) {
       return TaggedText(
         span is TaggedTextSpan
@@ -402,7 +430,9 @@ extension on InlineSpan {
             : span is TaggedWidgetSpan
                 ? span.tag
                 : null,
-        span is TextSpan ? span.text! : String.fromCharCode(objectReplacementCharacterCode),
+        span is TextSpan
+            ? span.text!
+            : String.fromCharCode(objectReplacementCharacterCode),
         end ? idx.value + 1 : idx.value,
       );
     }
@@ -426,8 +456,10 @@ extension on InlineSpan {
   ///   includesPlaceholders: includePlaceholders,
   /// );
   /// ```
-  InlineSpan? spanWithCharacterAtIndex(int index, {bool includesPlaceholders = true}) {
-    return _spanWithIndex(_Index(index), includesPlaceholders: includesPlaceholders);
+  InlineSpan? spanWithCharacterAtIndex(int index,
+      {bool includesPlaceholders = true}) {
+    return _spanWithIndex(_Index(index),
+        includesPlaceholders: includesPlaceholders);
   }
 
   InlineSpan? _spanWithIndex(_Index index, {bool includesPlaceholders = true}) {
@@ -443,8 +475,8 @@ extension on InlineSpan {
       }
       if (span.children != null) {
         for (final child in span.children!) {
-          final inlineSpan =
-              child._spanWithIndex(index, includesPlaceholders: includesPlaceholders);
+          final inlineSpan = child._spanWithIndex(index,
+              includesPlaceholders: includesPlaceholders);
           if (inlineSpan != null) return inlineSpan;
         }
       }
@@ -456,8 +488,8 @@ extension on InlineSpan {
   }
 
   ///
-  /// Walks this [InlineSpan] and its descendants in pre-order and calls [visitor]
-  /// for each span that has text.
+  /// Walks this [InlineSpan] and its descendants in pre-order and calls
+  /// [visitor] for each span that has text.
   ///
   /// When [visitor] returns true, the walk will continue. When [visitor]
   /// returns false, then the walk will end.
@@ -475,7 +507,8 @@ extension on InlineSpan {
       }
       if (span.children != null) {
         for (final child in span.children!) {
-          if (!child.visitChildrenEx(index, visitor, includesPlaceholders: includesPlaceholders)) {
+          if (!child.visitChildrenEx(index, visitor,
+              includesPlaceholders: includesPlaceholders)) {
             return false;
           }
         }
@@ -488,7 +521,8 @@ extension on InlineSpan {
   }
 }
 
-/// Called on each span as `InlineSpan.visitChildrenEx` walks the `InlineSpan` tree.
+/// Called on each span as `InlineSpan.visitChildrenEx` walks the `InlineSpan`
+/// tree.
 ///
 /// Return `true` to continue, or `false` to stop visiting further [InlineSpan]s.
 ///
