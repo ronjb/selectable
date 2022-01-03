@@ -67,10 +67,10 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
           .taggedTextForIndex(end ? textSel.end : textSel.start, end: end);
     }
     if (taggedText == null) {
-      dmPrint('ERROR: Selectable '
-          'taggedTextForIndex(${end ? textSel.end : textSel.start},'
-          ' end: ${end ? 'true' : 'false'}) failed for string: '
-          '${paragraphs[paragraph].rp?.text}');
+      // dmPrint('ERROR: Selectable '
+      //     'taggedTextForIndex(${end ? textSel.end : textSel.start},'
+      //     ' end: ${end ? 'true' : 'false'}) failed for string: '
+      //     '${paragraphs[paragraph].rp?.text}');
       assert(false);
     }
     return taggedText;
@@ -133,7 +133,7 @@ class SelectionParagraph {
         }
       }
     } catch (e) {
-      dmPrint('In Selectable, SelectionParagraph.from(): $e');
+      // dmPrint('ERROR: In Selectable, SelectionParagraph.from(): $e');
     }
 
     return null;
@@ -199,8 +199,8 @@ class SelectionParagraph {
           return SelectionAnchor(index, ts, rects);
         }
       } else {
-        dmPrint('Word not found, invalid text selection: '
-            '$ts, with text range: $range, in string "$text"');
+        // dmPrint('Word not found, invalid text selection: '
+        //     '$ts, with text range: $range, in string "$text"');
       }
     }
     return null;
@@ -221,8 +221,8 @@ class SelectionParagraph {
             .map((r) => r.translate(rect.left, rect.top))
             .toList();
       } else {
-        dmPrint('getBoxesForSelection($selection) returned no boxes in '
-            'string "$text"');
+        // dmPrint('getBoxesForSelection($selection) returned no boxes in '
+        //     'string "$text"');
       }
     }
     return [];

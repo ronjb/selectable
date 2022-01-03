@@ -3,10 +3,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
-import '../common.dart';
 import '../selection_controls.dart';
 
 // ignore_for_file: omit_local_variable_types
@@ -50,7 +47,7 @@ class _TextSelectionPopupMenu extends StatelessWidget {
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
-      dmPrint('_TextSelectionPopupMenu is not showing because items.isEmpty.');
+      // dmPrint('_TextSelectionPopupMenu is not showing because items.isEmpty.');
       return SizedBox(width: 0.0, height: 0.0);
     }
 

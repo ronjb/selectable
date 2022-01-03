@@ -1,5 +1,4 @@
 import 'package:float_column/float_column.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:selectable/selectable.dart';

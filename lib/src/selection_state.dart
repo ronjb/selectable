@@ -123,8 +123,7 @@ class SelectionState {
       return true;
     }
 
-    if (renderObject is RenderBox &&
-        !renderObject.visitChildrenAndTextRenderers(collectParagraphs)) {
+    if (!renderObject.visitChildrenAndTextRenderers(collectParagraphs)) {
       paragraphs.clear();
     }
 

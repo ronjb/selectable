@@ -42,7 +42,7 @@ class SelectableController extends ChangeNotifier {
   ///
   /// It will be from one to, at most, three rects, where the first rect
   /// is the bounding box of the first line, the second rect is the bounding
-  /// box of lines 1 through N - 1 (where N is the number of lines), and the
+  /// box of lines 2 through N - 1 (where N is the number of lines), and the
   /// third rect is the bounding box of the last line.
   ///
   /// For example:
@@ -74,7 +74,11 @@ class SelectableController extends ChangeNotifier {
   /// was called.
   ///
   bool updateSelection(
-      TaggedText? start, TaggedText? end, String? text, List<Rect>? rects) {
+    TaggedText? start,
+    TaggedText? end,
+    String? text,
+    List<Rect>? rects,
+  ) {
     if (text != _text ||
         !areEqualLists(rects, _rects) ||
         start != _start ||

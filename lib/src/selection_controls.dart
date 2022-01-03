@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
-import 'common.dart';
 import 'selectable_controller.dart';
 
 export 'cupertino/text_selection.dart';
@@ -157,7 +156,7 @@ Future<void> _launchBrowserWithUrl(String url) async {
   }
   // ignore: avoid_catches_without_on_clauses
   catch (e) {
-    dmPrint('ERROR: ${e.toString()}');
+    // dmPrint('ERROR: ${e.toString()}');
   }
 }
 

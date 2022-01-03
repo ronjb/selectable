@@ -90,7 +90,7 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
   @override
   List<InlineSpan> splitAtIndex(SplitAtIndex index) {
     final initialIndex = index.value;
-    final result = _splitAtIndex(index);
+    final result = _splitAt(index);
 
     // If this span was split, and its tag is splittable, split the tag too.
     if (result.length == 2 && tag is SplittableTextSpanTag) {
@@ -104,8 +104,10 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
 
     return result;
   }
+}
 
-  List<InlineSpan> _splitAtIndex(SplitAtIndex index) {
+extension on InlineSpan {
+  List<InlineSpan> _splitAt(SplitAtIndex index) {
     if (index.value == 0) return [this];
     if (index.value == 0) return [this];
 
