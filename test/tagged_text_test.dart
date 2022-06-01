@@ -2,6 +2,7 @@ import 'package:float_column/float_column.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:selectable/src/selection_anchor.dart';
 import 'package:selectable/src/selection_paragraph.dart';
 import 'package:selectable/src/tagged_text.dart';
 import 'package:selectable/src/tagged_text_span.dart';
@@ -20,12 +21,14 @@ void main() {
     ]);
     const text = '012345';
     final paragraph = SelectionParagraph(
-        rp: RenderParagraphAdapter(
-            RenderParagraph(span, textDirection: TextDirection.rtl)),
-        rect: Rect.zero,
-        index: 0,
-        text: text,
-        trimmedSel: createTextSelection(text)!);
+      rp: RenderParagraphAdapter(
+          RenderParagraph(span, textDirection: TextDirection.rtl)),
+      rect: Rect.zero,
+      text: text,
+      trimmedSel: createTextSelection(text)!,
+      paragraphIndex: 0,
+      firstCharIndex: 0,
+    );
     var i = 0;
     final result = paragraph.visitChildSpans((span, index) {
       // ignore: avoid_as
@@ -40,14 +43,17 @@ void main() {
         children: [tts('0'), tts('1'), tts('2'), tts('3'), tts('4'), tts('5')]);
     const text = '012345';
     final paragraph = SelectionParagraph(
-        rp: RenderParagraphAdapter(
-            RenderParagraph(span, textDirection: TextDirection.rtl)),
-        rect: Rect.zero,
-        index: 0,
-        text: text,
-        trimmedSel: createTextSelection(text)!);
+      rp: RenderParagraphAdapter(
+          RenderParagraph(span, textDirection: TextDirection.rtl)),
+      rect: Rect.zero,
+      text: text,
+      trimmedSel: createTextSelection(text)!,
+      paragraphIndex: 0,
+      firstCharIndex: 0,
+    );
     expect(
       SelectionAnchor(
+        0,
         0,
         TextSelection(baseOffset: 0, extentOffset: 1),
         const [],
@@ -57,6 +63,7 @@ void main() {
     expect(
       SelectionAnchor(
         0,
+        0,
         TextSelection(baseOffset: 0, extentOffset: 1),
         const [],
       ).taggedTextWithParagraphs([paragraph], end: true),
@@ -64,6 +71,7 @@ void main() {
     );
     expect(
       SelectionAnchor(
+        0,
         0,
         TextSelection(baseOffset: 2, extentOffset: 3),
         const [],
@@ -73,6 +81,7 @@ void main() {
     expect(
       SelectionAnchor(
         0,
+        0,
         TextSelection(baseOffset: 2, extentOffset: 3),
         const [],
       ).taggedTextWithParagraphs([paragraph], end: true),
@@ -81,6 +90,7 @@ void main() {
     expect(
       SelectionAnchor(
         0,
+        0,
         TextSelection(baseOffset: 5, extentOffset: 6),
         const [],
       ).taggedTextWithParagraphs([paragraph]),
@@ -88,6 +98,7 @@ void main() {
     );
     expect(
       SelectionAnchor(
+        0,
         0,
         TextSelection(baseOffset: 5, extentOffset: 6),
         const [],
@@ -108,11 +119,11 @@ TaggedTextSpan tts(String text, [String? tag]) =>
 
 @immutable
 class _VerseTag {
+  const _VerseTag(this.verse, this.wordStart, this.wordEnd);
+
   final int verse;
   final int wordStart; // inclusive
   final int wordEnd; // exclusive
-
-  const _VerseTag(this.verse, this.wordStart, this.wordEnd);
 
   @override
   bool operator ==(Object other) =>
