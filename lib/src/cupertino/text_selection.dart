@@ -6,7 +6,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 
-import '../selectable_controller.dart';
+import '../selectable.dart';
 import '../selection_controls.dart';
 
 // ignore_for_file: avoid_positional_boolean_parameters
@@ -66,20 +66,17 @@ const EdgeInsets _kPopupMenuButtonPadding =
 /// See also:
 ///
 ///  * [SelectionControls.buildPopupMenu], where
-///    [CupertinoTextSelectionPopupMenu] will be used to build an iOS-style
+///    [_CupertinoTextSelectionPopupMenu] will be used to build an iOS-style
 ///    popup menu.
-@visibleForTesting
-class CupertinoTextSelectionPopupMenu extends SingleChildRenderObjectWidget {
-  const CupertinoTextSelectionPopupMenu._({
-    Key? key,
+class _CupertinoTextSelectionPopupMenu extends SingleChildRenderObjectWidget {
+  const _CupertinoTextSelectionPopupMenu._({
     double? barTopY,
     double? arrowTipX,
     bool? isArrowPointingDown,
-    Widget? child,
+    super.child,
   })  : _barTopY = barTopY,
         _arrowTipX = arrowTipX,
-        _isArrowPointingDown = isArrowPointingDown,
-        super(key: key, child: child);
+        _isArrowPointingDown = isArrowPointingDown;
 
   // The y-coordinate of popup menu's top edge, in global coordinate system.
   final double? _barTopY;
@@ -405,17 +402,17 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       }
 
       items.add(CupertinoButton(
-        child: Text(
-          text!,
-          style: _kPopupMenuButtonFontStyle,
-          textScaleFactor: 1.0,
-        ),
         color: _kPopupMenuBackgroundColor,
         minSize: _kPopupMenuHeight,
         padding: _kPopupMenuButtonPadding.add(arrowPadding),
         borderRadius: null,
         pressedOpacity: 0.7,
         onPressed: () => onPressed!(delegate.controller),
+        child: Text(
+          text!,
+          style: _kPopupMenuButtonFontStyle,
+          textScaleFactor: 1.0,
+        ),
       ));
     }
 
@@ -423,7 +420,7 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       addPopupMenuButtonIfNeeded(item.title, item.isEnabled!, item.handler);
     }
 
-    return CupertinoTextSelectionPopupMenu._(
+    return _CupertinoTextSelectionPopupMenu._(
       barTopY: localBarTopY,
       arrowTipX: arrowTipX,
       isArrowPointingDown: isArrowPointingDown,

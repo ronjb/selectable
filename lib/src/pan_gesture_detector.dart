@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-///
 /// A widget that detects pan gestures using [SelectablePanGestureRecognizer],
 /// which is designed to work well even in scrollable parent widgets.
 ///
@@ -26,17 +25,14 @@ import 'package:flutter/widgets.dart';
 ///
 /// To see how large the hit test box of a [SelectablePanGestureDetector] is for
 /// debugging purposes, set `debugPaintPointersEnabled` to true.
-///
 @immutable
 class SelectablePanGestureDetector extends StatelessWidget {
-  ///
   /// Creates a widget that detects pan gestures.
   ///
   /// By default, gesture detectors contribute semantic information to the tree
   /// that is used by assistive technology.
-  ///
   const SelectablePanGestureDetector({
-    Key? key,
+    super.key,
     this.child,
     this.onPanDown,
     this.onPanStart,
@@ -50,47 +46,37 @@ class SelectablePanGestureDetector extends StatelessWidget {
         // ignore: unnecessary_null_comparison
         assert(excludeFromSemantics != null),
         // ignore: unnecessary_null_comparison
-        assert(dragStartBehavior != null),
-        super(key: key);
+        assert(dragStartBehavior != null);
 
-  ///
   /// The widget below this widget in the tree.
   ///
   /// {@macro flutter.widgets.child}
-  ///
   final Widget? child;
 
-  ///
   /// A pointer has contacted the screen with a primary button and might begin
   /// to move.
   ///
   /// See also:
   ///
   ///  * [kPrimaryButton], the button this callback responds to.
-  ///
   final GestureDragDownCallback? onPanDown;
 
-  ///
   /// A pointer has contacted the screen with a primary button and has begun to
   /// move.
   ///
   /// See also:
   ///
   ///  * [kPrimaryButton], the button this callback responds to.
-  ///
   final GestureDragStartCallback? onPanStart;
 
-  ///
   /// A pointer that is in contact with the screen with a primary button and
   /// moving has moved again.
   ///
   /// See also:
   ///
   ///  * [kPrimaryButton], the button this callback responds to.
-  ///
   final GestureDragUpdateCallback? onPanUpdate;
 
-  ///
   /// A pointer that was previously in contact with the screen with a primary
   /// button and moving is no longer in contact with the screen and was moving
   /// at a specific velocity when it stopped contacting the screen.
@@ -98,36 +84,28 @@ class SelectablePanGestureDetector extends StatelessWidget {
   /// See also:
   ///
   ///  * [kPrimaryButton], the button this callback responds to.
-  ///
   final GestureDragEndCallback? onPanEnd;
 
-  ///
   /// The pointer that previously triggered [onPanDown] did not complete.
   ///
   /// See also:
   ///
   ///  * [kPrimaryButton], the button this callback responds to.
-  ///
   final GestureDragCancelCallback? onPanCancel;
 
-  ///
   /// How this gesture detector should behave during hit testing.
   ///
   /// This defaults to [HitTestBehavior.deferToChild] if [child] is not null and
   /// [HitTestBehavior.translucent] if child is null.
-  ///
   final HitTestBehavior? behavior;
 
-  ///
   /// Whether to exclude these gestures from the semantics tree. For
   /// example, the long-press gesture for showing a tooltip is
   /// excluded because the tooltip itself is included in the semantics
   /// tree directly and so having a gesture to show it would result in
   /// duplication of information.
-  ///
   final bool excludeFromSemantics;
 
-  ///
   /// Determines the way that drag start behavior is handled.
   ///
   /// If set to [DragStartBehavior.start], gesture drag behavior will
@@ -149,7 +127,6 @@ class SelectablePanGestureDetector extends StatelessWidget {
   ///
   ///  * [DragGestureRecognizer.dragStartBehavior], which gives an example for
   ///  the different behaviors.
-  ///
   final DragStartBehavior dragStartBehavior;
 
   @override
@@ -158,7 +135,7 @@ class SelectablePanGestureDetector extends StatelessWidget {
       gestures: {
         SelectablePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<
             SelectablePanGestureRecognizer>(
-          () => SelectablePanGestureRecognizer(),
+          SelectablePanGestureRecognizer.new,
           (instance) {
             instance
               ..onDown = onPanDown
@@ -188,11 +165,8 @@ class SelectablePanGestureDetector extends StatelessWidget {
 /// SelectablePanGestureRecognizer
 ///
 class SelectablePanGestureRecognizer extends PanGestureRecognizer {
-  ///
   /// Create a gesture recognizer for tracking movement on a plane.
-  ///
-  SelectablePanGestureRecognizer({Object? debugOwner})
-      : super(debugOwner: debugOwner) {
+  SelectablePanGestureRecognizer({super.debugOwner}) {
     onDown = _onDown;
   }
 

@@ -6,8 +6,8 @@ import 'dart:ui' as ui show PlaceholderAlignment;
 
 import 'package:flutter/widgets.dart';
 
-///
-/// An immutable widget that is embedded inline within text and is tagged.
+/// [TaggedWidgetSpan] extends [WidgetSpan] to include a [tag] object. Other
+/// than that it is functionally equivalent to [WidgetSpan].
 ///
 /// The [child] property is the widget that will be embedded. Children are
 /// constrained by the width of the paragraph.
@@ -19,9 +19,6 @@ import 'package:flutter/widgets.dart';
 ///
 @immutable
 class TaggedWidgetSpan extends WidgetSpan {
-  final Object tag;
-
-  ///
   /// Creates a [TaggedWidgetSpan] with the given values.
   ///
   /// The [child] property must be non-null. [WidgetSpan] is a leaf node in
@@ -31,25 +28,20 @@ class TaggedWidgetSpan extends WidgetSpan {
   ///
   /// A [TextStyle] may be provided with the [style] property, but only the
   /// decoration, foreground, background, and spacing options will be used.
-  ///
   const TaggedWidgetSpan({
     required this.tag,
-    required Widget child,
-    ui.PlaceholderAlignment alignment = ui.PlaceholderAlignment.bottom,
-    TextBaseline? baseline,
-    TextStyle? style,
-  })  : assert(tag != null), // ignore: unnecessary_null_comparison
-        assert(child != null), // ignore: unnecessary_null_comparison
-        super(
-          child: child,
-          alignment: alignment,
-          baseline: baseline,
-          style: style,
-        );
+    required super.child,
+    super.alignment,
+    super.baseline,
+    super.style,
+  }) :
+        // ignore: unnecessary_null_comparison
+        assert(tag != null && child != null);
 
-  ///
+  /// The tag object.
+  final Object tag;
+
   /// Returns a copy of the TaggedWidgetSpan with optional changes.
-  ///
   TaggedWidgetSpan copyWith({
     Object? tag,
     Widget? child,

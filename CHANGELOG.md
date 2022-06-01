@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.2.0] - June 1, 2022
+
+* Bug fixes and new features.
+
 ## [0.1.3] - November 14, 2021
 
 * Updated to create a SelectableController for use internally if one is not provided.
@@ -17,7 +21,3 @@
 ## [0.1.0] - September 16, 2021
 
 * Initial release.
-
-## 0.0.1
-
-* TODO: Describe initial release.

@@ -6,50 +6,87 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-///
-/// Iff kDebugMode is true, prints a string representation of the object
+/// If kDebugMode is true, prints a string representation of the object
 /// to the console.
-///
 void dmPrint(Object object) {
   if (kDebugMode) print(object); // ignore: avoid_print
 }
 
+/// The maximum safe integer value for dart code that might be compiled
+/// to javascript (i.e. used in a web app).
+///
+/// See: https://dart.dev/guides/language/language-tour#numbers
+const maxJsInt = 0x1FFFFFFFFFFFFF; // 2^53 - 1
+
+/// The minimum safe integer value for dart code that might be compiled
+/// to javascript (i.e. used in a web app).
+///
+/// See: https://dart.dev/guides/language/language-tour#numbers
+const minJsInt = -0x20000000000000; // -2^53
+
+const DeepCollectionEquality _equality = DeepCollectionEquality();
+
+/// Returns `true` if [a] and [b] are equal.
+bool areEqualLists(List? a, List? b) => _equality.equals(a, b);
+
+/// Returns `true` if [a] and [b] are equal.
+bool areEqualMaps(Map? a, Map? b) => _equality.equals(a, b);
+
+extension SelectableExtOnInt on int {
+  /// Returns n + 1, unless n >= `maxJsInt`, in which case it returns [wrapTo],
+  /// which defaults to 1.
+  int incWithJsSafeWrap({int wrapTo = 1}) =>
+      (this < maxJsInt ? this + 1 : wrapTo);
+}
+
 extension SelectableExtOnNum<T extends num> on T {
-  ///
   /// Returns true if this number is >= min and < max.
-  ///
   bool isInRange(T min, T max) => (this >= min && this < max);
+}
+
+extension SelectableExtOnIterable<T> on Iterable<T> {
+  /// Returns true if the length of this iterable is greater than [l].
+  ///
+  /// This method is more efficient than using `length > l` because this method
+  /// stops iterating once it knows the length exceeds [l], whereas calling
+  /// `length` iterates through the whole list.
+  bool lengthIsGreaterThan(int l) {
+    var count = 0;
+    final it = iterator;
+    while (it.moveNext()) {
+      if (++count > l) return true;
+    }
+    return l < 0;
+  }
+}
+
+extension SelectableExtOnScrollController on ScrollController {
+  bool get hasOneClient => hasClients && !positions.lengthIsGreaterThan(1);
 }
 
 ///
 /// List<Rect> extensions
 ///
 extension SelectableExtOnListOfRect on List<Rect> {
-  ///
   /// Returns the index of the first rect in the list that contains
   /// the given [point].
   ///
   /// Searches the list from index [start] to the end of the list.
   ///
   /// Returns -1 if not found.
-  ///
   int indexContainingPoint(Offset? point, [int? start]) {
     if (point == null) return -1;
     return indexWhere((rect) => rect.contains(point), start ?? 0);
   }
 
-  ///
   /// Returns true if at least one of the rects in the list contain
   /// the given [point].
-  ///
   bool containsPoint(Offset? point) => (indexContainingPoint(point) >= 0);
 
-  ///
   /// Returns a new rect which is the bounding box containing all the
   /// rects in the list.
-  ///
   Rect? merged() => fold<Rect?>(
         null,
         (previous, rect) => Rect.fromLTRB(
@@ -65,7 +102,6 @@ extension SelectableExtOnListOfRect on List<Rect> {
 /// Iterable<Rect> extensions
 ///
 extension SelectableExtOnIterableOfRect on Iterable<Rect> {
-  ///
   /// Merges the rectangles into, at most, three rects, where the first rect
   /// is the bounding box containing all the rects in the first line, the
   /// second rect is the bounding box of lines 1 through N - 1 (where N is
@@ -126,13 +162,18 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
           rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
     ];
   }
+
+  Iterable<Rect> rounded() => map((rect) => Rect.fromLTRB(
+      rect.left.roundToDouble(),
+      rect.top.roundToDouble(),
+      rect.right.roundToDouble(),
+      rect.bottom.roundToDouble()));
 }
 
 ///
 /// Iterable<TextBox> extensions
 ///
 extension SelectableExtOnIterableOfTextBox on Iterable<TextBox> {
-  ///
   /// Merges the text boxes into, at most, three rects, where the first rect
   /// is the bounding box containing all the rects in the first line, the
   /// second rect is the bounding box of lines 1 through N - 1 (where N is
@@ -199,10 +240,8 @@ extension SelectableExtOnIterableOfTextBox on Iterable<TextBox> {
 /// Rect extensions
 ///
 extension SelectableExtOnRect on Rect {
-  ///
   /// Returns a new rectangle which is the bounding box containing this
   /// rectangle and the given text box.
-  ///
   Rect expandToIncludeTextBox(TextBox other) {
     return Rect.fromLTRB(
       math.min(left, other.left),
@@ -212,10 +251,8 @@ extension SelectableExtOnRect on Rect {
     );
   }
 
-  ///
   /// If right < left or bottom < top, returns a new normalized rectangle,
   /// otherwise just returns `this`.
-  ///
   Rect normalized() {
     if (right < left) {
       if (bottom < top) {
@@ -233,58 +270,62 @@ extension SelectableExtOnRect on Rect {
 
   /// The horizontal center.
   double get hCenter => (left + right) / 2.0;
+
+  /// Whether [other] is within [maxDistance] of this rect. [maxDistance]
+  /// defaults to 10.
+  bool isNear(Rect other, {double maxDistance = 10.0}) {
+    if (right + maxDistance <= other.left ||
+        other.right + maxDistance <= left) {
+      return false;
+    }
+    if (bottom + maxDistance <= other.top ||
+        other.bottom + maxDistance <= top) {
+      return false;
+    }
+    return true;
+  }
 }
 
 ///
 /// TextBox extensions
 ///
-extension SelectableTextBoxExt on TextBox {
+extension SelectableExtOnTextBox on TextBox {
   /// The vertical center.
   double get vCenter => (top + bottom) / 2.0;
 
   /// The horizontal center.
   double get hCenter => (left + right) / 2.0;
 
-  ///
   /// Returns a new text box translated by the given offset.
   ///
   /// To translate a text box by separate x and y components rather than by an
   /// [Offset], consider [translate].
-  ///
   TextBox shift(Offset offset) {
     return TextBox.fromLTRBD(left + offset.dx, top + offset.dy,
         right + offset.dx, bottom + offset.dy, direction);
   }
 
-  ///
   /// Returns a new text box with translateX added to the x components and
   /// translateY added to the y components.
   ///
   /// To translate a text box by an [Offset] rather than by separate x and y
   /// components, consider [shift].
-  ///
   TextBox translate(double translateX, double translateY) {
     return TextBox.fromLTRBD(left + translateX, top + translateY,
         right + translateX, bottom + translateY, direction);
   }
 
-  ///
   /// Returns a new text box with edges moved outwards by the given delta.
-  ///
   TextBox inflate(double delta) {
     return TextBox.fromLTRBD(
         left - delta, top - delta, right + delta, bottom + delta, direction);
   }
 
-  ///
   /// Returns a new text box with edges moved inwards by the given delta.
-  ///
   TextBox deflate(double delta) => inflate(-delta);
 
-  ///
   /// Returns a new rectangle which is the bounding box containing this
   /// text box and the given text box.
-  ///
   Rect expandToInclude(TextBox other) {
     return Rect.fromLTRB(
       math.min(left, other.left),
@@ -295,29 +336,33 @@ extension SelectableTextBoxExt on TextBox {
   }
 }
 
-const DeepCollectionEquality _equality = DeepCollectionEquality();
-
-///
-/// Returns `true` iff [list1] and [list2] are equal.
-///
-bool areEqualLists(List? list1, List? list2) {
-  if (identical(list1, list2)) return true;
-  if (list1 == null || list2 == null) return false;
-  final length = list1.length;
-  if (length != list2.length) return false;
-
-  for (var i = 0; i < length; i++) {
-    final dynamic unit1 = list1[i];
-    final dynamic unit2 = list2[i];
-
-    if (unit1 is Iterable || unit1 is Map) {
-      if (!_equality.equals(unit1, unit2)) return false;
-      // ignore: avoid_dynamic_calls
-    } else if (unit1?.runtimeType != unit2?.runtimeType) {
-      return false;
-    } else if (unit1 != unit2) {
-      return false;
+extension SelectableExtOnList<T> on List<T> {
+  /// Returns the position in this list where the [compare] function returns 0,
+  /// otherwise returns -1.
+  ///
+  /// If the list isn't sorted according to the compare function, the result is
+  /// unpredictable.
+  ///
+  /// The [compare] function must return a negative integer if the given element
+  /// is ordered before the matching element, a positive integer if the given
+  /// element is ordered after the matching element, and zero if the given
+  /// element is the matching element.
+  int binarySearchWithCompare(int Function(T) compare) {
+    var min = 0;
+    var max = length;
+    while (min < max) {
+      final mid = min + ((max - min) >> 1);
+      final element = this[mid];
+      final comp = compare(element);
+      if (comp == 0) {
+        return mid;
+      }
+      if (comp < 0) {
+        min = mid + 1;
+      } else {
+        max = mid;
+      }
     }
+    return -1;
   }
-  return true;
 }

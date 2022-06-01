@@ -2,12 +2,14 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
-import 'selectable_controller.dart';
+import 'common.dart';
+import 'selectable.dart';
 
 export 'cupertino/text_selection.dart';
 export 'material/text_selection.dart';
@@ -40,7 +42,8 @@ abstract class SelectionControls {
 enum SelectionHandleType { left, right }
 
 mixin SelectionDelegate {
-  void onDragSelectionHandleUpdate(SelectionHandleType handle, Offset offset) {}
+  void onDragSelectionHandleUpdate(SelectionHandleType handle, Offset offset,
+      {PointerDeviceKind? kind}) {}
   void onDragSelectionHandleEnd(SelectionHandleType handle) {}
   SelectableController? get controller;
   Iterable<SelectableMenuItem> get menuItems;
@@ -54,11 +57,6 @@ typedef SelectableMenuItemHandlerFunc = bool Function(
 
 @immutable
 class SelectableMenuItem {
-  final SelectableMenuItemType type;
-  final String? title;
-  final SelectableMenuItemHandlerFunc? isEnabled;
-  final SelectableMenuItemHandlerFunc? handler;
-
   const SelectableMenuItem({
     this.type = SelectableMenuItemType.other,
     String? title,
@@ -91,6 +89,11 @@ class SelectableMenuItem {
                     : type == SelectableMenuItemType.webSearch
                         ? _handleWebSearch
                         : null);
+
+  final SelectableMenuItemType type;
+  final String? title;
+  final SelectableMenuItemHandlerFunc? isEnabled;
+  final SelectableMenuItemHandlerFunc? handler;
 }
 
 //
@@ -145,18 +148,20 @@ bool _handleWebSearch(SelectableController? controller) {
 }
 
 String _selectedText(SelectableController? controller) {
-  return controller?.text?.trim() ?? '';
+  return controller?.getSelection()?.text?.trim() ?? '';
 }
 
 Future<void> _launchBrowserWithUrl(String url) async {
   try {
-    if (await launcher.canLaunch(url)) {
-      await launcher.launch(url, forceSafariVC: false, forceWebView: false);
+    final uri = Uri.parse(url);
+    if (await launcher.canLaunchUrl(uri)) {
+      await launcher.launchUrl(uri);
     }
   }
   // ignore: avoid_catches_without_on_clauses
   catch (e) {
-    // dmPrint('ERROR: ${e.toString()}');
+    dmPrint('WARNING: Selectable is unable to launch the browser with '
+        'url "$url": $e');
   }
 }
 

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:float_column/float_column.dart';
 import 'package:flutter/material.dart';
 
@@ -35,13 +38,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final _scrollController = ScrollController();
   final _selectionController = SelectableController();
   var _isTextSelected = false;
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     _selectionController.addListener(() {
-      if (_isTextSelected != _selectionController.isTextSelected) {
-        _isTextSelected = _selectionController.isTextSelected;
+      if (_isTextSelected !=
+          _selectionController.getSelection()!.isTextSelected) {
+        _isTextSelected = _selectionController.getSelection()!.isTextSelected;
         // print(_isTextSelected ? 'Text is selected' : 'Text is not selected');
         if (mounted) setState(() {});
       }
@@ -49,10 +54,23 @@ class _MyHomePageState extends State<MyHomePage> {
       //   print('selection rects: ${_selectionController.rects}');
       // }
     });
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      final text = _selectionController.getContainedText();
+      if (text.isNotEmpty) {
+        final i = random(max: text.length);
+        if (_selectionController.selectWordAtIndex(i, key: 1)) {
+          print('selected word at $i');
+        } else {
+          print('failed to select word at $i');
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
+    _timer.cancel();
     _selectionController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -72,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
           selectionController: _selectionController,
           scrollController: _scrollController,
           // selectionColor: Colors.orange.withAlpha(75),
-          showSelection: _showSelection,
+          // showSelection: _showSelection,
           selectWordOnDoubleTap: true,
           showPopup: true,
           popupMenuItems: [
@@ -82,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
               isEnabled: (controller) {
                 // print('SelectableMenuItem Foo, isEnabled, selected text:
                 // ${controller!.text}');
-                return controller!.isTextSelected;
+                return controller!.getSelection()!.isTextSelected;
               },
               handler: (controller) {
                 showDialog<void>(
@@ -93,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       contentPadding: EdgeInsets.zero,
                       content: Container(
                         padding: EdgeInsets.all(16),
-                        child: Text(controller!.text!),
+                        child: Text(controller!.getSelection()!.text!),
                       ),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
@@ -110,8 +128,8 @@ class _MyHomePageState extends State<MyHomePage> {
               //mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  'Long press on a word to select it, then drag the selection '
-                  'controls to change the selection.',
+                  'Double-tap or long press on a word to select it, then drag '
+                  'the selection controls to change the selection.',
                   style: Theme.of(context).textTheme.headline5,
                 ),
                 FloatColumn(
@@ -161,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: textStyle2,
                   //style: Theme.of(context).textTheme.display1,
                 ),
-                Text('\n\n\n\n\n\n\n\n'),
+                Text('\n\n\n'),
               ],
             ),
           ),
@@ -174,9 +192,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 setState(() {
                   _showSelection = !_showSelection;
+                  if (_showSelection) {
+                    _selectionController.unhide();
+                  } else {
+                    _selectionController.hide();
+                  }
                 });
 
-                // if (_selectionController.isTextSelected) {
+                // if (_selectionController.getSelection()!.isTextSelected) {
                 //   _selectionController.deselectAll();
                 // }
               },
@@ -190,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 // cspell: disable
-const text1 = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '
+const text1 = 'Lorem ipsum dolor sit amet, consectetur—adipiscing elit, sed '
     'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim '
     'ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut '
     'aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit '
@@ -231,3 +254,13 @@ const TextStyle textStyle2 = TextStyle(
   height: 1.5,
   backgroundColor: Colors.transparent,
 );
+
+math.Random? _random;
+const maxRandomInt = 0x100000000;
+
+int random({int min = 0, required int max}) {
+  assert(max > min);
+  final safeRange = math.min(maxRandomInt, math.max(0, max - min));
+  _random ??= math.Random();
+  return _random!.nextInt(safeRange) + min;
+}

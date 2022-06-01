@@ -25,9 +25,9 @@ const double _kPopupMenuContentDistance = 8.0;
 
 /// Manages a copy/paste text selection popup menu.
 class _TextSelectionPopupMenu extends StatelessWidget {
-  final SelectionDelegate? delegate;
+  const _TextSelectionPopupMenu({this.delegate});
 
-  const _TextSelectionPopupMenu({Key? key, this.delegate}) : super(key: key);
+  final SelectionDelegate? delegate;
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +47,9 @@ class _TextSelectionPopupMenu extends StatelessWidget {
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
-      // dmPrint('_TextSelectionPopupMenu is not showing because items.isEmpty.');
-      return SizedBox(width: 0.0, height: 0.0);
+      // dmPrint('_TextSelectionPopupMenu is not showing because '
+      //     'items.isEmpty.');
+      return SizedBox.shrink();
     }
 
     return Material(
@@ -73,23 +74,22 @@ const TextStyle popupMenuTextStyle = TextStyle(
 );
 
 class _Button extends StatelessWidget {
+  const _Button({this.title, this.isDarkMode, this.onPressed});
+
   final String? title;
   final bool? isDarkMode;
   final void Function()? onPressed;
 
-  const _Button({Key? key, this.title, this.isDarkMode, this.onPressed})
-      : super(key: key);
-
   @override
   Widget build(BuildContext context) => TextButton(
+        style: TextButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: _kButtonPadding)),
+        onPressed: onPressed,
         child: Text(
           title!,
           style: popupMenuTextStyle.copyWith(
               color: isDarkMode! ? Colors.white : Colors.black),
         ),
-        style: TextButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: _kButtonPadding)),
-        onPressed: onPressed,
       );
 }
 

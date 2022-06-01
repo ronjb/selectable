@@ -5,48 +5,38 @@
 import 'package:float_column/float_column.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/painting.dart';
 
-///
-/// Mixin for tag classes that should be split along with the text span they
-/// are tagging.
-///
+/// Mixin for tag classes that support being split along with the text span
+/// they are tagging.
 mixin SplittableTextSpanTag<T> {
   List<T> splitWith(TextSpan span, {required int atCharacter});
 }
 
-///
-/// A tagged TextSpan.
-///
+/// [TaggedTextSpan] extends [TextSpan] to include a [tag] object and
+/// the ability to be split at a given index. Other than that it is
+/// functionally equivalent to [TextSpan].
 @immutable
 class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
-  final Object tag;
-
-  ///
-  /// Creates a [TextSpan] with the given values.
+  /// Creates a [TaggedTextSpan] with the given values.
   ///
   /// For the object to be useful, at least one of [text] or
   /// [children] should be set.
-  ///
   const TaggedTextSpan({
     required this.tag,
-    String? text,
-    List<InlineSpan>? children,
-    TextStyle? style,
-    GestureRecognizer? recognizer,
-    String? semanticsLabel,
-  })  : assert(tag != null), // ignore: unnecessary_null_comparison
-        super(
-          text: text,
-          children: children,
-          style: style,
-          recognizer: recognizer,
-          semanticsLabel: semanticsLabel,
-        );
+    super.text,
+    super.children,
+    super.style,
+    super.recognizer,
+    super.semanticsLabel,
+  }) :
+        // ignore: unnecessary_null_comparison
+        assert(tag != null);
 
-  ///
+  /// The tag object.
+  final Object tag;
+
   /// Returns a copy of the TaggedTextSpan with optional changes.
-  ///
   TaggedTextSpan copyWith({
     Object? tag,
     String? text,
@@ -104,62 +94,57 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
 
     return result;
   }
-}
 
-extension on InlineSpan {
+  //
+  // PRIVATE STUFF
+  //
+
   List<InlineSpan> _splitAt(SplitAtIndex index) {
     if (index.value == 0) return [this];
     if (index.value == 0) return [this];
 
     final span = this;
-    if (span is TextSpan) {
-      final text = span.text;
-      if (text != null && text.isNotEmpty) {
-        if (index.value >= text.length) {
-          index.value -= text.length;
-        } else {
-          final result = [
-            span.copyWith(
-                text: text.substring(0, index.value), noChildren: true),
-            span.copyWith(text: text.substring(index.value)),
-          ];
-          index.value = 0;
-          return result;
-        }
+    final text = span.text;
+    if (text != null && text.isNotEmpty) {
+      if (index.value >= text.length) {
+        index.value -= text.length;
+      } else {
+        final result = [
+          span.copyWith(text: text.substring(0, index.value), noChildren: true),
+          span.copyWith(text: text.substring(index.value)),
+        ];
+        index.value = 0;
+        return result;
+      }
+    }
+
+    final children = span.children;
+    if (children != null && children.isNotEmpty) {
+      // If the text.length was equal to index.value, split the text and
+      // children.
+      if (index.value == 0) {
+        return [
+          span.copyWith(text: text, noChildren: true),
+          span.copyWith(noText: true),
+        ];
       }
 
-      final children = span.children;
-      if (children != null && children.isNotEmpty) {
-        // If the text.length was equal to index.value, split the text and
-        // children.
-        if (index.value == 0) {
+      final result = children.splitAtCharacterIndex(index);
+
+      if (index.value == 0) {
+        if (result.length == 2) {
           return [
-            span.copyWith(text: text, noChildren: true),
-            span.copyWith(noText: true),
+            span.copyWith(text: text, children: result.first),
+            span.copyWith(noText: true, children: result.last),
           ];
-        }
-
-        final result = children.splitAtCharacterIndex(index);
-
-        if (index.value == 0) {
-          if (result.length == 2) {
-            return [
-              span.copyWith(text: text, children: result.first),
-              span.copyWith(noText: true, children: result.last),
-            ];
-          } else if (result.length == 1) {
-            // Only true if the number of characters in all the children was
-            // equal to index.value.
-            assert(listEquals<InlineSpan>(result.first, children));
-          } else {
-            assert(false);
-          }
+        } else if (result.length == 1) {
+          // Only true if the number of characters in all the children was
+          // equal to index.value.
+          assert(listEquals<InlineSpan>(result.first, children));
+        } else {
+          assert(false);
         }
       }
-    } else if (span is WidgetSpan) {
-      index.value -= 1;
-    } else {
-      assert(false);
     }
 
     return [this];
