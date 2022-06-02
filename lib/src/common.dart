@@ -29,9 +29,11 @@ const minJsInt = -0x20000000000000; // -2^53
 const DeepCollectionEquality _equality = DeepCollectionEquality();
 
 /// Returns `true` if [a] and [b] are equal.
+// ignore: strict_raw_type
 bool areEqualLists(List? a, List? b) => _equality.equals(a, b);
 
 /// Returns `true` if [a] and [b] are equal.
+// ignore: strict_raw_type
 bool areEqualMaps(Map? a, Map? b) => _equality.equals(a, b);
 
 extension SelectableExtOnInt on int {

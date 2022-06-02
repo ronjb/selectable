@@ -309,14 +309,14 @@ class _SelectableState extends State<Selectable>
             child: IgnorePointer(
               // Ignore gestures (e.g. taps) on the child if text is selected.
               ignoring: widget.showSelectionControls &&
-                  (_selections.dragInfo.selectionPt != null ||
+                  (_selections.dragInfo.isSelectingWordOrDraggingHandle ||
                       _selections.main.isTextSelected),
               child: widget.child,
             ),
           ),
         ),
         if (widget.showSelection &&
-            (_selections.dragInfo.selectionPt != null ||
+            (_selections.dragInfo.isSelectingWordOrDraggingHandle ||
                 _selections.main.isTextSelected ||
                 _buildHelper.showParagraphRects))
           Positioned.fill(
@@ -330,8 +330,7 @@ class _SelectableState extends State<Selectable>
                   // If text is selected, and a handle is being dragged,
                   // autoscroll if necessary.
                   if (_selections.main.isTextSelected &&
-                      _selections.dragInfo.selectionPt != null &&
-                      _selections.dragInfo.handleType != null) {
+                      _selections.dragInfo.isDraggingHandle) {
                     final paragraphs = _selections.cachedParagraphs.list;
                     assert(paragraphs.isNotEmpty);
                     _buildHelper.maybeAutoscroll(

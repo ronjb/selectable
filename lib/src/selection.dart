@@ -149,4 +149,8 @@ class SelectionDragInfo {
 
   SelectionHandleType? handleType;
   bool areAnchorsSwapped;
+
+  bool get isSelectingWordOrDraggingHandle => selectionPt != null;
+  bool get isSelectingWord => selectionPt != null && handleType == null;
+  bool get isDraggingHandle => selectionPt != null && handleType != null;
 }

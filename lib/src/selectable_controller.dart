@@ -225,12 +225,6 @@ class SelectableController extends ChangeNotifier {
   ///
   /// Note, if there are no render paragraphs contained in the Selectable,
   /// `true` is returned, and [visitor] is not called.
-  ///
-  /// Example: The following code...
-  /// ```dart
-  ///   SelectionAnchor? start, end;
-  ///
-  /// ```
   bool visitContainedSpans(
       bool Function(SelectionParagraph paragraph, InlineSpan span, int index)
           visitor) {

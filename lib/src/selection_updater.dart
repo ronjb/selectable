@@ -25,8 +25,8 @@ Selection updatedSelectionWith(
   var selection = newSelection;
   final selectionPt = dragInfo?.selectionPt;
 
-  final isSelectingWord = selectionPt != null && dragInfo?.handleType == null;
-  final isDraggingHandle = selectionPt != null && dragInfo?.handleType != null;
+  final isSelectingWord = dragInfo?.isSelectingWord ?? false;
+  final isDraggingHandle = dragInfo?.isDraggingHandle ?? false;
   final paragraphs = cachedParagraphs.list;
 
   if (!(isSelectingWord || selection.isTextSelected) || paragraphs.isEmpty) {
@@ -111,7 +111,7 @@ Selection updatedSelectionWith(
     // If selecting a word (e.g. via long press).
     //
     if (isSelectingWord) {
-      final anchor = paragraph.anchorAtPt(selectionPt);
+      final anchor = paragraph.anchorAtPt(selectionPt!);
       if (anchor?.containsPoint(selectionPt) ?? false) {
         dragInfo!.areAnchorsSwapped = false;
         startAnchor = endAnchor = anchor;
