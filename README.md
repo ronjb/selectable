@@ -17,7 +17,7 @@ dependencies:
 
 ## Usage
 
-Then you have to import the package with:
+Then in the dart file, import the package with:
 
 ```dart
 import 'package:selectable/selectable.dart';
@@ -40,9 +40,9 @@ Scaffold(
 )
 ```
 
-Note, as shown in the example above, if your widget uses a scrollable widget (such as SingleChildScrollView, ListView, CustomScrollView, etc.), which contains the text widgets you want to enable selection for, the `Selectable` widget must be a descendant of the scrollable widget, and an ancestor of the widgets you want to enable selection over.
+**Important Note**: As shown in the example above, if a scrollable widget (such as `SingleChildScrollView`, `ListView`, `CustomScrollView`, etc.) is used to wrap the text widgets you want to enable selection for, the `Selectable` widget must be a descendant of the scrollable widget, and an ancestor of the text widgets.
 
-`Selectable` by default supports long-pressing on a word to select it, then using the selection handles to adjust the selection. If you want also enable double-tapping on a word to select it use, pass in `selectWordOnDoubleTap: true` like this:
+`Selectable` by default supports long-pressing on a word to select it, then using the selection handles to adjust the selection. To also enable double-tapping on a word to select it, pass in `selectWordOnDoubleTap: true` like this:
 
 ```
 Selectable(
@@ -53,7 +53,7 @@ Selectable(
 
 ## Customizable Popup Selection Menu
 
-`Selectable` provides a default popup selection menu with the menu items Copy, Define, and WebSearch, but it can easily be customized. For example, to continue to show the default Copy menu item, and to add a custom menu item with the title "Foo! :)", which shows the selected text in an AlertDialog:
+`Selectable` provides a default popup selection menu with the menu items Copy, Define, and WebSearch, but it can easily be customized. For example, to continue to show the default Copy menu item, and to add a custom menu item with the title "Foo! :)", which shows the selected text in an AlertDialog, do this:
 
 ```
 Selectable(
