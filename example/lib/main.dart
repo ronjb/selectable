@@ -90,12 +90,11 @@ class _MyHomePageState extends State<MyHomePage> {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) => Selectable(
+                selectWordOnDoubleTap: true,
                 selectionController: _selectionController,
                 scrollController: _scrollController,
                 // selectionColor: Colors.orange.withAlpha(75),
                 // showSelection: _showSelection,
-                selectWordOnDoubleTap: true,
-                showPopup: true,
                 popupMenuItems: [
                   SelectableMenuItem(type: SelectableMenuItemType.copy),
                   SelectableMenuItem(
