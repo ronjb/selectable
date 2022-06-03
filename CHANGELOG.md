@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.2.1] - June 3, 2022
+
+* Some code cleanup, and update to the example app.
+
 ## [0.2.0] - June 1, 2022
 
 * Bug fixes and new features.

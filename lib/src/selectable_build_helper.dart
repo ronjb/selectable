@@ -24,29 +24,30 @@ class SelectableBuildHelper {
 
   void maybeAutoscroll(
     ScrollController? scrollController,
-    RenderObject? renderObject,
+    GlobalKey globalKey,
     Offset? selectionPt,
     double maxY,
     double topOverlayHeight,
   ) {
-    if (renderObject != null && (scrollController?.hasOneClient ?? false)) {
+    if (scrollController?.hasOneClient ?? false) {
       _autoscroll(
-          scrollController, renderObject, selectionPt, maxY, topOverlayHeight);
+          scrollController, globalKey, selectionPt, maxY, topOverlayHeight);
     }
   }
 
   /// Autoscrolls if the drag point is near the top or bottom of the viewport.
-  void _autoscroll(
-      ScrollController? scrollController,
-      RenderObject renderObject,
-      Offset? dragPt,
-      double maxY,
-      double topOverlayHeight) {
+  void _autoscroll(ScrollController? scrollController, GlobalKey globalKey,
+      Offset? dragPt, double maxY, double topOverlayHeight) {
     assert(scrollController?.hasOneClient ?? false);
+
+    final renderObject = globalKey.currentContext!.findRenderObject();
+    if (!(renderObject is RenderBox && renderObject.hasSize)) {
+      return;
+    }
 
     final vp = RenderAbstractViewport.of(renderObject);
     assert(vp != null);
-    if (vp == null) return; //---------------------------------------------->
+    if (vp == null) return;
 
     final renderObjScrollPos =
         renderObject.getTransformTo(vp).getTranslation().y;

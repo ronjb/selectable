@@ -6,11 +6,10 @@ import 'package:flutter/material.dart';
 
 import 'package:selectable/selectable.dart';
 
-// ignore_for_file: prefer_mixin, avoid_print, prefer_const_constructors
-// ignore_for_file: unused_element
+// ignore_for_file: avoid_print
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
@@ -44,9 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _selectionController.addListener(() {
-      if (_isTextSelected !=
-          _selectionController.getSelection()!.isTextSelected) {
-        _isTextSelected = _selectionController.getSelection()!.isTextSelected;
+      if (_isTextSelected != _selectionController.isTextSelected) {
+        _isTextSelected = _selectionController.isTextSelected;
         // print(_isTextSelected ? 'Text is selected' : 'Text is not selected');
         if (mounted) setState(() {});
       }
@@ -60,9 +58,9 @@ class _MyHomePageState extends State<MyHomePage> {
       if (text.isNotEmpty) {
         final i = random(max: text.length);
         if (_selectionController.selectWordAtIndex(i, key: 1)) {
-          print('selected word at $i');
+          // print('selected word at $i');
         } else {
-          print('failed to select word at $i');
+          // print('failed to select word at $i');
         }
       }
     });
@@ -81,109 +79,122 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Selectable Example'),
-      ),
-      body: SingleChildScrollView(
+      body: CustomScrollView(
         controller: _scrollController,
-        child: Selectable(
-          selectionController: _selectionController,
-          scrollController: _scrollController,
-          // selectionColor: Colors.orange.withAlpha(75),
-          // showSelection: _showSelection,
-          selectWordOnDoubleTap: true,
-          showPopup: true,
-          popupMenuItems: [
-            SelectableMenuItem(type: SelectableMenuItemType.copy),
-            SelectableMenuItem(
-              title: 'Foo! :)',
-              isEnabled: (controller) {
-                // print('SelectableMenuItem Foo, isEnabled, selected text:
-                // ${controller!.text}');
-                return controller!.getSelection()!.isTextSelected;
-              },
-              handler: (controller) {
-                showDialog<void>(
-                  context: context,
-                  barrierDismissible: true,
-                  builder: (builder) {
-                    return AlertDialog(
-                      contentPadding: EdgeInsets.zero,
-                      content: Container(
-                        padding: EdgeInsets.all(16),
-                        child: Text(controller!.getSelection()!.text!),
+        slivers: [
+          const SliverAppBar(
+            pinned: true,
+            expandedHeight: 100,
+            flexibleSpace: FlexibleSpaceBar(title: Text('Selectable Example')),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => Selectable(
+                selectionController: _selectionController,
+                scrollController: _scrollController,
+                // selectionColor: Colors.orange.withAlpha(75),
+                // showSelection: _showSelection,
+                selectWordOnDoubleTap: true,
+                showPopup: true,
+                popupMenuItems: [
+                  SelectableMenuItem(type: SelectableMenuItemType.copy),
+                  SelectableMenuItem(
+                    title: 'Foo! :)',
+                    isEnabled: (controller) {
+                      // print('SelectableMenuItem Foo, isEnabled, selected text:
+                      // ${controller!.text}');
+                      return controller!.isTextSelected;
+                    },
+                    handler: (controller) {
+                      showDialog<void>(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (builder) {
+                          return AlertDialog(
+                            contentPadding: EdgeInsets.zero,
+                            content: Container(
+                              padding: const EdgeInsets.all(16),
+                              child: Text(controller!.getSelection()!.text!),
+                            ),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                          );
+                        },
+                      );
+                      return true;
+                    },
+                  ),
+                ],
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    //mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        'Double-tap or long press on a word to select it, then drag '
+                        'the selection controls to change the selection.',
+                        style: Theme.of(context).textTheme.headline5,
                       ),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    );
-                  },
-                );
-                return true;
-              },
-            ),
-          ],
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              //mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Double-tap or long press on a word to select it, then drag '
-                  'the selection controls to change the selection.',
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-                FloatColumn(
-                  children: [
-                    const SizedBox(height: 16),
-                    Floatable(
-                        float: FCFloat.end,
-                        clear: FCClear.both,
-                        padding: EdgeInsetsDirectional.only(start: 16),
-                        maxWidthPercentage: 0.333,
-                        child: Container(height: 150, color: Colors.orange)),
-                    WrappableText(
-                      text: TextSpan(
-                        text: 'Indent Example',
-                        style: Theme.of(context).textTheme.headline4,
+                      FloatColumn(
+                        children: [
+                          const SizedBox(height: 16),
+                          Floatable(
+                              float: FCFloat.end,
+                              clear: FCClear.both,
+                              padding:
+                                  const EdgeInsetsDirectional.only(start: 16),
+                              maxWidthPercentage: 0.333,
+                              child:
+                                  Container(height: 150, color: Colors.orange)),
+                          WrappableText(
+                            text: TextSpan(
+                              text: 'Indent Example',
+                              style: Theme.of(context).textTheme.headline4,
+                            ),
+                          ),
+                          const WrappableText(
+                            indent: 40,
+                            text: TextSpan(text: text1, style: textStyle2),
+                            textAlign: TextAlign.justify,
+                          ),
+                          const SizedBox(height: 16),
+                          Floatable(
+                              float: FCFloat.start,
+                              clear: FCClear.both,
+                              padding: const EdgeInsetsDirectional.only(
+                                  end: 16, top: 8),
+                              maxWidthPercentage: 0.333,
+                              child:
+                                  Container(height: 150, color: Colors.blue)),
+                          WrappableText(
+                            text: TextSpan(
+                              text: 'Hanging Indent Example',
+                              style: Theme.of(context).textTheme.headline4,
+                            ),
+                          ),
+                          const WrappableText(
+                            indent: -40,
+                            padding: EdgeInsets.only(left: 40),
+                            text:
+                                TextSpan(children: [_span], style: textStyle1),
+                          ),
+                        ],
                       ),
-                    ),
-                    const WrappableText(
-                      indent: 40,
-                      text: TextSpan(text: text1, style: textStyle2),
-                      textAlign: TextAlign.justify,
-                    ),
-                    const SizedBox(height: 16),
-                    Floatable(
-                        float: FCFloat.start,
-                        clear: FCClear.both,
-                        padding: EdgeInsetsDirectional.only(end: 16, top: 8),
-                        maxWidthPercentage: 0.333,
-                        child: Container(height: 150, color: Colors.blue)),
-                    WrappableText(
-                      text: TextSpan(
-                        text: 'Hanging Indent Example',
-                        style: Theme.of(context).textTheme.headline4,
+                      const SizedBox(height: 16),
+                      const Text.rich(
+                        _span,
+                        style: textStyle2,
+                        //style: Theme.of(context).textTheme.display1,
                       ),
-                    ),
-                    WrappableText(
-                      indent: -40,
-                      padding: const EdgeInsets.only(left: 40),
-                      text:
-                          const TextSpan(children: [_span], style: textStyle1),
-                    ),
-                  ],
+                      const Text('\n\n\n'),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                Text.rich(
-                  _span,
-                  style: textStyle2,
-                  //style: Theme.of(context).textTheme.display1,
-                ),
-                Text('\n\n\n'),
-              ],
+              ),
+              childCount: 1,
             ),
           ),
-        ),
+        ],
       ),
       floatingActionButton: _isTextSelected
           ? FloatingActionButton.extended(
@@ -199,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 });
 
-                // if (_selectionController.getSelection()!.isTextSelected) {
+                // if (_selectionController.isTextSelected) {
                 //   _selectionController.deselectAll();
                 // }
               },

@@ -60,8 +60,7 @@ class Selectable extends StatefulWidget {
 
 class _SelectableState extends State<Selectable>
     with SelectionDelegate, TickerProviderStateMixin {
-  final GlobalKey _mainKey = GlobalKey();
-  final GlobalKey _childKey = GlobalKey();
+  final GlobalKey _globalKey = GlobalKey();
 
   SelectableController? _selectionController;
   bool _weOwnSelCtrlr = true;
@@ -172,7 +171,8 @@ class _SelectableState extends State<Selectable>
 
     // Update [_selections] with [sc.state].
     final changed = _selections.updateWithSelections(sc._selections);
-    if (changed) {
+    if (changed ||
+        (sc._selections.isTextSelected && _buildHelper.showPopupMenu)) {
       // dmPrint('Selectable rebuilding because SelectableController updated '
       //     'the selection.');
       _refresh();
@@ -271,7 +271,7 @@ class _SelectableState extends State<Selectable>
             : Theme.of(context).colorScheme.primary.withOpacity(opacity));
 
     final result = Stack(
-      key: _mainKey,
+      key: _globalKey,
       children: <Widget>[
         GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -292,7 +292,6 @@ class _SelectableState extends State<Selectable>
               ? () => _onLongPressOrDoubleTap(_localTapOrLongPressPt)
               : null,
           child: SelectableRenderWidget(
-            key: _childKey,
             paragraphs: _selections.cachedParagraphs,
             selections: _selections,
             foregroundPainter: widget.showSelection
@@ -322,25 +321,19 @@ class _SelectableState extends State<Selectable>
           Positioned.fill(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final childRenderObject =
-                    _childKey.currentContext!.findRenderObject();
-
-                if (childRenderObject is RenderBox &&
-                    childRenderObject.hasSize) {
-                  // If text is selected, and a handle is being dragged,
-                  // autoscroll if necessary.
-                  if (_selections.main.isTextSelected &&
-                      _selections.dragInfo.isDraggingHandle) {
-                    final paragraphs = _selections.cachedParagraphs.list;
-                    assert(paragraphs.isNotEmpty);
-                    _buildHelper.maybeAutoscroll(
-                      widget.scrollController,
-                      childRenderObject,
-                      _selections.dragInfo.selectionPt,
-                      paragraphs.last.rect.bottom,
-                      widget.topOverlayHeight,
-                    );
-                  }
+                // If text is selected, and a handle is being dragged,
+                // autoscroll if necessary.
+                if (_selections.main.isTextSelected &&
+                    _selections.dragInfo.isDraggingHandle) {
+                  final paragraphs = _selections.cachedParagraphs.list;
+                  assert(paragraphs.isNotEmpty);
+                  _buildHelper.maybeAutoscroll(
+                    widget.scrollController,
+                    _globalKey,
+                    _selections.dragInfo.selectionPt,
+                    paragraphs.last.rect.bottom,
+                    widget.topOverlayHeight,
+                  );
                 }
 
                 // dmPrint('selection.update resulted in '
@@ -373,7 +366,7 @@ class _SelectableState extends State<Selectable>
                             context,
                             constraints,
                             this,
-                            _mainKey,
+                            _globalKey,
                             widget.scrollController,
                             widget.topOverlayHeight,
                           ),
