@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.2.3] - June 4, 2022
+
+* Fixed a bug where in some cases the selection wouldn't repaint in the correct location after a window resize.
+* Updated so dragging a selection control with a finger places the point of contact above the finger.
+
 ## [0.2.2] - June 3, 2022
 
 * README updates.

@@ -66,6 +66,8 @@ extension SelectableExtOnIterable<T> on Iterable<T> {
 
 extension SelectableExtOnScrollController on ScrollController {
   bool get hasOneClient => hasClients && !positions.lengthIsGreaterThan(1);
+
+  int get clientCount => hasClients ? positions.length : 0;
 }
 
 ///

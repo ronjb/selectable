@@ -234,15 +234,20 @@ class _PopupMenuState extends State<_PopupMenu> {
                     .intersect(viewport);
             if (viewport.height < 50) viewport = null;
           } catch (e) {
-            // TODO(ron): debug why this happens when selection is not
-            // visible in the scroll viewport.
-            // dmPrint('Selectable popup menu build error: $e');
-            viewport = null;
+            dmPrint('Selectable popup menu build error: $e');
           }
         }
+        // } else {
+        //   if (widget.scrollController == null) {
+        //     dmPrint('scrollController == null');
+        //   } else {
+        //     dmPrint('scrollController.clientCount: '
+        //         '${widget.scrollController!.clientCount}');
+        //   }
       }
 
       if (viewport != null) {
+        // dmPrint('buildPopupMenu with viewport $viewport');
         _menu = widget.controls.buildPopupMenu(
             context, viewport, widget.selectionRects, widget.selectionDelegate);
       } else {

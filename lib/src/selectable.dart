@@ -171,10 +171,12 @@ class _SelectableState extends State<Selectable>
 
     // Update [_selections] with [sc.state].
     final changed = _selections.updateWithSelections(sc._selections);
-    if (changed ||
-        (sc._selections.isTextSelected && _buildHelper.showPopupMenu)) {
+    if (changed) {
       // dmPrint('Selectable rebuilding because SelectableController updated '
       //     'the selection.');
+      _refresh();
+    } else if (sc._selections.isTextSelected && _buildHelper.showPopupMenu) {
+      // dmPrint('Selectable rebuilding to show the popup menu.');
       _refresh();
     }
   }
@@ -344,14 +346,9 @@ class _SelectableState extends State<Selectable>
 
                 if ((_selections.main.rects?.isNotEmpty ?? false) ||
                     _buildHelper.showParagraphRects) {
-                  final isHidden =
-                      _selectionController?.getSelection()!.isHidden ?? false;
                   return AnimatedOpacity(
-                    opacity: isHidden ? 0.0 : 1.0,
-                    duration: _selectionController
-                            ?.getSelection()!
-                            .animationDuration ??
-                        const Duration(seconds: 1),
+                    opacity: _selections.main.isHidden ? 0.0 : 1.0,
+                    duration: _selections.main.animationDuration,
                     child: Stack(
                       children: [
                         // if (_selections.main.rects?.isNotEmpty ?? false)
@@ -467,6 +464,11 @@ class _SelectableState extends State<Selectable>
     // dmPrint('Drag at: $offset with $handle');
     if (!mounted) return;
 
+    if (kind != null) {
+      // Save this now because it is only provided on drag-start.
+      _pointerDeviceKind = kind;
+    }
+
     // Ignore drags that are less than a reasonable distance.
     if (!_isDraggingSelectionHandle) {
       _isDraggingSelectionHandle = true;
@@ -482,10 +484,6 @@ class _SelectableState extends State<Selectable>
 
     if (_hasDraggedAReasonableDistance) {
       _refresh(() {
-        if (kind != null) {
-          // dmPrint('Selectable started drag with $kind');
-          _pointerDeviceKind = kind;
-        }
         // For touch, offset the y value by -30.
         final yOffset =
             _pointerDeviceKind == PointerDeviceKind.touch ? -30.0 : 0.0;

@@ -77,6 +77,7 @@ class SelectableRenderWidget extends SingleChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, RenderSelectableWidget renderObject) {
     renderObject
+      ..paragraphs = paragraphs
       ..selections = selections
       ..painter = painter
       ..foregroundPainter = foregroundPainter
@@ -315,12 +316,28 @@ class RenderSelectableWidget extends RenderProxyBox {
     super.performLayout();
     if (child != null) {
       _paragraphs.updateCachedParagraphsWithRenderBox(child!);
+
+      // Paragraphs changed, so the selection list is no longer up-to-date.
+      _selectionList = null;
     }
   }
 
   @override
   Size computeSizeForNoChild(BoxConstraints constraints) {
     return constraints.constrain(Size.zero);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (_painter != null) {
+      _paintWithPainter(context.canvas, offset, _painter!);
+      _setRasterCacheHints(context);
+    }
+    super.paint(context, offset);
+    if (_foregroundPainter != null) {
+      _paintWithPainter(context.canvas, offset, _foregroundPainter!);
+      _setRasterCacheHints(context);
+    }
   }
 
   void _paintWithPainter(
@@ -335,6 +352,7 @@ class RenderSelectableWidget extends RenderProxyBox {
       canvas.translate(offset.dx, offset.dy);
     }
     for (final selection in selectionList) {
+      // dmPrint('painting selection rects ${selection.rects}}');
       painter.paint(canvas, size, selection);
     }
     assert(() {
@@ -382,19 +400,6 @@ class RenderSelectableWidget extends RenderProxyBox {
       return canvasSaveCount == previousCanvasSaveCount;
     }());
     canvas.restore();
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    if (_painter != null) {
-      _paintWithPainter(context.canvas, offset, _painter!);
-      _setRasterCacheHints(context);
-    }
-    super.paint(context, offset);
-    if (_foregroundPainter != null) {
-      _paintWithPainter(context.canvas, offset, _foregroundPainter!);
-      _setRasterCacheHints(context);
-    }
   }
 
   void _setRasterCacheHints(PaintingContext context) {

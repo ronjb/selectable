@@ -20,32 +20,12 @@ class Selections {
 
   /// Returns the [Selection] with the given key, or null if none.
   Selection? operator [](int key) {
-    var selection = _selectionsMap[key];
+    // Get the selection, refreshing it from cachedParagraphs if needed.
+    var selection = _selectionWithKey(key);
 
+    // If key is 0, create the selection if necessary.
     if (selection == null && key == 0) {
       _selectionsMap[key] = selection = const Selection();
-    }
-
-    if (selection != null) {
-      if ((key == 0 && dragInfo.selectionPt != null) ||
-          (selection.isTextSelected &&
-              selection.version != cachedParagraphs.version)) {
-        var updatedSelection = selection.updatedWith(
-          cachedParagraphs,
-          // Only the [main] selection (i.e. key == 0) uses [dragInfo].
-          key == 0 ? dragInfo : null,
-        );
-
-        // If the selection was hidden and was updated from having no selected
-        // text to having selected text, unhide it.
-        if (selection.isHidden &&
-            !selection.isTextSelected &&
-            updatedSelection.isTextSelected) {
-          updatedSelection = updatedSelection.copyWith(isHidden: false);
-        }
-
-        _selectionsMap[key] = selection = updatedSelection;
-      }
     }
 
     return selection;
@@ -56,11 +36,20 @@ class Selections {
     _selectionsMap[key] = selection;
   }
 
-  final _selectionsMap = <int, Selection>{};
-
   /// Returns `true` if text is selected in any selections.
-  bool get isTextSelected =>
-      _selectionsMap.values.firstWhereOrNull((e) => e.isTextSelected) != null;
+  bool get isTextSelected {
+    // First make sure all selections are refreshed from cachedParagraphs?
+    //
+    // The call to _refreshSelectionsAsNeeded is commented out for now because
+    // the only way cachedParagraphs can affect the outcome is if the selection
+    // is invalidated because its range of selected text no longer exists in
+    // cachedParagraphs -- and that should be handled in other code.
+    //
+    // _refreshSelectionsAsNeeded();
+
+    return _selectionsMap.values.firstWhereOrNull((e) => e.isTextSelected) !=
+        null;
+  }
 
   /// If text is selected in any selections, deselects it. Returns `true` if
   /// any selections were deselected.
@@ -88,8 +77,12 @@ class Selections {
   var _cachedParagraphs = Paragraphs();
 
   /// Returns an iterable of the non-empty selections, if any.
-  Iterable<Selection> get nonEmptySelections =>
-      _selectionsMap.values.where((e) => e.isTextSelected);
+  Iterable<Selection> get nonEmptySelections {
+    // First make sure all selections are refreshed from cachedParagraphs.
+    _refreshSelectionsAsNeeded();
+
+    return _selectionsMap.values.where((e) => e.isTextSelected);
+  }
 
   /// Updates with the [newSelections], returning `true` if any selections
   /// changed.
@@ -108,6 +101,50 @@ class Selections {
     }
 
     return changed;
+  }
+
+  //
+  // PRIVATE STUFF
+  //
+
+  final _selectionsMap = <int, Selection>{};
+
+  /// Refreshes all selections that need refreshing from cachedParagraphs.
+  void _refreshSelectionsAsNeeded() {
+    _selectionsMap.keys.forEach(_selectionWithKey);
+  }
+
+  /// Returns the selection with [key], after first refreshing it from
+  /// cachedParagraphs if needed.
+  Selection? _selectionWithKey(int key, {bool useDragInfo = true}) {
+    var selection = _selectionsMap[key];
+    if (selection != null) {
+      final isSelectingWordOrDraggingHandle =
+          useDragInfo && key == 0 && dragInfo.isSelectingWordOrDraggingHandle;
+      if (isSelectingWordOrDraggingHandle ||
+          (selection.isTextSelected &&
+              selection.version != cachedParagraphs.version)) {
+        // dmPrint('Selectable: refreshing selection $key with layout '
+        //     '${cachedParagraphs.version}, selecting word or dragging '
+        //     'handle: $isSelectingWordOrDraggingHandle');
+        var updatedSelection = selection.updatedWith(
+          cachedParagraphs,
+          // Only the [main] selection (i.e. key == 0) uses [dragInfo].
+          useDragInfo && key == 0 ? dragInfo : null,
+        );
+
+        // If the selection was hidden and was updated from having no selected
+        // text to having selected text, unhide it.
+        if (selection.isHidden &&
+            !selection.isTextSelected &&
+            updatedSelection.isTextSelected) {
+          updatedSelection = updatedSelection.copyWith(isHidden: false);
+        }
+
+        _selectionsMap[key] = selection = updatedSelection;
+      }
+    }
+    return selection;
   }
 }
 
@@ -128,12 +165,13 @@ class Paragraphs {
   /// Updates the paragraph list with all [SelectionParagraph]s contained in
   /// the [renderBox].
   void updateCachedParagraphsWithRenderBox(RenderBox renderBox) {
-    // dmPrint('Updating Selections paragraphs...');
-
     if (!renderBox.hasSize) {
       assert(false);
       return; //------------------------------------------------------------>
     }
+
+    // dmPrint('Selectable: updating cached paragraphs with renderBox size: '
+    //     '${renderBox.size}');
 
     var paragraphsHaveChanged = _paragraphList.isEmpty;
     final newParagraphs = <SelectionParagraph>[];

@@ -191,10 +191,10 @@ class SelectableController extends ChangeNotifier {
       notifyListeners();
       return true;
     } else if (startPt == endPt) {
-      dmPrint('WARNING: Selectable selectWordAtPoint($startPt) failed.');
+      // dmPrint('WARNING: Selectable selectWordAtPoint($startPt) failed.');
     } else {
-      dmPrint('WARNING: Selectable '
-          'selectWordsBetweenPoints($startPt, $endPt) failed.');
+      // dmPrint('WARNING: Selectable '
+      //     'selectWordsBetweenPoints($startPt, $endPt) failed.');
     }
 
     return false;

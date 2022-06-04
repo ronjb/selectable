@@ -53,17 +53,20 @@ class _MyHomePageState extends State<MyHomePage> {
       // }
     });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      final text = _selectionController.getContainedText();
-      if (text.isNotEmpty) {
-        final i = random(max: text.length);
-        if (_selectionController.selectWordAtIndex(i, key: 1)) {
-          // print('selected word at $i');
-        } else {
-          // print('failed to select word at $i');
-        }
-      }
-    });
+    _timer =
+        Timer.periodic(const Duration(seconds: 1), (_) => _selectRandomWord());
+  }
+
+  void _selectRandomWord() {
+    // final text = _selectionController.getContainedText();
+    // if (text.isNotEmpty) {
+    //   final i = random(max: text.length);
+    //   if (_selectionController.selectWordAtIndex(i, key: 1)) {
+    //     // print('selected word at $i');
+    //   } else {
+    //     // print('failed to select word at $i');
+    //   }
+    // }
   }
 
   @override
@@ -84,13 +87,16 @@ class _MyHomePageState extends State<MyHomePage> {
         slivers: [
           const SliverAppBar(
             pinned: true,
-            expandedHeight: 100,
+            collapsedHeight: kToolbarHeight,
+            expandedHeight: 70,
             flexibleSpace: FlexibleSpaceBar(title: Text('Selectable Example')),
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) => Selectable(
                 selectWordOnDoubleTap: true,
+                topOverlayHeight:
+                    kToolbarHeight + MediaQuery.of(context).padding.top,
                 selectionController: _selectionController,
                 scrollController: _scrollController,
                 // selectionColor: Colors.orange.withAlpha(75),
