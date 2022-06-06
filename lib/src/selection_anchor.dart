@@ -48,7 +48,7 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
         rects.map((rect) => rect.inflate(delta)).toList(),
       );
 
-  /// Returns true if the selected word's rectangle(s) contain the [point].
+  /// Returns `true` if the selected word's rectangle(s) contain the [point].
   bool containsPoint(Offset? point) => rects.containsPoint(point);
 
   bool operator <(SelectionAnchor? other) => (compareTo(other) < 0);

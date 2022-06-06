@@ -142,13 +142,12 @@ class SelectableController extends ChangeNotifier {
     int? key,
   }) {
     // ignore: unnecessary_null_comparison
-    assert(start != null && end != null && start <= end);
-
-    // ignore: unnecessary_null_comparison
     if (start != null && end != null && start <= end) {
       final startPt = start.rects.first.center;
       final endPt = end.rects.last.centerRight;
       return selectWordsBetweenPoints(startPt, endPt, key: key);
+    } else {
+      assert(false);
     }
 
     return false;
@@ -240,9 +239,29 @@ class SelectableController extends ChangeNotifier {
     return true;
   }
 
+  /// Sets the custom selection painter to be used to paint selections.
+  void setCustomPainter(SelectionPainter? painter, {int? key}) {
+    final k = key ?? 0;
+    if (painter == null) {
+      if (_painters.containsKey(k)) {
+        _painters.remove(k);
+        notifyListeners();
+      }
+    } else {
+      _painters[k] = painter;
+      notifyListeners();
+    }
+  }
+
+  /// Returns the selection painter, or null if none.
+  SelectionPainter? getCustomPainter({int? key}) => _painters[key ?? 0];
+
   //
-  // PRIVATE STUFF
+  // PRIVATE
   //
+
+  final _selections = Selections();
+  final _painters = <int, SelectionPainter>{};
 
   /// Updates the [Selections]. This is called by Selectable when the
   /// selection changes. It should not be called by any other code.
@@ -253,6 +272,4 @@ class SelectableController extends ChangeNotifier {
     if (changed) notifyListeners();
     return changed;
   }
-
-  final _selections = Selections();
 }

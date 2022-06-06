@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 
 import 'package:selectable/selectable.dart';
 
+import 'my_selection_painter.dart';
+
 // ignore_for_file: avoid_print
 
 void main() {
@@ -30,6 +32,7 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyHomePageState createState() => _MyHomePageState();
 }
 
@@ -37,24 +40,50 @@ class _MyHomePageState extends State<MyHomePage> {
   final _scrollController = ScrollController();
   final _selectionController = SelectableController();
   var _isTextSelected = false;
+  var _showSelection = true;
   late Timer _timer;
 
   @override
   void initState() {
     super.initState();
-    _selectionController.addListener(() {
-      if (_isTextSelected != _selectionController.isTextSelected) {
-        _isTextSelected = _selectionController.isTextSelected;
-        // print(_isTextSelected ? 'Text is selected' : 'Text is not selected');
-        if (mounted) setState(() {});
-      }
-      // if (_selectionController.rects != null) {
-      //   print('selection rects: ${_selectionController.rects}');
-      // }
-    });
+
+    _selectionController
+      ..setCustomPainter(MySelectionPainter())
+      ..addListener(_selectionChangedListener);
 
     _timer =
         Timer.periodic(const Duration(seconds: 1), (_) => _selectRandomWord());
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _selectionController
+      ..removeListener(_selectionChangedListener)
+      ..dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _selectionChangedListener() {
+    if (_isTextSelected != _selectionController.isTextSelected) {
+      if (mounted) {
+        setState(() {
+          _isTextSelected = _selectionController.isTextSelected;
+        });
+      }
+    }
+  }
+
+  void _toggleShowHideSelection() {
+    setState(() {
+      _showSelection = !_showSelection;
+      if (_showSelection) {
+        _selectionController.unhide();
+      } else {
+        _selectionController.hide();
+      }
+    });
   }
 
   void _selectRandomWord() {
@@ -68,16 +97,6 @@ class _MyHomePageState extends State<MyHomePage> {
     //   }
     // }
   }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    _selectionController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  var _showSelection = true;
 
   @override
   Widget build(BuildContext context) {
@@ -203,24 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: _isTextSelected
           ? FloatingActionButton.extended(
-              onPressed: () {
-                //Provider.of<Counter>(context, listen: false).increment();
-
-                setState(() {
-                  _showSelection = !_showSelection;
-                  if (_showSelection) {
-                    _selectionController.unhide();
-                  } else {
-                    _selectionController.hide();
-                  }
-                });
-
-                // if (_selectionController.isTextSelected) {
-                //   _selectionController.deselectAll();
-                // }
-              },
-              //tooltip: 'Increment',
-              //child: Icon(Icons.add),
+              onPressed: _toggleShowHideSelection,
               label: Text(_showSelection ? 'hide selection' : 'show selection'),
             )
           : null,
@@ -272,11 +274,10 @@ const TextStyle textStyle2 = TextStyle(
 );
 
 math.Random? _random;
-const maxRandomInt = 0x100000000;
 
+/// Returns a random integer uniformly distributed in the range from [min],
+/// inclusive, to [max], exclusive.
 int random({int min = 0, required int max}) {
   assert(max > min);
-  final safeRange = math.min(maxRandomInt, math.max(0, max - min));
-  _random ??= math.Random();
-  return _random!.nextInt(safeRange) + min;
+  return (_random ??= math.Random()).nextInt(math.max(0, max - min)) + min;
 }

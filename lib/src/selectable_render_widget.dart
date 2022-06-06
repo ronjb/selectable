@@ -187,7 +187,7 @@ class RenderSelectableWidget extends RenderProxyBox {
   ///
   /// If the new delegate is the same class as the previous one, then the new
   /// delegate has its [SelectionPainter.shouldRepaint] called; if the result is
-  /// true, then the delegate will be called.
+  /// `true`, then the delegate will be called.
   ///
   /// If the new delegate is a different class than the previous one, then the
   /// delegate will be called.
@@ -214,7 +214,7 @@ class RenderSelectableWidget extends RenderProxyBox {
   ///
   /// If the new delegate is the same class as the previous one, then the new
   /// delegate has its [SelectionPainter.shouldRepaint] called; if the result is
-  /// true, then the delegate will be called.
+  /// `true`, then the delegate will be called.
   ///
   /// If the new delegate is a different class than the previous one, then the
   /// delegate will be called.

@@ -18,7 +18,7 @@ class Selections {
   /// Returns the [main] selection (i.e. `this[0]`).
   Selection get main => this[0]!;
 
-  /// Returns the [Selection] with the given key, or null if none.
+  /// Returns the [Selection] with the provided key, or null if none.
   Selection? operator [](int key) {
     // Get the selection, refreshing it from cachedParagraphs if needed.
     var selection = _selectionWithKey(key);
@@ -31,7 +31,7 @@ class Selections {
     return selection;
   }
 
-  /// Updates the [Selection] with the given key.
+  /// Updates the [Selection] with the provided key.
   void operator []=(int key, Selection selection) {
     _selectionsMap[key] = selection;
   }
@@ -104,7 +104,7 @@ class Selections {
   }
 
   //
-  // PRIVATE STUFF
+  // PRIVATE
   //
 
   final _selectionsMap = <int, Selection>{};
@@ -156,7 +156,9 @@ class Paragraphs {
   List<SelectionParagraph> get list => _paragraphList;
   var _paragraphList = <SelectionParagraph>[];
 
-  /// The [version] gets incremented every time the paragraph list changes.
+  /// The [version] starts at 1 and gets incremented every time the paragraph
+  /// list is updated. Once it reaches the max safe int value, 0x1FFFFFFFFFFFFF,
+  /// it wraps back around to 1.
   int get version => _version;
   var _version = 1;
 

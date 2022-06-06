@@ -37,8 +37,8 @@ extension SelectableExtOnString on String {
     return count;
   }
 
-  /// Returns the index where the given word starts (or ends, if [start]
-  /// is `false`). Note, the first word is word 1, and so on.
+  /// Returns the index where [word] starts (or ends, if [start] is `false`).
+  /// Note, the first word is word 1, and so on.
   int indexAtWord(int? word, {bool start = true}) {
     if (word == null || word <= 0) return 0;
     var wordCount = 0;
@@ -62,23 +62,24 @@ extension SelectableExtOnString on String {
     return i;
   }
 
-  /// Returns the index immediately after the given word. Note, the first
-  /// word is word 1, and so on.
+  /// Returns the index immediately after [word]. Note, the first word is
+  /// word 1, and so on.
   int indexAtEndOfWord(int word) {
     return indexAtWord(word, start: false);
   }
 
-  /// Returns the index into the string of the next character boundary after
-  /// the given index.
+  /// Returns the index into this string of the next character boundary after
+  /// the provided [index].
   ///
   /// The character boundary is determined by the characters package, so
   /// surrogate pairs and extended grapheme clusters are considered.
   ///
-  /// The index must be between 0 and string.length, inclusive. If given
-  /// string.length, string.length is returned.
+  /// The index must be between 0 and this string's length, inclusive. If the
+  /// [index] is equal to this string's length, this string's length is
+  /// returned.
   ///
-  /// Setting includeWhitespace to false will only return the index of
-  /// non-space characters.
+  /// Setting [includeWhitespace] to `false` will only return the index of
+  /// non-whitespace characters.
   int indexOfCharacterAfter(int index, {bool includeWhitespace = true}) {
     assert(index >= 0 && index <= length);
     if (index == length) return length;
@@ -99,16 +100,16 @@ extension SelectableExtOnString on String {
     return range.current.length;
   }
 
-  /// Returns the index into the string of the previous character boundary
-  /// before the given index.
+  /// Returns the index into this string of the previous character boundary
+  /// before the provided [index].
   ///
   /// The character boundary is determined by the characters package, so
   /// surrogate pairs and extended grapheme clusters are considered.
   ///
-  /// The index must be between 0 and string.length, inclusive. If index is 0,
-  /// 0 will be returned.
+  /// The index must be between 0 and this string's length, inclusive. If index
+  /// is zero, zero will be returned.
   ///
-  /// Setting includeWhitespace to false will only return the index of
+  /// Setting [includeWhitespace] to `false` will only return the index of
   /// non-space characters.
   int indexOfCharacterBefore(int index, {bool includeWhitespace = true}) {
     assert(index >= 0 && index <= length);
@@ -132,12 +133,10 @@ extension SelectableExtOnString on String {
     return range.current.length;
   }
 
-  /// Returns true if the character at the given [index] is a whitespace
-  /// character.
+  /// Returns `true` if the character at [index] is a whitespace character.
   bool isWhitespaceAtIndex(int index) => _isWhitespace(codeUnitAt(index));
 
-  /// Returns true if the character at the given [index] is a non-word
-  /// character.
+  /// Returns `true` if the character at [index] is a non-word character.
   ///
   /// Non-word characters are whitespace characters, punctuation characters
   /// (except apostrophe characters), and the single-quote-left character,
@@ -145,17 +144,17 @@ extension SelectableExtOnString on String {
   bool isNonWordCharacterAtIndex(int index) =>
       _isNonWordChar(codeUnitAt(index));
 
-  /// Returns true if the character at the given [index] is an apostrophe
-  /// character (i.e. it is the single-quote character -- 0x0027, or the
-  /// single-quote-right character -- 0x2019).
+  /// Returns `true` if the character at [index] is an apostrophe (i.e. it is
+  /// the single-quote character 0x0027, or the single-quote-right character
+  /// 0x2019).
   bool isApostropheAtIndex(int index) => _isApostrophe(codeUnitAt(index));
 }
 
-/// Returns true if the character is a whitespace character.
+/// Returns `true` if the character is a whitespace character.
 bool isWhitespaceRune(int rune) => _isWhitespace(rune);
 
 //
-// PRIVATE STUFF
+// PRIVATE
 //
 
 extension<T> on Set<T> {
@@ -258,7 +257,7 @@ const _asciiPunctuation = <int>{
   0x007E, // ~ tilde
 };
 
-/// Returns true if the given character is a whitespace character.
+/// Returns `true` if the [rune] is a whitespace character.
 ///
 /// Built by referencing the _isWhitespace functions in
 /// https://api.flutter.dev/flutter/quiver.strings/isWhitespace.html

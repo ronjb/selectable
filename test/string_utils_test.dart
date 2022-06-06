@@ -55,7 +55,8 @@ void main() {
       expect(() => '01234567'.indexOfCharacterAfter(9), throwsAssertionError);
     });
 
-    test('skips spaces in normal strings when includeWhitespace is false', () {
+    test('skips spaces in normal strings when includeWhitespace is `false`',
+        () {
       expect('0123 5678'.indexOfCharacterAfter(3, includeWhitespace: false), 5);
       expect('0123 5678'.indexOfCharacterAfter(4, includeWhitespace: false), 5);
       expect(
@@ -114,7 +115,8 @@ void main() {
       expect(() => '01234567'.indexOfCharacterBefore(9), throwsAssertionError);
     });
 
-    test('skips spaces in normal strings when includeWhitespace is false', () {
+    test('skips spaces in normal strings when includeWhitespace is `false`',
+        () {
       expect(
           '0123 0123'.indexOfCharacterBefore(5, includeWhitespace: false), 3);
       expect(

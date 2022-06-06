@@ -8,7 +8,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-/// If kDebugMode is true, prints a string representation of the object
+/// If kDebugMode is `true`, prints a string representation of the object
 /// to the console.
 void dmPrint(Object object) {
   if (kDebugMode) print(object); // ignore: avoid_print
@@ -44,12 +44,12 @@ extension SelectableExtOnInt on int {
 }
 
 extension SelectableExtOnNum<T extends num> on T {
-  /// Returns true if this number is >= min and < max.
+  /// Returns `true` if this number is >= min and < max.
   bool isInRange(T min, T max) => (this >= min && this < max);
 }
 
 extension SelectableExtOnIterable<T> on Iterable<T> {
-  /// Returns true if the length of this iterable is greater than [l].
+  /// Returns `true` if the length of this iterable is greater than [l].
   ///
   /// This method is more efficient than using `length > l` because this method
   /// stops iterating once it knows the length exceeds [l], whereas calling
@@ -74,8 +74,7 @@ extension SelectableExtOnScrollController on ScrollController {
 /// List<Rect> extensions
 ///
 extension SelectableExtOnListOfRect on List<Rect> {
-  /// Returns the index of the first rect in the list that contains
-  /// the given [point].
+  /// Returns the index of the first rect in the list that contains [point].
   ///
   /// Searches the list from index [start] to the end of the list.
   ///
@@ -85,8 +84,7 @@ extension SelectableExtOnListOfRect on List<Rect> {
     return indexWhere((rect) => rect.contains(point), start ?? 0);
   }
 
-  /// Returns true if at least one of the rects in the list contain
-  /// the given [point].
+  /// Returns `true` if at least one of the rects in the list contains [point].
   bool containsPoint(Offset? point) => (indexContainingPoint(point) >= 0);
 
   /// Returns a new rect which is the bounding box containing all the
@@ -245,7 +243,7 @@ extension SelectableExtOnIterableOfTextBox on Iterable<TextBox> {
 ///
 extension SelectableExtOnRect on Rect {
   /// Returns a new rectangle which is the bounding box containing this
-  /// rectangle and the given text box.
+  /// rectangle and [other].
   Rect expandToIncludeTextBox(TextBox other) {
     return Rect.fromLTRB(
       math.min(left, other.left),
@@ -300,7 +298,7 @@ extension SelectableExtOnTextBox on TextBox {
   /// The horizontal center.
   double get hCenter => (left + right) / 2.0;
 
-  /// Returns a new text box translated by the given offset.
+  /// Returns a new text box translated by [offset].
   ///
   /// To translate a text box by separate x and y components rather than by an
   /// [Offset], consider [translate].
@@ -319,17 +317,17 @@ extension SelectableExtOnTextBox on TextBox {
         right + translateX, bottom + translateY, direction);
   }
 
-  /// Returns a new text box with edges moved outwards by the given delta.
+  /// Returns a new text box with edges inflated by [delta].
   TextBox inflate(double delta) {
     return TextBox.fromLTRBD(
         left - delta, top - delta, right + delta, bottom + delta, direction);
   }
 
-  /// Returns a new text box with edges moved inwards by the given delta.
+  /// Returns a new text box with edges deflated by [delta].
   TextBox deflate(double delta) => inflate(-delta);
 
   /// Returns a new rectangle which is the bounding box containing this
-  /// text box and the given text box.
+  /// text box and [other].
   Rect expandToInclude(TextBox other) {
     return Rect.fromLTRB(
       math.min(left, other.left),
@@ -344,13 +342,13 @@ extension SelectableExtOnList<T> on List<T> {
   /// Returns the position in this list where the [compare] function returns 0,
   /// otherwise returns -1.
   ///
-  /// If the list isn't sorted according to the compare function, the result is
-  /// unpredictable.
+  /// If the list isn't sorted according to the [compare] function, the result
+  /// is unpredictable.
   ///
-  /// The [compare] function must return a negative integer if the given element
-  /// is ordered before the matching element, a positive integer if the given
-  /// element is ordered after the matching element, and zero if the given
-  /// element is the matching element.
+  /// The [compare] function must return a negative integer if the element
+  /// is ordered before the matching element, a positive integer if the element
+  /// is ordered after the matching element, and zero if the element is equal to
+  /// the matching element.
   int binarySearchWithCompare(int Function(T) compare) {
     var min = 0;
     var max = length;

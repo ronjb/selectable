@@ -18,13 +18,13 @@ typedef InlineSpanVisitorWithIndex = bool Function(InlineSpan span, int index);
 
 extension SelectableExtOnInlineSpan on InlineSpan {
   /// Searches this span and its contained spans (if any) for the span that
-  /// contains the character at the given [index], and if found, returns a
-  /// [TaggedText] object with `taggedText.tag` set to the containing span's
-  /// `tag` property (or `null` if it is not tagged), `taggedText.text` set
-  /// to the containing span's `text` value (or `String.fromCharCode(0xFFFC)`
-  /// if the containing span is not a TextSpan and [includesPlaceholders] is
-  /// true), and `taggedText.index` set to the index into `taggedText.text`
-  /// of the character.
+  /// contains the character at [index], and if found, returns a [TaggedText]
+  /// object with `taggedText.tag` set to the containing span's `tag` property
+  /// (or `null` if it is not tagged), `taggedText.text` set to the containing
+  /// span's `text` value (or `String.fromCharCode(0xFFFC)` if the containing
+  /// span is not a TextSpan and [includesPlaceholders] is `true`), and
+  /// `taggedText.index` set to the index into `taggedText.text` of the
+  /// character.
   ///
   /// Example usage:
   ///
@@ -66,7 +66,7 @@ extension SelectableExtOnInlineSpan on InlineSpan {
   }
 
   /// Searches this span and its contained spans (if any) for the span that
-  /// contains the character at the given [index], and if found, returns it.
+  /// contains the character at [index], and if found, returns it.
   ///
   /// Example usage:
   ///
@@ -117,8 +117,8 @@ extension SelectableExtOnInlineSpan on InlineSpan {
   /// Walks this [InlineSpan] and its descendants in pre-order and calls
   /// [visitor] for each span that has text.
   ///
-  /// When [visitor] returns true, the walk will continue. When [visitor]
-  /// returns false, then the walk will end.
+  /// When [visitor] returns `true`, the walk will continue. When [visitor]
+  /// returns `false`, then the walk will end.
   bool visitChildrenEx(
     InlineSpanVisitorWithIndex visitor, {
     bool includesPlaceholders = true,

@@ -297,15 +297,16 @@ class _SelectableState extends State<Selectable>
             paragraphs: _selections.cachedParagraphs,
             selections: _selections,
             foregroundPainter: widget.showSelection
-                ? DefaultSelectionPainter(
-                    color: selectionColor,
-                    opacityAnimation:
-                        _selectionIsHidden == _selections.main.isHidden
-                            ? _selectionOpacityController
-                            : _selections.main.isHidden
-                                ? kAlwaysDismissedAnimation
-                                : kAlwaysCompleteAnimation,
-                  )
+                ? _selectionController?.getCustomPainter() ??
+                    DefaultSelectionPainter(
+                      color: selectionColor,
+                      opacityAnimation:
+                          _selectionIsHidden == _selections.main.isHidden
+                              ? _selectionOpacityController
+                              : _selections.main.isHidden
+                                  ? kAlwaysDismissedAnimation
+                                  : kAlwaysCompleteAnimation,
+                    )
                 : null,
             child: IgnorePointer(
               // Ignore gestures (e.g. taps) on the child if text is selected.
@@ -522,7 +523,7 @@ class _SelectableState extends State<Selectable>
 }
 
 //
-// PRIVATE STUFF
+// PRIVATE
 //
 
 final _defaultMenuItems = [

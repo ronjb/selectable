@@ -12,10 +12,10 @@ import 'selection.dart';
 
 /// [SelectionPainter]
 ///
-/// To implement a custom painter, either subclass or implement this interface
-/// to define your custom paint delegate. [SelectionPainter] subclasses must
-/// implement the [paint] and [shouldRepaint] methods, and may optionally also
-/// implement the [hitTest] method.
+/// To implement a custom selection painter, either subclass or implement this
+/// interface to define your custom paint delegate. [SelectionPainter]
+/// subclasses must implement the [paint] and [shouldRepaint] methods, and may
+/// optionally also implement the [hitTest] method.
 ///
 /// The [paint] method is called whenever the custom object needs to be
 /// repainted.
@@ -41,7 +41,7 @@ import 'selection.dart';
 /// render object, to determine if the user hit the object or missed it.
 ///
 abstract class SelectionPainter extends Listenable {
-  /// Creates a custom painter.
+  /// Creates a custom selection painter.
   ///
   /// The painter will repaint whenever `repaint` notifies its listeners.
   const SelectionPainter({Listenable? repaint}) : _repaint = repaint;
@@ -66,9 +66,9 @@ abstract class SelectionPainter extends Listenable {
   void removeListener(VoidCallback listener) =>
       _repaint?.removeListener(listener);
 
-  /// Called whenever the object needs to paint. The given [Canvas] has its
-  /// coordinate space configured such that the origin is at the top left of the
-  /// box. The area of the box is the size of the [size] argument.
+  /// Called whenever the object needs to paint. The [Canvas] has its coordinate
+  /// space configured such that the origin is at the top left of the box. The
+  /// area of the box is the size of the [size] argument.
   ///
   /// Paint operations should remain inside the given area. Graphical
   /// operations outside the bounds may be silently ignored, clipped, or not
@@ -91,17 +91,17 @@ abstract class SelectionPainter extends Listenable {
   /// implemented in terms of the former).
   ///
   /// If the new instance represents different information than the old
-  /// instance, then the method should return true, otherwise it should return
-  /// false.
+  /// instance, then the method should return `true`, otherwise it should return
+  /// `false`.
   ///
-  /// If the method returns false, then the [paint] call might be optimized
+  /// If the method returns `false`, then the [paint] call might be optimized
   /// away.
   ///
   /// It's possible that the [paint] method will get called even if
-  /// [shouldRepaint] returns false (e.g. if an ancestor or descendant needed to
-  /// be repainted). It's also possible that the [paint] method will get called
-  /// without [shouldRepaint] being called at all (e.g. if the box changes
-  /// size).
+  /// [shouldRepaint] returns `false` (e.g. if an ancestor or descendant needed
+  /// to be repainted). It's also possible that the [paint] method will get
+  /// called without [shouldRepaint] being called at all (e.g. if the box
+  /// changes size).
   ///
   /// If a custom delegate has a particularly expensive paint function such that
   /// repaints should be avoided as much as possible, a [RepaintBoundary] or
@@ -114,25 +114,25 @@ abstract class SelectionPainter extends Listenable {
   /// Called whenever a hit test is being performed on an object that is using
   /// this custom paint delegate.
   ///
-  /// The given point is relative to the same coordinate space as the last
+  /// The [position] is relative to the same coordinate space as the last
   /// [paint] call.
   ///
   /// The default behavior is to consider all points to be hits for
   /// background painters, and no points to be hits for foreground painters.
   ///
-  /// Return true if the given position corresponds to a point on the drawn
-  /// image that should be considered a "hit", false if it corresponds to a
-  /// point that should be considered outside the painted image, and null to use
-  /// the default behavior.
+  /// Return `true` if the [position] corresponds to a point on the drawn image
+  /// that should be considered a "hit", `false` if it corresponds to a point
+  /// that should be considered outside the painted image, and null to use the
+  /// default behavior.
   bool? hitTest(Offset position) => null;
 
   @override
   String toString() =>
-      '${describeIdentity(this)}(${_repaint?.toString() ?? ""})';
+      '${describeIdentity(this)}(${_repaint?.toString() ?? ''})';
 }
 
 ///
-/// SelectionPainter
+/// DefaultSelectionPainter
 ///
 class DefaultSelectionPainter extends SelectionPainter {
   DefaultSelectionPainter({

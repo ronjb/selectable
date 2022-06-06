@@ -17,14 +17,14 @@ import 'package:flutter/widgets.dart';
 ///
 /// GestureDetector also listens for accessibility events and maps
 /// them to the callbacks. To ignore accessibility events, set
-/// [excludeFromSemantics] to true.
+/// [excludeFromSemantics] to `true`.
 ///
 /// See <http://flutter.dev/gestures/> for additional information.
 ///
 /// ## Debugging
 ///
 /// To see how large the hit test box of a [SelectablePanGestureDetector] is for
-/// debugging purposes, set `debugPaintPointersEnabled` to true.
+/// debugging purposes, set `debugPaintPointersEnabled` to `true`.
 @immutable
 class SelectablePanGestureDetector extends StatelessWidget {
   /// Creates a widget that detects pan gestures.

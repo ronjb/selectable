@@ -87,7 +87,7 @@ Selection updatedSelectionWith(
   }
 
   // Local func that returns `true` if the selection point is in, to the left
-  // of, or to the right of the given [paragraph].
+  // of, or to the right of [paragraph].
   bool selectionPtIsInOrNextTo(SelectionParagraph paragraph) {
     return (paragraph.rect.contains(selectionPt!) ||
         (selectionPt.dy.isInRange(paragraph.rect.top, paragraph.rect.bottom) &&

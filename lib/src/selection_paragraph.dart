@@ -43,12 +43,12 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     return v;
   }
 
-  /// Returns a new `SelectionParagraph` or `null` if the given
-  /// `RenderTextMixin` has no size (i.e. has not undergone layout), or if
-  /// its `text` is empty or just whitespace.
+  /// Returns a new `SelectionParagraph` or `null` if the provided
+  /// `RenderTextMixin` has no size (i.e. has not undergone layout),
+  /// or if its `text` is empty or just whitespace.
   ///
-  /// [ancestor] must be an ancestor of the given `RenderTextMixin`, and is
-  /// used to determine the offset of this paragraph's rect.
+  /// The [ancestor] must be an ancestor of the provided `RenderTextMixin`,
+  /// and is used to determine the offset of this paragraph's rect.
   static SelectionParagraph? from(
     RenderTextMixin rp, {
     required RenderObject ancestor,
@@ -109,7 +109,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
         firstCharIndex: firstCharIndex ?? this.firstCharIndex,
       );
 
-  /// Returns a new `SelectionAnchor` at the given `Offset`.
+  /// Returns a new [SelectionAnchor] at the provided [Offset].
   SelectionAnchor? anchorAtPt(
     Offset pt, {
     bool onlyIfInRect = true,
@@ -119,7 +119,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
         trim: trim);
   }
 
-  /// Returns a new `SelectionAnchor` at the given character index.
+  /// Returns a new [SelectionAnchor] at the provided character index.
   SelectionAnchor? anchorAtCharIndex(
     int i, {
     bool trim = true,
@@ -140,7 +140,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     return anchorAtRange(range, trim: trim);
   }
 
-  /// Returns a new `SelectionAnchor` with the given text [range].
+  /// Returns a new [SelectionAnchor] with the provided text [range].
   SelectionAnchor? anchorAtRange(
     TextRange? range, {
     bool trim = true,
@@ -161,7 +161,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     return null;
   }
 
-  /// Returns the list of `Rect`s for the given [selection].
+  /// Returns the list of [Rect]s for the [selection].
   List<Rect> rectsForSelection(TextSelection selection) {
     // ignore: unnecessary_null_comparison
     assert(selection != null && rp != null);
@@ -181,12 +181,12 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     return [];
   }
 
-  /// Returns the [TextRange] for the text at the given offset.
+  /// Returns the [TextRange] for the text at the provided [Offset].
   TextRange? wordBoundaryAtPt(Offset pt, {bool onlyIfInRect = true}) {
     assert(rp != null);
 
     if (rp != null && (!onlyIfInRect || rect.contains(pt))) {
-      // Get the text position closest to the given offset.
+      // Get the text position closest to the provided [Offset].
       final textPosition = rp!.getPositionForOffset(_toLocalPt(pt));
 
       // If the `pt` is on the right side of the last letter of a word,
@@ -215,14 +215,14 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   /// Walks this paragraph's `InlineSpan` and its descendants in pre-order and
   /// calls [visitor] for each span that has text.
   ///
-  /// When [visitor] returns true, the walk will continue. When [visitor]
-  /// returns false, then the walk will end.
+  /// When [visitor] returns `true`, the walk will continue. When [visitor]
+  /// returns `false`, then the walk will end.
   bool visitChildSpans(InlineSpanVisitorWithIndex visitor) =>
       rp!.text.visitChildrenEx(visitor);
 
   Offset _toLocalPt(Offset pt) => Offset(pt.dx - rect.left, pt.dy - rect.top);
 
-  /// Returns the [TextRange] of the word after the given [range].
+  /// Returns the [TextRange] of the word after [range].
   // TextRange wordRangeAfter(TextRange range) {
   //   assert(rp != null);
   //   if (range == null || range.end >= trimmedSel.end) return null;
@@ -299,7 +299,7 @@ extension SelectableExtOnListOfSelectionParagraph on List<SelectionParagraph> {
 }
 
 //
-// PRIVATE STUFF
+// PRIVATE
 //
 
 bool _shouldSkip(int rune) {
@@ -307,8 +307,7 @@ bool _shouldSkip(int rune) {
 }
 
 ///
-/// Returns an iterable list of tags in the given [span] or an empty list if
-/// none.
+/// Returns an iterable list of tags in the [span] or an empty list if none.
 ///
 // ignore: unused_element
 Iterable<Object> _tagsFromSpan(InlineSpan span) {

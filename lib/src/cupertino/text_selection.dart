@@ -393,7 +393,7 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       bool Function(SelectableController?)? onPressed,
     ) {
       if (!predicate(delegate.controller)) {
-        // dmPrint('NOT showing $text menu because isEnabled returned false');
+        // dmPrint('NOT showing $text menu because isEnabled returned `false`');
         return;
       }
 

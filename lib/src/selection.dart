@@ -117,7 +117,7 @@ class Selection extends Equatable {
   /// Is text selected?
   bool get isTextSelected => rects != null;
 
-  /// Returns true if the given point is contained in the selection.
+  /// Returns `true` if the [point] is contained in the selection.
   bool containsPoint(Offset point) => rects?.containsPoint(point) ?? false;
 
   Selection cleared() => Selection(
@@ -125,8 +125,8 @@ class Selection extends Equatable {
         animationDuration: animationDuration,
       );
 
-  /// Returns a new Selection, updated with the given [paragraphs] and
-  /// and optional [dragInfo].
+  /// Returns a new Selection, updated with the provided [paragraphs] and
+  /// an optional [dragInfo].
   Selection updatedWith(
     Paragraphs paragraphs,
     SelectionDragInfo? dragInfo,

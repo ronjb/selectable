@@ -14,11 +14,11 @@ mixin SplittableTextSpanTag<T> {
 }
 
 /// [TaggedTextSpan] extends [TextSpan] to include a [tag] object and
-/// the ability to be split at a given index. Other than that it is
+/// the ability to be split at a provided index. Other than that it is
 /// functionally equivalent to [TextSpan].
 @immutable
 class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
-  /// Creates a [TaggedTextSpan] with the given values.
+  /// Creates a [TaggedTextSpan] with the provided properties.
   ///
   /// For the object to be useful, at least one of [text] or
   /// [children] should be set.
@@ -96,7 +96,7 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
   }
 
   //
-  // PRIVATE STUFF
+  // PRIVATE
   //
 
   List<InlineSpan> _splitAt(SplitAtIndex index) {
@@ -138,7 +138,7 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
             span.copyWith(noText: true, children: result.last),
           ];
         } else if (result.length == 1) {
-          // Only true if the number of characters in all the children was
+          // Only `true` if the number of characters in all the children was
           // equal to index.value.
           assert(listEquals<InlineSpan>(result.first, children));
         } else {

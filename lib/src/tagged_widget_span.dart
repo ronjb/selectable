@@ -19,7 +19,7 @@ import 'package:flutter/widgets.dart';
 ///
 @immutable
 class TaggedWidgetSpan extends WidgetSpan {
-  /// Creates a [TaggedWidgetSpan] with the given values.
+  /// Creates a [TaggedWidgetSpan] with the provided properties.
   ///
   /// The [child] property must be non-null. [WidgetSpan] is a leaf node in
   /// the [InlineSpan] tree. Child widgets are constrained by the width of the
