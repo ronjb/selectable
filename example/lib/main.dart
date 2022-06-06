@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'package:selectable/selectable.dart';
 
-import 'my_selection_painter.dart';
+// import 'my_selection_painter.dart';
 
 // ignore_for_file: avoid_print
 
@@ -48,8 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     _selectionController
-      ..setCustomPainter(MySelectionPainter())
-      ..addListener(_selectionChangedListener);
+        // ..setCustomPainter(MySelectionPainter())
+        .addListener(_selectionChangedListener);
 
     _timer =
         Timer.periodic(const Duration(seconds: 1), (_) => _selectRandomWord());
