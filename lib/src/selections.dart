@@ -7,6 +7,7 @@ import 'package:float_column/float_column.dart';
 import 'package:flutter/rendering.dart';
 
 import 'common.dart';
+import 'ignore_selectable.dart';
 import 'selection.dart';
 import 'selection_paragraph.dart';
 
@@ -179,7 +180,7 @@ class Paragraphs {
     final newParagraphs = <SelectionParagraph>[];
     var charIndex = 0;
 
-    renderBox.visitChildrenAndTextRenderers((ro) {
+    renderBox._visitChildrenAndTextRenderers((ro) {
       final rt = ro.asRenderText();
       if (rt != null) {
         final paragraphIndex = newParagraphs.length;
@@ -240,5 +241,49 @@ class Paragraphs {
     } else {
       // dmPrint('Selections checked for paragraph updates, found none.');
     }
+  }
+}
+
+extension on RenderObject {
+  ///
+  /// Walks this [RenderObject] tree in a depth-first pre-order traversal,
+  /// calling [visitor] for each child.
+  ///
+  /// If [visitor] returns true, the walk continues, otherwise it is canceled.
+  ///
+  bool _visitChildrenAndTextRenderers(CancelableObjectVisitor visitor) {
+    var canceled = false;
+
+    late void Function(Object object) visitChildrenRecursively;
+
+    void recursiveRenderObjectVisitor(RenderObject object) {
+      // This is called for every child of the render object, even after the
+      // [visitor] function may have returned `false` for one of the children,
+      // so check if canceled before handling.
+      if (!canceled) {
+        canceled = !visitor(object);
+        if (!canceled) visitChildrenRecursively(object);
+      }
+    }
+
+    bool recursiveObjectVisitor(Object object) {
+      canceled = !visitor(object);
+      if (!canceled) visitChildrenRecursively(object);
+      return !canceled;
+    }
+
+    visitChildrenRecursively = (object) {
+      // Ignore RenderIgnoreSelectable objects if `ignoring` is true.
+      if (object is RenderIgnoreSelectable && object.ignoring) return;
+
+      if (object is VisitChildrenOfAnyTypeMixin) {
+        canceled = !object.visitChildrenOfAnyType(recursiveObjectVisitor);
+      } else if (object is RenderObject) {
+        object.visitChildren(recursiveRenderObjectVisitor);
+      }
+    };
+
+    visitChildrenRecursively(this);
+    return !canceled;
   }
 }

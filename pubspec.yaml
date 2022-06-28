@@ -11,10 +11,10 @@ dependencies:
   characters: ^1.2.0
   collection: ^1.16.0
   equatable: ^2.0.3
-  float_column: ^1.2.2
+  float_column: ^1.2.3
   flutter:
     sdk: flutter
-  url_launcher: ^6.1.2
+  url_launcher: ^6.1.4
 
 dev_dependencies:
   flutter_lints_plus: ^2.0.1

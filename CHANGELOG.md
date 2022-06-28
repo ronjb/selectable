@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.2.4] - June 28, 2022
+
+* Added `IgnoreSelectable` widget for wrapping widgets that should not be selectable.
+
 ## [0.2.3] - June 4, 2022
 
 * Fixed a bug where in some cases the selection wouldn't repaint in the correct location after a window resize.

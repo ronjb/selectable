@@ -155,8 +155,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     //mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        'Double-tap or long press on a word to select it, then drag '
-                        'the selection controls to change the selection.',
+                        'Double-tap or long press on a word to select it, then '
+                        'drag the selection controls to change the selection.',
                         style: Theme.of(context).textTheme.headline5,
                       ),
                       FloatColumn(
@@ -180,6 +180,19 @@ class _MyHomePageState extends State<MyHomePage> {
                             indent: 40,
                             text: TextSpan(text: text1, style: textStyle2),
                             textAlign: TextAlign.justify,
+                          ),
+                          const SizedBox(height: 16),
+                          WrappableText(
+                            text: TextSpan(
+                              text: 'IgnoreSelectable Example',
+                              style: Theme.of(context).textTheme.headline4,
+                            ),
+                          ),
+                          const IgnoreSelectable(
+                            child: Text(
+                              'This text is wrapped in an IgnoreSelectable widget, so it is not selectable.',
+                              style: textStyle2,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           Floatable(

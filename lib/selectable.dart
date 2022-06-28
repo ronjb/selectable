@@ -4,6 +4,7 @@
 
 library selectable;
 
+export 'src/ignore_selectable.dart';
 export 'src/inline_span_ext.dart';
 export 'src/selectable.dart';
 export 'src/selection.dart';

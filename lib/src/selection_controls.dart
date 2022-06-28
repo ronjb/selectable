@@ -5,7 +5,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
 import 'common.dart';
