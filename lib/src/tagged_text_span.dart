@@ -2,10 +2,13 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
+import 'dart:ui' as ui show Locale;
+
 import 'package:float_column/float_column.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 
 /// Mixin for tag classes that support being split along with the text span
 /// they are tagging.
@@ -28,7 +31,12 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
     super.children,
     super.style,
     super.recognizer,
+    super.mouseCursor,
+    super.onEnter,
+    super.onExit,
     super.semanticsLabel,
+    super.locale,
+    super.spellOut,
   }) :
         // ignore: unnecessary_null_comparison
         assert(tag != null);
@@ -43,7 +51,12 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
     List<InlineSpan>? children,
     TextStyle? style,
     GestureRecognizer? recognizer,
+    MouseCursor? mouseCursor,
+    PointerEnterEventListener? onEnter,
+    PointerExitEventListener? onExit,
     String? semanticsLabel,
+    ui.Locale? locale,
+    bool? spellOut,
     bool noText = false,
     bool noChildren = false,
   }) {
@@ -53,7 +66,12 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
       children: noChildren ? null : (children ?? this.children),
       style: style ?? this.style,
       recognizer: recognizer ?? this.recognizer,
+      mouseCursor: mouseCursor ?? this.mouseCursor,
+      onEnter: onEnter ?? this.onEnter,
+      onExit: onExit ?? this.onExit,
       semanticsLabel: semanticsLabel ?? this.semanticsLabel,
+      locale: locale ?? this.locale,
+      spellOut: spellOut ?? this.spellOut,
     );
   }
 
@@ -66,6 +84,9 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
         other.text == text &&
         other.recognizer == recognizer &&
         other.semanticsLabel == semanticsLabel &&
+        onEnter == other.onEnter &&
+        onExit == other.onExit &&
+        mouseCursor == other.mouseCursor &&
         other.tag == tag &&
         listEquals<InlineSpan>(other.children, children);
   }

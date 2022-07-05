@@ -48,7 +48,6 @@ class TaggedWidgetSpan extends WidgetSpan {
     ui.PlaceholderAlignment? alignment,
     TextBaseline? baseline,
     TextStyle? style,
-    double? childWidth,
   }) {
     return TaggedWidgetSpan(
       tag: tag ?? this.tag,
