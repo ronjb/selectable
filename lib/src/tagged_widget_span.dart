@@ -71,5 +71,5 @@ class TaggedWidgetSpan extends WidgetSpan {
   }
 
   @override
-  int get hashCode => hashValues(super.hashCode, tag);
+  int get hashCode => Object.hash(super.hashCode, tag);
 }

@@ -330,13 +330,19 @@ class _SelectableState extends State<Selectable>
                     _selections.dragInfo.isDraggingHandle) {
                   final paragraphs = _selections.cachedParagraphs.list;
                   assert(paragraphs.isNotEmpty);
-                  _buildHelper.maybeAutoscroll(
-                    widget.scrollController,
-                    _globalKey,
-                    _selections.dragInfo.selectionPt,
-                    paragraphs.last.rect.bottom,
-                    widget.topOverlayHeight,
-                  );
+                  if (paragraphs.isNotEmpty) {
+                    final selectionPt = _selections.dragInfo.selectionPt;
+                    final maxY = paragraphs.last.rect.bottom;
+                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                      _buildHelper.maybeAutoscroll(
+                        widget.scrollController,
+                        _globalKey,
+                        selectionPt,
+                        maxY,
+                        widget.topOverlayHeight,
+                      );
+                    });
+                  }
                 }
 
                 // dmPrint('selection.update resulted in '

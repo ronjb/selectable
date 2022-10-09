@@ -92,7 +92,7 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
   }
 
   @override
-  int get hashCode => hashValues(super.hashCode, tag);
+  int get hashCode => Object.hash(super.hashCode, tag);
 
   //
   // SplittableMixin related:

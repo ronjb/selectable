@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.2.5] - October 9, 2022
+
+* Fixed Issue #7 "Crash when adjusting selection handles".
+
 ## [0.2.4] - June 28, 2022
 
 * Added `IgnoreSelectable` widget for wrapping widgets that should not be selectable.
