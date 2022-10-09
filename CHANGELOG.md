@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [0.2.5] - October 9, 2022
+## [0.2.6] - October 9, 2022
 
 * Fixed Issue #7 "Crash when adjusting selection handles".
 
