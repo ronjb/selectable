@@ -6,13 +6,17 @@ A Flutter widget that enables text selection over all the text widgets it contai
 
 Try it out at: [https://ronjb.github.io/selectable](https://ronjb.github.io/selectable)
 
+## ⭐️ **IMPORTANT** ⭐️
+
+This library was written over a year before [`SelectableRegion`](https://api.flutter.dev/flutter/widgets/SelectableRegion-class.html) and related classes were added to Flutter. I will continue to maintain this library because I still use it in a few of my projects, but now that Flutter natively supports selection, I'd recommend using their implementation if it meets your needs.
+
 ## Getting Started
 
 Add this to your app's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  selectable: ^0.2.3
+  selectable: ^0.2.6
 ```
 
 ## Usage
@@ -44,18 +48,32 @@ Scaffold(
 
 `Selectable` by default supports long-pressing on a word to select it, then using the selection handles to adjust the selection. To also enable double-tapping on a word to select it, pass in `selectWordOnDoubleTap: true` like this:
 
-```
+```dart
 Selectable(
   selectWordOnDoubleTap: true,
   child: child,
 )
 ```
 
+## Wrap widgets that shouldn't be selectable in `IgnoreSelectable`
+
+For example:
+
+```dart
+IgnoreSelectable(
+  child: Text(
+    'This text is wrapped in an IgnoreSelectable widget, so it is not selectable.',
+    style: textStyle2,
+  ),
+),
+
+```
+
 ## Customizable Popup Selection Menu
 
 `Selectable` provides a default popup selection menu with the menu items Copy, Define, and WebSearch, but it can easily be customized. For example, to continue to show the default Copy menu item, and to add a custom menu item with the title "Foo! :)", which shows the selected text in an AlertDialog, do this:
 
-```
+```dart
 Selectable(
   child: child,
   popupMenuItems: [
