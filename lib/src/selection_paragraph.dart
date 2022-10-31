@@ -303,7 +303,7 @@ extension SelectableExtOnListOfSelectionParagraph on List<SelectionParagraph> {
 //
 
 bool _shouldSkip(int rune) {
-  return rune == objectReplacementCharacterCode || isWhitespaceRune(rune);
+  return rune == objectReplacementCharacterCode || isWhitespaceCharacter(rune);
 }
 
 ///

@@ -19,9 +19,9 @@ extension SelectableExtOnString on String {
     var count = 0;
     var isInWord = false;
     var i = 0;
-    final units = codeUnits;
-    for (final codeUnit in units) {
-      final isNonWordChar = _isNonWordChar(codeUnit);
+    final utf16Chars = codeUnits;
+    for (final utf16Char in utf16Chars) {
+      final isNonWordChar = isNonWordCharacter(utf16Char);
       if (isInWord) {
         if (isNonWordChar) {
           isInWord = false;
@@ -33,7 +33,7 @@ extension SelectableExtOnString on String {
       if (toIndex != null && i >= toIndex) break;
       i++;
     }
-    if (isInWord && i >= units.length) count++;
+    if (isInWord && i >= utf16Chars.length) count++;
     return count;
   }
 
@@ -44,9 +44,9 @@ extension SelectableExtOnString on String {
     var wordCount = 0;
     var isInWord = false;
     var i = 0;
-    final units = codeUnits;
-    for (final codeUnit in units) {
-      final isNonWordChar = _isNonWordChar(codeUnit);
+    final utf16Chars = codeUnits;
+    for (final utf16Char in utf16Chars) {
+      final isNonWordChar = isNonWordCharacter(utf16Char);
       if (isInWord) {
         if (isNonWordChar) {
           isInWord = false;
@@ -142,7 +142,7 @@ extension SelectableExtOnString on String {
   /// (except apostrophe characters), and the single-quote-left character,
   /// and all double quote characters.
   bool isNonWordCharacterAtIndex(int index) =>
-      _isNonWordChar(codeUnitAt(index));
+      isNonWordCharacter(codeUnitAt(index));
 
   /// Returns `true` if the character at [index] is an apostrophe (i.e. it is
   /// the single-quote character 0x0027, or the single-quote-right character
@@ -151,7 +151,12 @@ extension SelectableExtOnString on String {
 }
 
 /// Returns `true` if the character is a whitespace character.
-bool isWhitespaceRune(int rune) => _isWhitespace(rune);
+@Deprecated('Use `isWhitespaceCharacter` instead. '
+    'This feature was deprecated after v0.2.6')
+bool isWhitespaceRune(int char) => _isWhitespace(char);
+
+/// Returns `true` if the character is a whitespace character.
+bool isWhitespaceCharacter(int char) => _isWhitespace(char);
 
 //
 // PRIVATE
@@ -164,12 +169,12 @@ extension<T> on Set<T> {
   }
 }
 
-bool _isNonWordChar(int codeUnit) => _nonWordChars.contains(codeUnit);
+bool isNonWordCharacter(int char) => _nonWordChars.contains(char);
 final _nonWordChars = _whitespace
     .union(_asciiPunctuation)
     .union({_emDash}).subtracting([_sglQuote]).union(_nonWordQuotes);
 
-bool _isApostrophe(int codeUnit) => _apostrophes.contains(codeUnit);
+bool _isApostrophe(int char) => _apostrophes.contains(char);
 const _apostrophes = <int>{_sglQuote, _sglQtRgt};
 
 const _sglQuote = 0x0027; // ' single quote, apostrophe

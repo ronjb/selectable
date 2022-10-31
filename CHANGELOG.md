@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.2.7] - October 30, 2022
+
+* Deprecated `isWhitespaceRune` and added `isWhitespaceCharacter` and `isNonWordCharacter`.
+
 ## [0.2.6] - October 9, 2022
 
 * Fixed Issue #7 "Crash when adjusting selection handles".
