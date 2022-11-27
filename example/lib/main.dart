@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:float_column/float_column.dart';
 import 'package:flutter/material.dart';
-
 import 'package:selectable/selectable.dart';
 
 // import 'my_selection_painter.dart';
@@ -190,7 +189,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           const IgnoreSelectable(
                             child: Text(
-                              'This text is wrapped in an IgnoreSelectable widget, so it is not selectable.',
+                              'This paragraph is wrapped in an '
+                              'IgnoreSelectable widget, so it is not '
+                              'selectable.',
                               style: textStyle2,
                             ),
                           ),
