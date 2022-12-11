@@ -58,6 +58,7 @@ typedef SelectableMenuItemHandlerFunc = bool Function(
 class SelectableMenuItem {
   const SelectableMenuItem({
     this.type = SelectableMenuItemType.other,
+    this.icon,
     String? title,
     SelectableMenuItemHandlerFunc? isEnabled,
     SelectableMenuItemHandlerFunc? handler,
@@ -90,6 +91,7 @@ class SelectableMenuItem {
                         : null);
 
   final SelectableMenuItemType type;
+  final IconData? icon;
   final String? title;
   final SelectableMenuItemHandlerFunc? isEnabled;
   final SelectableMenuItemHandlerFunc? handler;

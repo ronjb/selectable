@@ -388,7 +388,8 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     // dmPrint('_CupertinoTextSelectionControls.buildPopupMenu');
 
     void addPopupMenuButtonIfNeeded(
-      String? text,
+      IconData? icon,
+      String text,
       bool Function(SelectableController?) predicate,
       bool Function(SelectableController?)? onPressed,
     ) {
@@ -401,6 +402,12 @@ class _CupertinoTextSelectionControls extends SelectionControls {
         items.add(onePhysicalPixelVerticalDivider);
       }
 
+      Widget textWidget() => Text(
+            icon == null ? text : ' $text',
+            style: _kPopupMenuButtonFontStyle,
+            textScaleFactor: 1.0,
+          );
+
       items.add(CupertinoButton(
         color: _kPopupMenuBackgroundColor,
         minSize: _kPopupMenuHeight,
@@ -408,16 +415,25 @@ class _CupertinoTextSelectionControls extends SelectionControls {
         borderRadius: null,
         pressedOpacity: 0.7,
         onPressed: () => onPressed!(delegate.controller),
-        child: Text(
-          text!,
-          style: _kPopupMenuButtonFontStyle,
-          textScaleFactor: 1.0,
-        ),
+        child: icon == null
+            ? textWidget()
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    icon,
+                    size: 18.0,
+                    color: const Color(0xffffffff),
+                  ),
+                  textWidget(),
+                ],
+              ),
       ));
     }
 
     for (final item in delegate.menuItems) {
-      addPopupMenuButtonIfNeeded(item.title, item.isEnabled!, item.handler);
+      addPopupMenuButtonIfNeeded(
+          item.icon, item.title ?? '', item.isEnabled!, item.handler);
     }
 
     return _CupertinoTextSelectionPopupMenu._(

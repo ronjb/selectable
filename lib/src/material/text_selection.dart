@@ -37,7 +37,8 @@ class _TextSelectionPopupMenu extends StatelessWidget {
         .expand<Widget>((e) => e.isEnabled!(delegate!.controller)
             ? [
                 _Button(
-                  title: e.title,
+                  icon: e.icon,
+                  title: e.title ?? '',
                   isDarkMode: isDarkMode,
                   onPressed: () => e.handler!(delegate!.controller),
                 )
@@ -74,22 +75,42 @@ const TextStyle popupMenuTextStyle = TextStyle(
 );
 
 class _Button extends StatelessWidget {
-  const _Button({this.title, this.isDarkMode, this.onPressed});
+  const _Button({
+    required this.icon,
+    required this.title,
+    required this.isDarkMode,
+    required this.onPressed,
+  });
 
-  final String? title;
+  final IconData? icon;
+  final String title;
   final bool? isDarkMode;
   final void Function()? onPressed;
+
+  Widget get _text => Text(
+        icon == null ? title : ' $title',
+        style: popupMenuTextStyle.copyWith(
+            color: isDarkMode! ? Colors.white : Colors.black),
+      );
 
   @override
   Widget build(BuildContext context) => TextButton(
         style: TextButton.styleFrom(
             padding: EdgeInsets.symmetric(horizontal: _kButtonPadding)),
         onPressed: onPressed,
-        child: Text(
-          title!,
-          style: popupMenuTextStyle.copyWith(
-              color: isDarkMode! ? Colors.white : Colors.black),
-        ),
+        child: icon == null
+            ? _text
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    icon,
+                    size: 20.0 * MediaQuery.of(context).textScaleFactor,
+                    color: isDarkMode! ? Colors.white : Colors.black,
+                  ),
+                  _text,
+                ],
+              ),
       );
 }
 

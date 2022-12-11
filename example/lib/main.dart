@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Selectable Example',
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       home: const MyHomePage(),
@@ -41,6 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
   var _isTextSelected = false;
   var _showSelection = true;
   late Timer _timer;
+  List<InlineSpan> _spans = [_text];
+  // List<InlineSpan> _spans = [const TextSpan(text: text1)];
 
   @override
   void initState() {
@@ -122,111 +124,47 @@ class _MyHomePageState extends State<MyHomePage> {
                 popupMenuItems: [
                   SelectableMenuItem(type: SelectableMenuItemType.copy),
                   SelectableMenuItem(
-                    title: 'Foo! :)',
-                    isEnabled: (controller) {
-                      // print('SelectableMenuItem Foo, isEnabled, selected text:
-                      // ${controller!.text}');
-                      return controller!.isTextSelected;
-                    },
+                    icon: Icons.brush_outlined,
+                    title: 'Color Red',
+                    isEnabled: (controller) => controller!.isTextSelected,
                     handler: (controller) {
-                      showDialog<void>(
-                        context: context,
-                        barrierDismissible: true,
-                        builder: (builder) {
-                          return AlertDialog(
-                            contentPadding: EdgeInsets.zero,
-                            content: Container(
-                              padding: const EdgeInsets.all(16),
-                              child: Text(controller!.getSelection()!.text!),
+                      final selection = controller?.getSelection();
+                      final startIndex = selection?.startIndex;
+                      final endIndex = selection?.endIndex;
+                      if (selection != null &&
+                          startIndex != null &&
+                          endIndex != null &&
+                          endIndex > startIndex) {
+                        // Split `_spans` at `startIndex`:
+                        final result1 = _spans
+                            .splitAtCharacterIndex(SplitAtIndex(startIndex));
+
+                        // Split `result1.last` at `endIndex - startIndex`:
+                        final result2 = result1.last.splitAtCharacterIndex(
+                            SplitAtIndex(endIndex - startIndex));
+
+                        // Update the state with the new spans.
+                        setState(() {
+                          _spans = [
+                            if (result1.length > 1) ...result1.first,
+                            TextSpan(
+                              children: result2.first,
+                              style: const TextStyle(color: Colors.red),
                             ),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                          );
-                        },
-                      );
+                            if (result2.length > 1) ...result2.last,
+                          ];
+                        });
+
+                        controller!.deselect();
+                      }
+
                       return true;
                     },
                   ),
                 ],
                 child: Container(
                   padding: const EdgeInsets.all(20),
-                  child: Column(
-                    //mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Double-tap or long press on a word to select it, then '
-                        'drag the selection controls to change the selection.',
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
-                      FloatColumn(
-                        children: [
-                          const SizedBox(height: 16),
-                          Floatable(
-                              float: FCFloat.end,
-                              clear: FCClear.both,
-                              padding:
-                                  const EdgeInsetsDirectional.only(start: 16),
-                              maxWidthPercentage: 0.333,
-                              child:
-                                  Container(height: 150, color: Colors.orange)),
-                          WrappableText(
-                            text: TextSpan(
-                              text: 'Indent Example',
-                              style: Theme.of(context).textTheme.headline4,
-                            ),
-                          ),
-                          const WrappableText(
-                            indent: 40,
-                            text: TextSpan(text: text1, style: textStyle2),
-                            textAlign: TextAlign.justify,
-                          ),
-                          const SizedBox(height: 16),
-                          WrappableText(
-                            text: TextSpan(
-                              text: 'IgnoreSelectable Example',
-                              style: Theme.of(context).textTheme.headline4,
-                            ),
-                          ),
-                          const IgnoreSelectable(
-                            child: Text(
-                              'This paragraph is wrapped in an '
-                              'IgnoreSelectable widget, so it is not '
-                              'selectable.',
-                              style: textStyle2,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Floatable(
-                              float: FCFloat.start,
-                              clear: FCClear.both,
-                              padding: const EdgeInsetsDirectional.only(
-                                  end: 16, top: 8),
-                              maxWidthPercentage: 0.333,
-                              child:
-                                  Container(height: 150, color: Colors.blue)),
-                          WrappableText(
-                            text: TextSpan(
-                              text: 'Hanging Indent Example',
-                              style: Theme.of(context).textTheme.headline4,
-                            ),
-                          ),
-                          const WrappableText(
-                            indent: -40,
-                            padding: EdgeInsets.only(left: 40),
-                            text:
-                                TextSpan(children: [_span], style: textStyle1),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Text.rich(
-                        _span,
-                        style: textStyle2,
-                        //style: Theme.of(context).textTheme.display1,
-                      ),
-                      const Text('\n\n\n'),
-                    ],
-                  ),
+                  child: FloatColumn(children: [TextSpan(children: _spans)]),
                 ),
               ),
               childCount: 1,
@@ -245,6 +183,45 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 // cspell: disable
+
+final _text = TextSpan(children: [
+  const TextSpan(
+    text: 'Double-tap or long press on a word to select it, '
+        'then drag the selection controls to change the '
+        'selection.\n\n',
+    style: _headlineStyle,
+  ),
+  WidgetSpan(
+    child: Floatable(
+      float: FCFloat.end,
+      clear: FCClear.both,
+      padding: const EdgeInsetsDirectional.only(start: 16),
+      maxWidthPercentage: 0.333,
+      child: Container(height: 150, color: Colors.orange),
+    ),
+  ),
+  const TextSpan(
+    text: 'Lorem ipsum dolor\n',
+    style: _headlineStyle,
+  ),
+  const TextSpan(text: text1, style: _textStyle2),
+  const TextSpan(text: '\n\n'),
+  WidgetSpan(
+    child: Floatable(
+      float: FCFloat.start,
+      clear: FCClear.both,
+      padding: const EdgeInsetsDirectional.only(end: 16),
+      maxWidthPercentage: 0.333,
+      child: Container(height: 150, color: Colors.blue),
+    ),
+  ),
+  const TextSpan(
+    text: 'Excepteur sint occaecat\n',
+    style: _headlineStyle,
+  ),
+  TextSpan(children: [_span1], style: _textStyle1),
+]);
+
 const text1 = 'Lorem ipsum dolor sit amet, consectetur—adipiscing elit, sed '
     'do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim '
     'ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut '
@@ -252,39 +229,48 @@ const text1 = 'Lorem ipsum dolor sit amet, consectetur—adipiscing elit, sed '
     'in voluptate velit esse cillum dolore eu fugiat nulla pariatur. '
     'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui '
     'officia deserunt mollit anim id est laborum.';
-const text2 = 'onsectetur adipiscing elit, sed do eiusmod tempor incididunt '
-    'ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud '
-    'exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. '
-    'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum '
-    'dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non '
-    'proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
 
-const _span = TaggedTextSpan(
-  tag: 'tag',
-  children: <TextSpan>[
-    TextSpan(style: TextStyle(color: Colors.red), text: 'Lor'),
-    TextSpan(style: TextStyle(color: Colors.blue), text: 'em i'),
-    TextSpan(style: TextStyle(color: Colors.green), text: 'psu'),
-    TextSpan(style: TextStyle(color: Colors.red), text: 'm do'),
-    TextSpan(style: TextStyle(color: Colors.blue), text: 'lor'),
-    TextSpan(style: TextStyle(color: Colors.green), text: ' sit '),
-    TextSpan(style: TextStyle(color: Colors.red), text: 'ame'),
-    TextSpan(style: TextStyle(color: Colors.blue), text: 't, c'),
-    TextSpan(text: text2),
+final _span1 = TextSpan(
+  children: <InlineSpan>[
+    const TextSpan(style: TextStyle(color: Colors.red), text: 'Lor'),
+    const TextSpan(style: TextStyle(color: Colors.blue), text: 'em i'),
+    const TextSpan(style: TextStyle(color: Colors.green), text: 'psu'),
+    const TextSpan(style: TextStyle(color: Colors.red), text: 'm do'),
+    const TextSpan(style: TextStyle(color: Colors.blue), text: 'lor'),
+    const TextSpan(style: TextStyle(color: Colors.green), text: ' sit '),
+    const TextSpan(style: TextStyle(color: Colors.red), text: 'ame'),
+    const TextSpan(style: TextStyle(color: Colors.blue), text: 't, c'),
+    const TextSpan(text: 'onsectetur '),
+    WidgetSpan(child: Container(width: 20, height: 20, color: Colors.orange)),
+    const TextSpan(text: ' adipiscing '),
+    WidgetSpan(child: Container(width: 20, height: 20, color: Colors.green)),
+    const TextSpan(
+        text: ' elit, sed do eiusmod tempor incididunt '
+            'ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis '
+            'nostrud exercitation ullamco laboris nisi ut aliquip ex ea '
+            'commodo consequat. Duis aute irure dolor in reprehenderit in '
+            'voluptate velit esse cillum dolore eu fugiat nulla pariatur. '
+            'Excepteur sint occaecat cupidatat non proident, sunt in culpa '
+            'qui officia deserunt mollit anim id est laborum.'),
   ],
 );
 
-const TextStyle textStyle1 = TextStyle(
+const TextStyle _textStyle1 = TextStyle(
   fontSize: 20,
   fontWeight: FontWeight.normal,
   height: 1.5,
 );
 
-const TextStyle textStyle2 = TextStyle(
+const TextStyle _textStyle2 = TextStyle(
   fontSize: 20,
   fontWeight: FontWeight.normal,
   height: 1.5,
-  backgroundColor: Colors.transparent,
+  // backgroundColor: Colors.transparent,
+);
+
+const TextStyle _headlineStyle = TextStyle(
+  fontSize: 28,
+  fontWeight: FontWeight.w600,
 );
 
 math.Random? _random;
@@ -295,3 +281,19 @@ int random({int min = 0, required int max}) {
   assert(max > min);
   return (_random ??= math.Random()).nextInt(math.max(0, max - min)) + min;
 }
+
+/* showDialog<void>(
+  context: context,
+  barrierDismissible: true,
+  builder: (builder) {
+    return AlertDialog(
+      contentPadding: EdgeInsets.zero,
+      content: Container(
+        padding: const EdgeInsets.all(16),
+        child: Text(controller!.getSelection()!.text!),
+      ),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8)),
+    );
+  },
+); */

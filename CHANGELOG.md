@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.2.8] - December 10, 2022
+
+* Added `int? get startIndex` and `int? get endIndex` to the Selection class.
+* Added `final IconData? icon` to the SelectableMenuItem class.
+* Updated the example app to show how to interact with the underlying text spans, for example, updating selected text spans to a different color.
+
 ## [0.2.7] - October 30, 2022
 
 * Deprecated `isWhitespaceRune` and added `isWhitespaceCharacter` and `isNonWordCharacter`.

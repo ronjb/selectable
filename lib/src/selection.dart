@@ -88,6 +88,12 @@ class Selection extends Equatable {
   /// The last word selected, or null.
   final SelectionAnchor? endAnchor;
 
+  /// The index of the first character in the selection, or null if none.
+  int? get startIndex => startAnchor?.startIndex;
+
+  /// The index after the last character in selection, or null if none.
+  int? get endIndex => endAnchor?.endIndex;
+
   /// The selection rect(s), or null.
   ///
   /// It will be from one to, at most, three rects, where the first rect

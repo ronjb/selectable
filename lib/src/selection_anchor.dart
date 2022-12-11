@@ -39,6 +39,14 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
   /// if the word is wrapped across multiple lines.
   final List<Rect> rects;
 
+  /// Returns the index of this anchor's first character in the global
+  /// paragraph list.
+  int get startIndex => firstCharIndex + textSel.start;
+
+  /// Returns the index after this anchor's last character in the global
+  /// paragraph list.
+  int get endIndex => firstCharIndex + textSel.end;
+
   /// Returns a new SelectionAnchor with the selected word's rectangles
   /// inflated by [delta].
   SelectionAnchor copyInflated(double delta) => SelectionAnchor(
