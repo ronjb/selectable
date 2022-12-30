@@ -73,17 +73,29 @@ class SelectableController extends ChangeNotifier {
     return false;
   }
 
+  /// Attempts to select all the words in the text, if any. Returns `true` if
+  /// successful.
+  bool selectAll({int? key}) {
+    return selectWordsBetweenIndexes(0, null, key: key);
+  }
+
   /// Attempts to select the word at [index], returning `true` if successful.
   bool selectWordAtIndex(int index, {int? key}) =>
       selectWordsBetweenIndexes(index, index, key: key);
 
   /// Attempts to select the words between [start] and [end] indexes, returning
   /// `true` if successful.
-  bool selectWordsBetweenIndexes(int start, int end, {int? key}) {
+  ///
+  /// If [end] is `null`, selects the words between [start] up to an including
+  /// the last word in the last paragraph.
+  bool selectWordsBetweenIndexes(int start, int? end, {int? key}) {
     // ignore: unnecessary_null_comparison
-    assert(start != null && end != null && start <= end);
+    assert(start != null && (end == null || start <= end));
 
     SelectionAnchor? startAnchor, endAnchor;
+    SelectionParagraph? lastParagraph;
+    var lastCharIndexInLastParagraph = 0;
+
     visitContainedSpans((paragraph, span, index) {
       if (span is TextSpan) {
         // `s` is `start` in the context of the current paragraph.
@@ -95,7 +107,10 @@ class SelectableController extends ChangeNotifier {
         }
 
         if (startAnchor != null) {
-          if (end == start) {
+          if (end == null) {
+            lastParagraph = paragraph;
+            lastCharIndexInLastParagraph = index + span.text!.length;
+          } else if (end == start) {
             endAnchor = startAnchor;
           } else {
             // `e` is `end` in the context of the current paragraph.
@@ -110,6 +125,11 @@ class SelectableController extends ChangeNotifier {
       // Continue walking the span tree until the endAnchor has been found.
       return endAnchor == null;
     });
+
+    if (startAnchor != null && end == null) {
+      endAnchor =
+          lastParagraph!.anchorAtCharIndex(lastCharIndexInLastParagraph - 1);
+    }
 
     if (startAnchor != null && endAnchor != null) {
       return selectWordsBetweenAnchors(startAnchor!, endAnchor!, key: key);

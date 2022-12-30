@@ -202,7 +202,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             )
-          : null,
+          : FloatingActionButton.extended(
+              onPressed: _selectionController.selectAll,
+              label: const Text('select all'),
+            ),
     );
   }
 }

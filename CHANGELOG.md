@@ -4,6 +4,7 @@
 
 * Removed from SelectableController the deprecated properties `text`, `selectionStart`, `selectionEnd`, and `rects`.
 * Added the ability to customize how the rectangles of selected text is converted to selection rectangles via the new SelectableController `setCustomRectifier` method. See the included example app for an example of its use.
+* Added `bool selectAll()` to the SelectableController class.
 
 ## [0.2.8] - December 10, 2022
 
