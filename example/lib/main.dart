@@ -49,8 +49,12 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     _selectionController
-        // ..setCustomPainter(MySelectionPainter())
-        .addListener(_selectionChangedListener);
+      // ..setCustomPainter(MySelectionPainter())
+      // ..setCustomRectifier(SelectionRectifiers.merged)
+      ..setCustomRectifier((rects) => rects
+          .map((r) => Rect.fromLTRB(r.left - 2, r.top, r.right + 2, r.bottom))
+          .toList())
+      ..addListener(_selectionChangedListener);
 
     _timer =
         Timer.periodic(const Duration(seconds: 1), (_) => _selectRandomWord());
@@ -84,6 +88,16 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         _selectionController.hide();
       }
+    });
+  }
+
+  void _toggleRectifier() {
+    setState(() {
+      _selectionController.setCustomRectifier(
+          _selectionController.getCustomRectifier() ==
+                  SelectionRectifiers.identity
+              ? SelectionRectifiers.merged
+              : SelectionRectifiers.identity);
     });
   }
 
@@ -173,9 +187,20 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       floatingActionButton: _isTextSelected
-          ? FloatingActionButton.extended(
-              onPressed: _toggleShowHideSelection,
-              label: Text(_showSelection ? 'hide selection' : 'show selection'),
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FloatingActionButton.extended(
+                  onPressed: _toggleShowHideSelection,
+                  label: Text(
+                      _showSelection ? 'hide selection' : 'show selection'),
+                ),
+                const SizedBox(height: 8),
+                FloatingActionButton.extended(
+                  onPressed: _toggleRectifier,
+                  label: const Text('switch rectifier'),
+                ),
+              ],
             )
           : null,
     );

@@ -18,7 +18,6 @@ import 'selection_controls.dart';
 import 'selection_painter.dart';
 import 'selection_paragraph.dart';
 import 'selections.dart';
-import 'tagged_text.dart';
 
 part 'selectable_controller.dart';
 
@@ -155,11 +154,11 @@ class _SelectableState extends State<Selectable>
     final sc = _selectionController!;
 
     if (sc.isTextSelected &&
-        _selections.main.isHidden != sc.getSelection()!.isHidden) {
+        (_selections.main?.isHidden ?? false) != sc.getSelection()!.isHidden) {
       // ignore: avoid_positional_boolean_parameters
       // String bToStr(bool isHidden) => isHidden ? 'hidden' : 'visible';
       // dmPrint('Selection state changed from '
-      //     '${bToStr(_selections.main.isHidden)} to '
+      //     '${bToStr(_selections.main?.isHidden ?? false)} to '
       //     '${bToStr(sc.isHidden)}.');
       _selectionIsHidden = sc.getSelection()!.isHidden;
       if (_selectionIsHidden) {
@@ -227,7 +226,8 @@ class _SelectableState extends State<Selectable>
     if (isScrolling != _buildHelper.isScrolling) {
       // dmPrint(isScrolling ? 'STARTED SCROLLING...' : 'STOPPED SCROLLING.');
       _buildHelper.isScrolling = isScrolling;
-      if (_selections.main.isTextSelected && _buildHelper.showPopupMenu) {
+      if ((_selections.main?.isTextSelected ?? false) &&
+          _buildHelper.showPopupMenu) {
         _refresh();
       }
     }
@@ -259,8 +259,8 @@ class _SelectableState extends State<Selectable>
 
     // Ignore taps if text is not selected, because the child might want to
     // handle them.
-    final ignoreTap =
-        !(widget.showSelectionControls && _selections.main.isTextSelected);
+    final ignoreTap = !(widget.showSelectionControls &&
+        (_selections.main?.isTextSelected ?? false));
 
     // This is how the selection color is set in the Flutter 2.5.2
     // version of src/material/selectable_text.dart, except that
@@ -300,33 +300,33 @@ class _SelectableState extends State<Selectable>
                 ? _selectionController?.getCustomPainter() ??
                     DefaultSelectionPainter(
                       color: selectionColor,
-                      opacityAnimation:
-                          _selectionIsHidden == _selections.main.isHidden
-                              ? _selectionOpacityController
-                              : _selections.main.isHidden
-                                  ? kAlwaysDismissedAnimation
-                                  : kAlwaysCompleteAnimation,
+                      opacityAnimation: _selectionIsHidden ==
+                              (_selections.main?.isHidden ?? false)
+                          ? _selectionOpacityController
+                          : (_selections.main?.isHidden ?? false)
+                              ? kAlwaysDismissedAnimation
+                              : kAlwaysCompleteAnimation,
                     )
                 : null,
             child: IgnorePointer(
               // Ignore gestures (e.g. taps) on the child if text is selected.
               ignoring: widget.showSelectionControls &&
                   (_selections.dragInfo.isSelectingWordOrDraggingHandle ||
-                      _selections.main.isTextSelected),
+                      (_selections.main?.isTextSelected ?? false)),
               child: widget.child,
             ),
           ),
         ),
         if (widget.showSelection &&
             (_selections.dragInfo.isSelectingWordOrDraggingHandle ||
-                _selections.main.isTextSelected ||
+                (_selections.main?.isTextSelected ?? false) ||
                 _buildHelper.showParagraphRects))
           Positioned.fill(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // If text is selected, and a handle is being dragged,
                 // autoscroll if necessary.
-                if (_selections.main.isTextSelected &&
+                if ((_selections.main?.isTextSelected ?? false) &&
                     _selections.dragInfo.isDraggingHandle) {
                   final paragraphs = _selections.cachedParagraphs.list;
                   assert(paragraphs.isNotEmpty);
@@ -346,16 +346,17 @@ class _SelectableState extends State<Selectable>
                 }
 
                 // dmPrint('selection.update resulted in '
-                //    '${_selections.main.rects?.length ?? 0} selection rects');
+                //   '${_selections.main?.rects?.length ?? 0} selection rects');
                 _selections.dragInfo
                   ..selectionPt = null
                   ..handleType = null;
 
-                if ((_selections.main.rects?.isNotEmpty ?? false) ||
+                if ((_selections.main?.rects?.isNotEmpty ?? false) ||
                     _buildHelper.showParagraphRects) {
                   return AnimatedOpacity(
-                    opacity: _selections.main.isHidden ? 0.0 : 1.0,
-                    duration: _selections.main.animationDuration,
+                    opacity: (_selections.main?.isHidden ?? false) ? 0.0 : 1.0,
+                    duration:
+                        (_selections.main?.animationDuration ?? Duration.zero),
                     child: Stack(
                       children: [
                         // if (_selections.main.rects?.isNotEmpty ?? false)
@@ -416,8 +417,13 @@ class _SelectableState extends State<Selectable>
     if (!mounted) return;
     final pt = localPosition;
     // dmPrint('onLongPressOrDoubleTap at: $pt');
-    if (pt != null && !_selections.main.containsPoint(pt)) {
+    if (pt != null && !(_selections.main?.containsPoint(pt) ?? false)) {
       _refresh(() {
+        if (_selections.main == null) {
+          // Create the main selection object, if needed.
+          _selections[0] =
+              _selectionController?.getSelection() ?? const Selection();
+        }
         _buildHelper.showPopupMenu = widget.showPopup;
         _selections.dragInfo
           ..selectionPt = pt
@@ -431,15 +437,15 @@ class _SelectableState extends State<Selectable>
     if (!mounted) return;
     final pt = localPosition;
     // dmPrint('onTap at: $pt');
-    if (pt != null && _selections.main.isTextSelected) {
+    if (pt != null && (_selections.main?.isTextSelected ?? false)) {
       _refresh(() {
         if (_buildHelper.usingCupertinoControls &&
-            _selections.main.containsPoint(pt)) {
+            (_selections.main?.containsPoint(pt) ?? false)) {
           if (widget.showPopup) {
             _buildHelper.showPopupMenu = !_buildHelper.showPopupMenu;
           }
-        } else {
-          _selections[0] = _selections.main.cleared();
+        } else if (_selections.main != null) {
+          _selections[0] = _selections.main!.cleared();
         }
       });
     }

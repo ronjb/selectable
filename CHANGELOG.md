@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.2.9] - December 30, 2022
+
+* Removed from SelectableController the deprecated properties `text`, `selectionStart`, `selectionEnd`, and `rects`.
+* Added the ability to customize how the rectangles of selected text is converted to selection rectangles via the new SelectableController `setCustomRectifier` method. See the included example app for an example of its use.
+
 ## [0.2.8] - December 10, 2022
 
 * Added `int? get startIndex` and `int? get endIndex` to the Selection class.

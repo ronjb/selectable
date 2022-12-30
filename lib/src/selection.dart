@@ -3,8 +3,7 @@
 // LICENSE file.
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
+import 'package:flutter/material.dart';
 
 import 'common.dart';
 import 'selection_anchor.dart';
@@ -30,7 +29,14 @@ class Selection extends Equatable {
     this.rects,
     this.isHidden = false,
     this.animationDuration = const Duration(seconds: 1),
-  });
+    this.rectifier = SelectionRectifiers.identity,
+  })  :
+        // ignore: unnecessary_null_comparison
+        assert(version != null),
+        // ignore: unnecessary_null_comparison
+        assert(isHidden != null && animationDuration != null),
+        // ignore: unnecessary_null_comparison
+        assert(rectifier != null);
 
   @override
   List<Object?> get props => [
@@ -44,15 +50,18 @@ class Selection extends Equatable {
         endAnchor,
         rects,
         isHidden,
-        animationDuration
+        animationDuration,
+        rectifier,
       ];
 
   Selection copyWith({
+    int? version,
     bool? isHidden,
     Duration? animationDuration,
+    List<Rect> Function(List<Rect>)? rectifier,
   }) =>
       Selection(
-          version: version,
+          version: version ?? this.version,
           text: text,
           start: start,
           end: end,
@@ -62,7 +71,8 @@ class Selection extends Equatable {
           endAnchor: endAnchor,
           rects: rects,
           isHidden: isHidden ?? this.isHidden,
-          animationDuration: animationDuration ?? this.animationDuration);
+          animationDuration: animationDuration ?? this.animationDuration,
+          rectifier: rectifier ?? this.rectifier);
 
   /// Build version of the Selections that contains this selection.
   final int version;
@@ -87,6 +97,9 @@ class Selection extends Equatable {
 
   /// The last word selected, or null.
   final SelectionAnchor? endAnchor;
+
+  /// Function that converts line rects into selection rects.
+  final List<Rect> Function(List<Rect>) rectifier;
 
   /// The index of the first character in the selection, or null if none.
   int? get startIndex => startAnchor?.startIndex;
@@ -129,6 +142,7 @@ class Selection extends Equatable {
   Selection cleared() => Selection(
         isHidden: isHidden,
         animationDuration: animationDuration,
+        rectifier: rectifier,
       );
 
   /// Returns a new Selection, updated with the provided [paragraphs] and

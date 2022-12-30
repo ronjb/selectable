@@ -82,7 +82,7 @@ class SelectableBuildHelper {
 
   /// Builds the selection handles and optionally the popup menu.
   List<Widget> buildSelectionControls(
-    Selection selection,
+    Selection? selection,
     BuildContext context,
     BoxConstraints constraints,
     SelectionDelegate selectionDelegate,
@@ -91,7 +91,7 @@ class SelectableBuildHelper {
     double topOverlayHeight,
   ) {
     // If there is no selection, return an empty list.
-    if (!selection.isTextSelected) return []; //---------------------------->
+    if (selection == null || !selection.isTextSelected) return []; //------->
 
     final leftLineHeight = selection.rects!.first.height;
     final rightLineHeight = selection.rects!.last.height;

@@ -11,9 +11,6 @@ import 'selection_controls.dart';
 import 'selection_paragraph.dart';
 import 'selections.dart';
 
-///
-/// _updatedSelectionWith(...)
-///
 Selection updatedSelectionWith(
   Selection newSelection,
   Paragraphs cachedParagraphs,
@@ -254,8 +251,9 @@ Selection updatedSelectionWith(
         endPt: endSelPt,
         startAnchor: startAnchor,
         endAnchor: endAnchor,
-        rects: rects.mergedToSelectionRects(), //.rounded().toList(),
+        rects: selection.rectifier(rects),
         isHidden: selection.isHidden,
-        animationDuration: selection.animationDuration);
+        animationDuration: selection.animationDuration,
+        rectifier: selection.rectifier);
   }
 }

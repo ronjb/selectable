@@ -100,6 +100,13 @@ extension SelectableExtOnListOfRect on List<Rect> {
       );
 }
 
+// ignore: avoid_classes_with_only_static_members
+class SelectionRectifiers {
+  static List<Rect> identity(List<Rect> rects) => rects;
+
+  static List<Rect> merged(List<Rect> rects) => rects.mergedToSelectionRects();
+}
+
 ///
 /// Iterable<Rect> extensions
 ///
@@ -125,10 +132,6 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
   /// └──────────────────────┘
   /// ```
   List<Rect> mergedToSelectionRects() {
-    //
-    // IMPORTANT: If this algorithm is changed, please also change the
-    //            algorithm in Iterable<TextBox>.mergedToSelectionRects.
-    //
     Rect? firstLine;
     Rect? lastLine;
     final rect = fold<Rect?>(
@@ -170,72 +173,6 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
       rect.top.roundToDouble(),
       rect.right.roundToDouble(),
       rect.bottom.roundToDouble()));
-}
-
-///
-/// Iterable<TextBox> extensions
-///
-extension SelectableExtOnIterableOfTextBox on Iterable<TextBox> {
-  /// Merges the text boxes into, at most, three rects, where the first rect
-  /// is the bounding box containing all the rects in the first line, the
-  /// second rect is the bounding box of lines 1 through N - 1 (where N is
-  /// the number of lines), and the third rect is the bounding box of the
-  /// last line.
-  ///
-  /// Assumes that the text boxes are in 'reading order', i.e. left to right,
-  /// top to bottom. Does not support languages that have  an alternate order.
-  ///
-  /// For example:
-  /// ```
-  ///                 ┌─────────────────┐
-  ///                 │ first line      │
-  /// ┌───────────────┴─────────────────┤
-  /// │ middle line(s)                  │
-  /// |                                 |
-  /// ├──────────────────────┬──────────┘
-  /// │ last line            │
-  /// └──────────────────────┘
-  /// ```
-  List<Rect> mergedToSelectionRects() {
-    //
-    // IMPORTANT: If this algorithm is changed, please also change the
-    //            algorithm in Iterable<Rect>.mergedToSelectionRects.
-    //
-    Rect? firstLine;
-    Rect? lastLine;
-    final rect = fold<Rect?>(
-      null,
-      (previous, r) {
-        if (firstLine == null) {
-          firstLine = r.toRect();
-        } else if (lastLine == null &&
-            (r.vCenter < firstLine!.bottom || firstLine!.vCenter > r.top)) {
-          firstLine = firstLine!.expandToIncludeTextBox(r);
-        } else if (lastLine == null ||
-            (r.vCenter > lastLine!.bottom && lastLine!.vCenter < r.top)) {
-          lastLine = r.toRect();
-        } else {
-          lastLine = lastLine!.expandToIncludeTextBox(r);
-        }
-        return Rect.fromLTRB(
-          math.min(previous?.left ?? r.left, r.left),
-          math.min(previous?.top ?? r.top, r.top),
-          math.max(previous?.right ?? r.right, r.right),
-          math.max(previous?.bottom ?? r.bottom, r.bottom),
-        );
-      },
-    );
-    if (firstLine == null) return [];
-    if (lastLine == null) return [rect!];
-    if (firstLine!.bottom >= lastLine!.top) return [firstLine!, lastLine!];
-    return [
-      Rect.fromLTRB(
-          firstLine!.left, firstLine!.top, rect!.right, firstLine!.bottom),
-      Rect.fromLTRB(rect.left, firstLine!.bottom, rect.right, lastLine!.top),
-      Rect.fromLTRB(
-          rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
-    ];
-  }
 }
 
 ///

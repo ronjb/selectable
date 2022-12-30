@@ -12,31 +12,15 @@ class SelectableController extends ChangeNotifier {
 
   /// Returns the selection, or null if a selection with the provided [key]
   /// does not exist. Note, if [key] is not provided, it returns the main
-  /// selection (with key 0), which is guaranteed to not fail.
-  Selection? getSelection({int? key}) => _selections[key ?? 0];
-
-  /// Returns the selected text of the main selection, or null if text is
-  /// not selected.
-  @Deprecated('Use `getSelection().text` instead. '
-      'This feature was deprecated after v0.1.3')
-  String? get text => _selections.main.text;
-
-  /// Returns the start of the main selection, or null if text is not
-  /// selected.
-  @Deprecated('Use `getSelection().start` instead. '
-      'This feature was deprecated after v0.1.3')
-  TaggedText? get selectionStart => _selections.main.start;
-
-  /// Returns the end of the main selection, or null if text is not
-  /// selected.
-  @Deprecated('Use `getSelection().end` instead. '
-      'This feature was deprecated after v0.1.3')
-  TaggedText? get selectionEnd => _selections.main.end;
-
-  /// Returns the main selection's rect(s), or null if text is not selected.
-  @Deprecated('Use `getSelection().rects` instead. '
-      'This feature was deprecated after v0.1.3')
-  List<Rect>? get rects => _selections.main.rects;
+  /// selection (with key 0), which is guaranteed to be non-null.
+  Selection? getSelection({int? key}) {
+    final k = key ?? 0;
+    return _selections[k] ??
+        (k == 0
+            ? Selection(
+                rectifier: _rectifiers[k] ?? SelectionRectifiers.identity)
+            : null);
+  }
 
   /// Hides the selection, if it is not already hidden. Returns `true` if
   /// the selection was updated to be hidden.
@@ -68,7 +52,7 @@ class SelectableController extends ChangeNotifier {
 
   /// If text is selected, deselects it. Returns `true` if any selections
   /// were updated to be deselected.
-  bool deselectAll({int? key}) {
+  bool deselectAll() {
     final didDeselectAny = _selections.deselectAll();
     if (didDeselectAny) {
       notifyListeners();
@@ -165,7 +149,7 @@ class SelectableController extends ChangeNotifier {
 
     // First, clear and unhide the selection, or create it if it doesn't exist.
     var selection = _selections[k]?.cleared().copyWith(isHidden: false) ??
-        const Selection();
+        Selection(rectifier: _rectifiers[k] ?? SelectionRectifiers.identity);
 
     // Next, attempt to select the word under the first point.
     selection = selection.updatedWith(
@@ -256,12 +240,51 @@ class SelectableController extends ChangeNotifier {
   /// Returns the selection painter, or null if none.
   SelectionPainter? getCustomPainter({int? key}) => _painters[key ?? 0];
 
+  /// Sets the custom rectifier, which is used to convert the raw rectangles of
+  /// selected text into the displayed selection rects.
+  void setCustomRectifier(
+    List<Rect> Function(List<Rect>)? rectifier, {
+    int? key,
+  }) {
+    final k = key ?? 0;
+    if (_rectifiers[k] != rectifier) {
+      final selection = _selections[k];
+      if (rectifier == null) {
+        if (_rectifiers.containsKey(k)) {
+          _rectifiers.remove(k);
+
+          if (selection != null) {
+            _selections[k] = selection.copyWith(
+              version: selection.version - 1,
+              rectifier: SelectionRectifiers.identity,
+            );
+          }
+          notifyListeners();
+        }
+      } else {
+        _rectifiers[k] = rectifier;
+        if (selection != null) {
+          _selections[k] = selection.copyWith(
+            version: selection.version - 1,
+            rectifier: rectifier,
+          );
+        }
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Returns the custom rectifier, or null if none.
+  List<Rect> Function(List<Rect>)? getCustomRectifier({int? key}) =>
+      _rectifiers[key ?? 0];
+
   //
   // PRIVATE
   //
 
   final _selections = Selections();
   final _painters = <int, SelectionPainter>{};
+  final _rectifiers = <int, List<Rect> Function(List<Rect>)>{};
 
   /// Updates the [Selections]. This is called by Selectable when the
   /// selection changes. It should not be called by any other code.

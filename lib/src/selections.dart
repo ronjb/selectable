@@ -17,20 +17,10 @@ import 'selection_paragraph.dart';
 /// Selectable widget.
 class Selections {
   /// Returns the [main] selection (i.e. `this[0]`).
-  Selection get main => this[0]!;
+  Selection? get main => this[0];
 
   /// Returns the [Selection] with the provided key, or null if none.
-  Selection? operator [](int key) {
-    // Get the selection, refreshing it from cachedParagraphs if needed.
-    var selection = _selectionWithKey(key);
-
-    // If key is 0, create the selection if necessary.
-    if (selection == null && key == 0) {
-      _selectionsMap[key] = selection = const Selection();
-    }
-
-    return selection;
-  }
+  Selection? operator [](int key) => _selectionWithKey(key);
 
   /// Updates the [Selection] with the provided key.
   void operator []=(int key, Selection selection) {

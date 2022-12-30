@@ -170,8 +170,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
       final textBoxes = rp!.getBoxesForSelection(selection);
       if (textBoxes.isNotEmpty) {
         return textBoxes
-            .mergedToSelectionRects()
-            .map((r) => r.translate(rect.left, rect.top))
+            .map((r) => r.toRect().translate(rect.left, rect.top))
             .toList();
       } else {
         // dmPrint('getBoxesForSelection($selection) returned no boxes in '
