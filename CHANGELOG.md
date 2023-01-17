@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.2.10] - January 17, 2023
+
+* Updated to use latest float_column version with bug fix.
+
 ## [0.2.9] - December 30, 2022
 
 * Removed from SelectableController the deprecated properties `text`, `selectionStart`, `selectionEnd`, and `rects`.

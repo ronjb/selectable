@@ -99,9 +99,11 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
   //
 
   @override
-  List<InlineSpan> splitAtIndex(SplitAtIndex index) {
+  List<InlineSpan> splitAtIndex(SplitAtIndex index,
+      {bool ignoreFloatedWidgetSpans = false}) {
     final initialIndex = index.value;
-    final result = _splitAt(index);
+    final result = defaultSplitSpanAtIndex(index,
+        ignoreFloatedWidgetSpans: ignoreFloatedWidgetSpans);
 
     // If this span was split, and its tag is splittable, split the tag too.
     if (result.length == 2 && tag is SplittableTextSpanTag) {
@@ -114,60 +116,5 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
     }
 
     return result;
-  }
-
-  //
-  // PRIVATE
-  //
-
-  List<InlineSpan> _splitAt(SplitAtIndex index) {
-    if (index.value == 0) return [this];
-    if (index.value == 0) return [this];
-
-    final span = this;
-    final text = span.text;
-    if (text != null && text.isNotEmpty) {
-      if (index.value >= text.length) {
-        index.value -= text.length;
-      } else {
-        final result = [
-          span.copyWith(text: text.substring(0, index.value), noChildren: true),
-          span.copyWith(text: text.substring(index.value)),
-        ];
-        index.value = 0;
-        return result;
-      }
-    }
-
-    final children = span.children;
-    if (children != null && children.isNotEmpty) {
-      // If the text.length was equal to index.value, split the text and
-      // children.
-      if (index.value == 0) {
-        return [
-          span.copyWith(text: text, noChildren: true),
-          span.copyWith(noText: true),
-        ];
-      }
-
-      final result = children.splitAtCharacterIndex(index);
-
-      if (index.value == 0) {
-        if (result.length == 2) {
-          return [
-            span.copyWith(text: text, children: result.first),
-            span.copyWith(noText: true, children: result.last),
-          ];
-        } else if (result.length == 1) {
-          // Only `true` if the number of characters in all the children was
-          // equal to index.value.
-          assert(listEquals<InlineSpan>(result.first, children));
-        } else {
-          assert(false);
-        }
-      }
-    }
-
-    return [this];
   }
 }
