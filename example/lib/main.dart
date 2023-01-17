@@ -213,7 +213,8 @@ class _MyHomePageState extends State<MyHomePage> {
 // cspell: disable
 
 final _text = TextSpan(children: [
-  const TextSpan(
+  const TaggedTextSpan(
+    tag: 'directions',
     text: 'Double-tap or long press on a word to select it, '
         'then drag the selection controls to change the '
         'selection.\n\n',

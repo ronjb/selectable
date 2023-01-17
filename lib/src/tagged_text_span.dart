@@ -45,7 +45,7 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
   final Object tag;
 
   /// Returns a copy of the TaggedTextSpan with optional changes.
-  TaggedTextSpan copyWith({
+  TaggedTextSpan ttsCopyWith({
     Object? tag,
     String? text,
     List<InlineSpan>? children,
@@ -60,10 +60,11 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
     bool noText = false,
     bool noChildren = false,
   }) {
+    // print('returning copy of TaggedTextSpan...');
     return TaggedTextSpan(
       tag: tag ?? this.tag,
-      text: noText ? null : (text ?? this.text),
-      children: noChildren ? null : (children ?? this.children),
+      text: text ?? (noText ? null : this.text),
+      children: children ?? (noChildren ? null : this.children),
       style: style ?? this.style,
       recognizer: recognizer ?? this.recognizer,
       mouseCursor: mouseCursor ?? this.mouseCursor,
@@ -99,11 +100,26 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
   //
 
   @override
-  List<InlineSpan> splitAtIndex(SplitAtIndex index,
-      {bool ignoreFloatedWidgetSpans = false}) {
+  List<InlineSpan> splitAtIndex(
+    SplitAtIndex index, {
+    bool ignoreFloatedWidgetSpans = false,
+  }) {
     final initialIndex = index.value;
-    final result = defaultSplitSpanAtIndex(index,
-        ignoreFloatedWidgetSpans: ignoreFloatedWidgetSpans);
+    final result = defaultSplitSpanAtIndex(
+      index,
+      ignoreFloatedWidgetSpans: ignoreFloatedWidgetSpans,
+      copyWithTextSpan: (span, text, children) => span is TaggedTextSpan
+          ? span.ttsCopyWith(
+              text: text,
+              children: children,
+              noText: text == null,
+              noChildren: children == null)
+          : span.copyWith(
+              text: text,
+              children: children,
+              noText: text == null,
+              noChildren: children == null),
+    );
 
     // If this span was split, and its tag is splittable, split the tag too.
     if (result.length == 2 && tag is SplittableTextSpanTag) {
@@ -111,8 +127,10 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
       final splitTags = (tag as SplittableTextSpanTag)
           .splitWith(this, atCharacter: initialIndex);
       assert(splitTags.length == 2);
-      result[0] = (result[0] as TaggedTextSpan).copyWith(tag: splitTags.first);
-      result[1] = (result[1] as TaggedTextSpan).copyWith(tag: splitTags.last);
+      result[0] =
+          (result[0] as TaggedTextSpan).ttsCopyWith(tag: splitTags.first);
+      result[1] =
+          (result[1] as TaggedTextSpan).ttsCopyWith(tag: splitTags.last);
     }
 
     return result;

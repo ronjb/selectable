@@ -16,7 +16,7 @@ Add this to your app's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  selectable: ^0.2.10
+  selectable: ^0.2.11
 ```
 
 ## Usage
