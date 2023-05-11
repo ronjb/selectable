@@ -2,8 +2,6 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
-library selectable;
-
 export 'src/common.dart' show SelectionRectifiers;
 export 'src/ignore_selectable.dart';
 export 'src/inline_span_ext.dart';
@@ -13,8 +11,8 @@ export 'src/selection_anchor.dart';
 export 'src/selection_controls.dart'
     show
         SelectableMenuItem,
-        SelectableMenuItemType,
-        SelectableMenuItemHandlerFunc;
+        SelectableMenuItemHandlerFunc,
+        SelectableMenuItemType;
 export 'src/selection_painter.dart';
 export 'src/selection_paragraph.dart';
 export 'src/string_utils.dart';

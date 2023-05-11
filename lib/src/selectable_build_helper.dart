@@ -2,6 +2,7 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
@@ -45,7 +46,7 @@ class SelectableBuildHelper {
       return;
     }
 
-    final vp = RenderAbstractViewport.of(renderObject);
+    final vp = RenderAbstractViewport.maybeOf(renderObject);
     assert(vp != null);
     if (vp == null) return;
 
@@ -75,8 +76,8 @@ class SelectableBuildHelper {
           renderObjectBottom - viewportExtent + 100.0,
           math.max(-renderObjectTop,
               scrollOffset + (scrollDelta * scrollDistanceMultiplier)));
-      scrollController.animateTo(newScrollOffset + renderObjectTop,
-          duration: const Duration(milliseconds: 250), curve: Curves.ease);
+      unawaited(scrollController.animateTo(newScrollOffset + renderObjectTop,
+          duration: const Duration(milliseconds: 250), curve: Curves.ease));
     }
   }
 
@@ -219,7 +220,7 @@ class _PopupMenuState extends State<_PopupMenu> {
       // rect in render object coordinates.
       if (widget.scrollController?.hasOneClient ?? false) {
         final renderObject = widget.mainKey.currentContext!.findRenderObject();
-        final vp = RenderAbstractViewport.of(renderObject);
+        final vp = RenderAbstractViewport.maybeOf(renderObject);
         assert(vp != null);
         if (vp != null) {
           try {

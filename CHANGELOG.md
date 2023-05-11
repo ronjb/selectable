@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.3.0] - May 1, 2023
+
+* Updated to support Dart 3 and Flutter 3.10.0.
+
 ## [0.2.11] - January 17, 2023
 
 * Updated the `TaggedTextSpan` class's `splitAtIndex` method to use the new `copyWithTextSpan` parameter of `defaultSplitSpanAtIndex` to call the correct `copyWith` method, depending on the type.

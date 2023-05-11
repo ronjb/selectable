@@ -376,15 +376,13 @@ class _SelectableState extends State<Selectable>
                             widget.topOverlayHeight,
                           ),
                         if (_buildHelper.showParagraphRects)
-                          ..._selections.cachedParagraphs.list
-                              .map<Widget>(
-                                (p) => _ColoredRect(
-                                  rect: p.rect,
-                                  color: Colors.yellow.withAlpha(50),
-                                  borderColor: Colors.orange,
-                                ),
-                              )
-                              .toList(),
+                          ..._selections.cachedParagraphs.list.map<Widget>(
+                            (p) => _ColoredRect(
+                              rect: p.rect,
+                              color: Colors.yellow.withAlpha(50),
+                              borderColor: Colors.orange,
+                            ),
+                          ),
                       ],
                     ),
                   );
@@ -539,9 +537,9 @@ class _SelectableState extends State<Selectable>
 //
 
 final _defaultMenuItems = [
-  SelectableMenuItem(type: SelectableMenuItemType.copy),
-  SelectableMenuItem(type: SelectableMenuItemType.define),
-  SelectableMenuItem(type: SelectableMenuItemType.webSearch)
+  const SelectableMenuItem(type: SelectableMenuItemType.copy),
+  const SelectableMenuItem(type: SelectableMenuItemType.define),
+  const SelectableMenuItem(type: SelectableMenuItemType.webSearch)
 ];
 
 bool _useCupertinoSelectionControls(BuildContext context) {

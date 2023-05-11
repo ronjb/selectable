@@ -2,6 +2,8 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -108,7 +110,8 @@ bool _canCopy(SelectableController? controller) {
 
 bool _handleCopy(SelectableController? controller) {
   if (controller?.isTextSelected ?? false) {
-    Clipboard.setData(ClipboardData(text: _selectedText(controller)));
+    unawaited(
+        Clipboard.setData(ClipboardData(text: _selectedText(controller))));
     controller?.deselectAll();
     return true;
   }
@@ -128,7 +131,7 @@ bool _handleDefine(SelectableController? controller) {
   if (text.isNotEmpty) {
     final url = _search(text, define: true);
     // delegate.hidePopupMenu();
-    _launchBrowserWithUrl(url);
+    unawaited(_launchBrowserWithUrl(url));
     return true;
   }
   return false;
@@ -142,7 +145,7 @@ bool _handleWebSearch(SelectableController? controller) {
   final text = _selectedText(controller);
   if (text.isNotEmpty) {
     final url = _search(text);
-    _launchBrowserWithUrl(url);
+    unawaited(_launchBrowserWithUrl(url));
     return true;
   }
   return false;

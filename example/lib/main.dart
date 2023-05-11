@@ -7,7 +7,7 @@ import 'package:selectable/selectable.dart';
 
 // import 'my_selection_painter.dart';
 
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unreachable_from_main
 
 void main() {
   runApp(const MyApp());
@@ -136,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 // selectionColor: Colors.orange.withAlpha(75),
                 // showSelection: _showSelection,
                 popupMenuItems: [
-                  SelectableMenuItem(type: SelectableMenuItemType.copy),
+                  const SelectableMenuItem(type: SelectableMenuItemType.copy),
                   SelectableMenuItem(
                     icon: Icons.brush_outlined,
                     title: 'Color Red',
