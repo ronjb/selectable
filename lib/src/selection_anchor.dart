@@ -59,6 +59,22 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
   /// Returns `true` if the selected word's rectangle(s) contain the [point].
   bool containsPoint(Offset? point) => rects.containsPoint(point);
 
+  /// Returns the square of the distance from the center of the rectangle that
+  /// is closest to the given [point].
+  ///
+  /// Uses distance squared to avoid the expensive square root calculation.
+  double centerDistanceSquaredFromPoint(Offset point) {
+    double? minDistance;
+    for (final rect in rects) {
+      final center = rect.center;
+      final distance = (center.distanceSquared - point.distanceSquared).abs();
+      if (minDistance == null || distance < minDistance) {
+        minDistance = distance;
+      }
+    }
+    return minDistance ?? double.infinity;
+  }
+
   bool operator <(SelectionAnchor? other) => (compareTo(other) < 0);
   bool operator <=(SelectionAnchor? other) => (compareTo(other) <= 0);
   bool operator >(SelectionAnchor? other) => (compareTo(other) > 0);

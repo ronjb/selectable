@@ -148,7 +148,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     if (range != null) {
       final ts = createTextSelection(text,
           baseOffset: range.start, extentOffset: range.end, trim: trim);
-      if (ts != null && ts.isValid && (trim == false || !ts.isCollapsed)) {
+      if (ts != null && ts.isValid && (!trim || !ts.isCollapsed)) {
         final rects = rectsForSelection(ts);
         if (rects.isNotEmpty) {
           return SelectionAnchor(paragraphIndex, firstCharIndex, ts, rects);
