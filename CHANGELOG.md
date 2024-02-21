@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.3.1] - February 21, 2024
+
+* Updated to use latest float_column version with build fixes for Flutter 3.19.0.
+* Added optional `bool useExperimentalPopupMenu = false` parameter to the Selectable class.
+
 ## [0.3.0] - May 1, 2023
 
 * Updated to support Dart 3 and Flutter 3.10.0.

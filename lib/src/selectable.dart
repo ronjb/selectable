@@ -38,6 +38,7 @@ class Selectable extends StatefulWidget {
     this.selectionController,
     this.scrollController,
     this.topOverlayHeight = 0,
+    this.useExperimentalPopupMenu = false,
   });
 
   final Widget child;
@@ -51,6 +52,7 @@ class Selectable extends StatefulWidget {
   final SelectableController? selectionController;
   final ScrollController? scrollController;
   final double topOverlayHeight;
+  final bool useExperimentalPopupMenu;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -374,6 +376,7 @@ class _SelectableState extends State<Selectable>
                             _globalKey,
                             widget.scrollController,
                             widget.topOverlayHeight,
+                            widget.useExperimentalPopupMenu,
                           ),
                         if (_buildHelper.showParagraphRects)
                           ..._selections.cachedParagraphs.list.map<Widget>(

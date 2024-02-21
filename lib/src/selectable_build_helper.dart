@@ -90,6 +90,8 @@ class SelectableBuildHelper {
     GlobalKey mainKey,
     ScrollController? scrollController,
     double topOverlayHeight,
+    // ignore: avoid_positional_boolean_parameters
+    bool useExperimentalPopupMenu,
   ) {
     // If there is no selection, return an empty list.
     if (selection == null || !selection.isTextSelected) return []; //------->
@@ -163,6 +165,7 @@ class SelectableBuildHelper {
             selectionRects: selection.rects!,
             topOverlayHeight: topOverlayHeight,
             isShowing: isShowingPopupMenu,
+            useExperimentalPopupMenu: useExperimentalPopupMenu,
           ),
         ),
       ),
@@ -180,6 +183,7 @@ class _PopupMenu extends StatefulWidget {
     required this.selectionRects,
     required this.topOverlayHeight,
     required this.isShowing,
+    required this.useExperimentalPopupMenu,
   });
 
   final BoxConstraints constraints;
@@ -190,6 +194,7 @@ class _PopupMenu extends StatefulWidget {
   final List<Rect> selectionRects;
   final double topOverlayHeight;
   final bool isShowing;
+  final bool useExperimentalPopupMenu;
 
   @override
   _PopupMenuState createState() => _PopupMenuState();
@@ -201,7 +206,10 @@ class _PopupMenuState extends State<_PopupMenu> {
     super.didUpdateWidget(old);
 
     // Only rebuild the menu if it is showing.
-    if (widget.isShowing) _menu = null;
+    if (widget.isShowing) {
+      // dmPrint('Selectable popup menu rebuild triggered by didUpdateWidget');
+      _menu = null;
+    }
   }
 
   Widget? _menu;
@@ -248,9 +256,15 @@ class _PopupMenuState extends State<_PopupMenu> {
       }
 
       if (viewport != null) {
-        // dmPrint('buildPopupMenu with viewport $viewport');
+        // dmPrint('buildPopupMenu with viewport $viewport, '
+        //     'topOverlayHeight: ${widget.topOverlayHeight}');
         _menu = widget.controls.buildPopupMenu(
-            context, viewport, widget.selectionRects, widget.selectionDelegate);
+            context,
+            viewport,
+            widget.selectionRects,
+            widget.selectionDelegate,
+            widget.topOverlayHeight,
+            widget.useExperimentalPopupMenu);
       } else {
         _menu = const SizedBox();
       }

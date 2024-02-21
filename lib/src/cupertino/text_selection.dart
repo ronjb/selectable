@@ -333,54 +333,78 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     Rect viewport,
     List<Rect>? selectionRects,
     SelectionDelegate delegate,
+    double topOverlayHeight,
+    bool useExperimentalPopupMenu,
   ) {
     assert(debugCheckHasMediaQuery(context));
-    final MediaQueryData mediaQuery = MediaQuery.of(context);
+    final padding = MediaQuery.paddingOf(context);
 
     // TextSelectionPoint(rects.first.bottomLeft, TextDirection.ltr),
     // TextSelectionPoint(rects.last.bottomRight, TextDirection.ltr)
 
-    final double popupMenuHeightNeeded = mediaQuery.padding.top +
+    final double popupMenuHeightNeeded = padding.top +
         _kPopupMenuScreenPadding +
         _kPopupMenuHeight +
         _kPopupMenuContentDistance;
+
+    final primaryY = math.min(
+        viewport.bottom -
+            (_kPopupMenuContentDistance * 2.0) -
+            _kPopupMenuHeight,
+        selectionRects!.first.top -
+            _kPopupMenuContentDistance -
+            _kPopupMenuHeight);
+
+    double? secondaryY;
+
+    // Will fit below?
+    if (viewport.bottom - selectionRects.last.bottom >= popupMenuHeightNeeded) {
+      secondaryY = math.max(viewport.top + _kPopupMenuContentDistance,
+          selectionRects.last.bottom + _kPopupMenuContentDistance);
+    }
+
+    // Else, show in center.
+    else {
+      secondaryY = viewport.center.dy - (_kPopupMenuHeight / 2.0);
+    }
+
+    final double arrowTipX =
+        ((selectionRects.last.left + selectionRects.first.right) / 2.0).clamp(
+      _kArrowScreenPadding + padding.left,
+      MediaQuery.sizeOf(context).width - padding.right - _kArrowScreenPadding,
+    );
+
+    if (useExperimentalPopupMenu) {
+      // print('building menu at $arrowTipX, $localBarTopY');
+      return delegate.buildMenu(
+        context,
+        primaryAnchor: Offset(arrowTipX, primaryY + topOverlayHeight - 40),
+        secondaryAnchor: Offset(arrowTipX, secondaryY),
+      );
+    }
 
     var isArrowPointingDown = true;
     var localBarTopY = 0.0;
 
     // Will fit above?
-    if (selectionRects!.first.top - viewport.top >= popupMenuHeightNeeded) {
-      localBarTopY = math.min(
-          viewport.bottom -
-              (_kPopupMenuContentDistance * 2.0) -
-              _kPopupMenuHeight,
-          selectionRects.first.top -
-              _kPopupMenuContentDistance -
-              _kPopupMenuHeight);
-    }
+    if (selectionRects.first.top - viewport.top >= popupMenuHeightNeeded) {
+      localBarTopY = primaryY;
+    } else
 
     // Will fit below?
-    else if (viewport.bottom - selectionRects.last.bottom >=
-        popupMenuHeightNeeded) {
-      localBarTopY = math.max(viewport.top + _kPopupMenuContentDistance,
-          selectionRects.last.bottom + _kPopupMenuContentDistance);
+    if (viewport.bottom - selectionRects.last.bottom >= popupMenuHeightNeeded) {
+      localBarTopY = secondaryY;
       isArrowPointingDown = false;
     }
 
-    // Show in center.
+    // Else, show in center.
     else {
-      localBarTopY = viewport.center.dy - (_kPopupMenuHeight / 2.0);
+      localBarTopY = secondaryY;
     }
-
-    final double arrowTipX =
-        ((selectionRects.last.left + selectionRects.first.right) / 2.0).clamp(
-      _kArrowScreenPadding + mediaQuery.padding.left,
-      mediaQuery.size.width - mediaQuery.padding.right - _kArrowScreenPadding,
-    );
 
     final List<Widget> items = <Widget>[];
     final Widget onePhysicalPixelVerticalDivider =
-        SizedBox(width: 1.0 / MediaQuery.of(context).devicePixelRatio);
+        SizedBox(width: 1.0 / MediaQuery.devicePixelRatioOf(context));
     final EdgeInsets arrowPadding = isArrowPointingDown
         ? EdgeInsets.only(bottom: _kPopupMenuArrowSize.height)
         : EdgeInsets.only(top: _kPopupMenuArrowSize.height);
@@ -402,10 +426,11 @@ class _CupertinoTextSelectionControls extends SelectionControls {
         items.add(onePhysicalPixelVerticalDivider);
       }
 
-      Widget textWidget() => Text(
-            icon == null ? text : ' $text',
-            style: _kPopupMenuButtonFontStyle,
-            textScaleFactor: 1.0,
+      Widget textWidget() => MediaQuery.withNoTextScaling(
+            child: Text(
+              icon == null ? text : ' $text',
+              style: _kPopupMenuButtonFontStyle,
+            ),
           );
 
       items.add(CupertinoButton(

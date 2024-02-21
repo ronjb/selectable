@@ -5,8 +5,8 @@
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
 import 'common.dart';
@@ -34,6 +34,9 @@ abstract class SelectionControls {
     Rect viewport,
     List<Rect>? selectionRects,
     SelectionDelegate delegate,
+    double topOverlayHeight,
+    // ignore: avoid_positional_boolean_parameters
+    bool useExperimentalPopupMenu,
   );
 
   /// Returns the size of the selection handle.
@@ -45,10 +48,39 @@ enum SelectionHandleType { left, right }
 mixin SelectionDelegate {
   void onDragSelectionHandleUpdate(SelectionHandleType handle, Offset offset,
       {PointerDeviceKind? kind}) {}
+
   void onDragSelectionHandleEnd(SelectionHandleType handle) {}
+
   SelectableController? get controller;
+
   Iterable<SelectableMenuItem> get menuItems;
+
   void hidePopupMenu() {}
+
+  Widget buildMenu(BuildContext context,
+      {required Offset primaryAnchor, Offset? secondaryAnchor}) {
+    final buttonItems = _buttonItems();
+    // print('buildMenu: buttonItems=$buttonItems');
+
+    return AdaptiveTextSelectionToolbar.buttonItems(
+      buttonItems: buttonItems,
+      anchors: TextSelectionToolbarAnchors(
+          primaryAnchor: primaryAnchor, secondaryAnchor: secondaryAnchor),
+    );
+  }
+
+  List<ContextMenuButtonItem>? _buttonItems() {
+    return menuItems
+        .expand<ContextMenuButtonItem>((e) => e.isEnabled!(controller)
+            ? [
+                ContextMenuButtonItem(
+                  label: e.title ?? '',
+                  onPressed: () => e.handler!(controller),
+                )
+              ]
+            : [])
+        .toList();
+  }
 }
 
 enum SelectableMenuItemType { copy, define, webSearch, other }

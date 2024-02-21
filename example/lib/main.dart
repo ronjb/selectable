@@ -122,21 +122,24 @@ class _MyHomePageState extends State<MyHomePage> {
           const SliverAppBar(
             pinned: true,
             collapsedHeight: kToolbarHeight,
+            title: Text('Selectable Example'),
             expandedHeight: 70,
-            flexibleSpace: FlexibleSpaceBar(title: Text('Selectable Example')),
+            // flexibleSpace: FlexibleSpaceBar(title: ),
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) => Selectable(
                 selectWordOnDoubleTap: true,
                 topOverlayHeight:
-                    kToolbarHeight + MediaQuery.of(context).padding.top,
+                    kToolbarHeight + MediaQuery.paddingOf(context).top,
                 selectionController: _selectionController,
                 scrollController: _scrollController,
+                useExperimentalPopupMenu: false, // !kIsWeb,
                 // selectionColor: Colors.orange.withAlpha(75),
                 // showSelection: _showSelection,
                 popupMenuItems: [
                   const SelectableMenuItem(type: SelectableMenuItemType.copy),
+                  const SelectableMenuItem(type: SelectableMenuItemType.define),
                   SelectableMenuItem(
                     icon: Icons.brush_outlined,
                     title: 'Color Red',

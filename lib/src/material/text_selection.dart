@@ -105,7 +105,8 @@ class _Button extends StatelessWidget {
                 children: [
                   Icon(
                     icon,
-                    size: 20.0 * MediaQuery.of(context).textScaleFactor,
+                    size: 20.0 *
+                        (MediaQuery.textScalerOf(context).scale(18) / 18.0),
                     color: isDarkMode! ? Colors.white : Colors.black,
                   ),
                   _text,
@@ -184,6 +185,8 @@ class _MaterialTextSelectionControls extends SelectionControls {
     Rect viewport,
     List<Rect>? selectionRects,
     SelectionDelegate delegate,
+    double topOverlayHeight,
+    bool useExperimentalPopupMenu,
   ) {
     assert(debugCheckHasMediaQuery(context));
     assert(debugCheckHasMaterialLocalizations(context));
@@ -192,19 +195,16 @@ class _MaterialTextSelectionControls extends SelectionControls {
         _kPopupMenuHeight +
         _kPopupMenuContentDistance;
 
-    var localBarTopY = 0.0;
+    final primaryY = math.min(
+        viewport.bottom - (_kPopupMenuContentDistance * 3.0),
+        selectionRects!.first.top - _kPopupMenuContentDistance);
 
-    // Will fit above?
-    if (selectionRects!.first.top - viewport.top >= popupMenuHeightNeeded) {
-      localBarTopY = math.min(
-          viewport.bottom - (_kPopupMenuContentDistance * 3.0),
-          selectionRects.first.top - _kPopupMenuContentDistance);
-    }
+    double? secondaryY;
 
     // Will fit below?
-    else if (viewport.bottom - selectionRects.last.bottom >=
+    if (viewport.bottom - selectionRects.last.bottom >=
         _kHandleSize + _kPopupMenuHeight + _kPopupMenuContentDistance) {
-      localBarTopY = math.max(
+      secondaryY = math.max(
           viewport.top + _kPopupMenuContentDistance + _kPopupMenuHeight,
           selectionRects.last.bottom +
               _kHandleSize +
@@ -214,12 +214,29 @@ class _MaterialTextSelectionControls extends SelectionControls {
 
     // Show in center.
     else {
-      localBarTopY = viewport.center.dy;
+      secondaryY = viewport.center.dy;
     }
 
-    final Offset preciseMidpoint = Offset(
-        (selectionRects.last.left + selectionRects.first.right) / 2.0,
-        localBarTopY);
+    final arrowTipX =
+        (selectionRects.last.left + selectionRects.first.right) / 2.0;
+
+    if (useExperimentalPopupMenu) {
+      // print('building menu at $arrowTipX, $localBarTopY');
+      return delegate.buildMenu(
+        context,
+        primaryAnchor: Offset(arrowTipX, primaryY + topOverlayHeight - 70),
+        secondaryAnchor: Offset(arrowTipX, secondaryY),
+      );
+    }
+
+    var localBarTopY = 0.0;
+    if (selectionRects.first.top - viewport.top >= popupMenuHeightNeeded) {
+      localBarTopY = primaryY;
+    } else {
+      localBarTopY = secondaryY;
+    }
+
+    final Offset preciseMidpoint = Offset(arrowTipX, localBarTopY);
 
     return CustomSingleChildLayout(
       delegate: _TextSelectionPopupMenuLayout(
