@@ -55,8 +55,10 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     int paragraphIndex = 0,
     int firstCharIndex = 0,
   }) {
+    // In case this is called from non-null-safe code.
     // ignore: unnecessary_null_comparison
     assert(rp != null && ancestor != null);
+    // In case this is called from non-null-safe code.
     // ignore: unnecessary_null_comparison
     assert(paragraphIndex != null && firstCharIndex != null);
 
@@ -163,8 +165,10 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
 
   /// Returns the list of [Rect]s for the [selection].
   List<Rect> rectsForSelection(TextSelection selection) {
+    // In case this is called from non-null-safe code.
     // ignore: unnecessary_null_comparison
     assert(selection != null && rp != null);
+    // In case this is called from non-null-safe code.
     // ignore: unnecessary_null_comparison
     if (selection != null) {
       final textBoxes = rp!.getBoxesForSelection(selection);
@@ -253,8 +257,10 @@ TextSelection? createTextSelection(
   int? extentOffset,
   bool trim = true,
 }) {
+  // In case this is called from non-null-safe code.
   // ignore: unnecessary_null_comparison
   assert(str != null);
+  // In case this is called from non-null-safe code.
   // ignore: unnecessary_null_comparison
   if (str == null || str.isEmpty) return null;
   final len = str.length;

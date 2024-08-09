@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../selection_controls.dart';
 
+// The original file ignores these lints.
 // ignore_for_file: omit_local_variable_types
 // ignore_for_file: curly_braces_in_flow_control_structures
 // ignore_for_file: cascade_invocations, prefer_const_constructors

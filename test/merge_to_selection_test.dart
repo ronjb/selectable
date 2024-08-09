@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:selectable/src/common.dart';
 
-// ignore_for_file: prefer_const_constructors
 // cspell: disable
 
 Rect r(double left, double top, double right, double bottom) =>

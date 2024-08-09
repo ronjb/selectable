@@ -31,10 +31,13 @@ class Selection extends Equatable {
     this.animationDuration = const Duration(seconds: 1),
     this.rectifier = SelectionRectifiers.identity,
   })  :
+        // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
         assert(version != null),
+        // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
         assert(isHidden != null && animationDuration != null),
+        // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
         assert(rectifier != null);
 
@@ -115,7 +118,7 @@ class Selection extends Equatable {
   /// third rect is the bounding box of the last line.
   ///
   /// For example:
-  /// ```
+  /// ```sketch
   ///                 ┌─────────────────┐
   ///                 │ first line      │
   /// ┌───────────────┴─────────────────┤

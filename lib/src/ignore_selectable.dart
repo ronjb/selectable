@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-// ignore_for_file: comment_references
-
 /// A widget that is invisible to selection via its [Selectable] ancestor
 /// widget.
 ///
@@ -21,6 +19,7 @@ class IgnoreSelectable extends SingleChildRenderObjectWidget {
     this.ignoringSemantics,
     super.child,
   }) :
+        // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
         assert(ignoring != null);
 

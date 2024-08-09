@@ -15,7 +15,7 @@ import 'selectable.dart';
 export 'cupertino/text_selection.dart';
 export 'material/text_selection.dart';
 
-// ignore_for_file: omit_local_variable_types
+// This is okay.
 // ignore_for_file: cascade_invocations
 
 /// An interface for building the selection UI, to be provided by the
@@ -35,6 +35,7 @@ abstract class SelectionControls {
     List<Rect>? selectionRects,
     SelectionDelegate delegate,
     double topOverlayHeight,
+    // This is okay.
     // ignore: avoid_positional_boolean_parameters
     bool useExperimentalPopupMenu,
   );
@@ -96,7 +97,10 @@ class SelectableMenuItem {
     String? title,
     SelectableMenuItemHandlerFunc? isEnabled,
     SelectableMenuItemHandlerFunc? handler,
-  })  : assert(type != null && // ignore: unnecessary_null_comparison
+  })  :
+        // In case this is called from non-null-safe code.
+        // ignore: unnecessary_null_comparison
+        assert(type != null &&
             (type != SelectableMenuItemType.other ||
                 (title != null && isEnabled != null && handler != null))),
         title = title ??
@@ -135,7 +139,6 @@ class SelectableMenuItem {
 // PRIVATE
 //
 
-// ignore: prefer_function_declarations_over_variables
 bool _canCopy(SelectableController? controller) {
   return controller?.isTextSelected ?? false;
 }
@@ -194,6 +197,7 @@ Future<void> _launchBrowserWithUrl(String url) async {
       await launcher.launchUrl(uri);
     }
   }
+  // This is okay.
   // ignore: avoid_catches_without_on_clauses
   catch (e) {
     dmPrint('WARNING: Selectable is unable to launch the browser with '
@@ -220,6 +224,7 @@ String _googleSearch(String text, {bool define = false}) {
   ).toString();
 }
 
+// This is okay.
 // ignore: unused_element
 String _duckDuckGoSearch(String text, {bool define = false}) {
   final params = <String, dynamic>{

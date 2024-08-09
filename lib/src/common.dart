@@ -11,7 +11,9 @@ import 'package:flutter/widgets.dart';
 /// If kDebugMode is `true`, prints a string representation of the object
 /// to the console.
 void dmPrint(Object object) {
-  if (kDebugMode) print(object); // ignore: avoid_print
+  // Using print in debug mode is acceptable.
+  // ignore: avoid_print
+  if (kDebugMode) print(object);
 }
 
 /// The maximum safe integer value for dart code that might be compiled
@@ -71,7 +73,7 @@ extension SelectableExtOnScrollController on ScrollController {
 }
 
 ///
-/// List<Rect> extensions
+/// `List<Rect>` extensions
 ///
 extension SelectableExtOnListOfRect on List<Rect> {
   /// Returns the index of the first rect in the list that contains [point].
@@ -100,6 +102,7 @@ extension SelectableExtOnListOfRect on List<Rect> {
       );
 }
 
+// We want these function to be in a namespace.
 // ignore: avoid_classes_with_only_static_members
 class SelectionRectifiers {
   static List<Rect> identity(List<Rect> rects) => rects;
@@ -108,7 +111,7 @@ class SelectionRectifiers {
 }
 
 ///
-/// Iterable<Rect> extensions
+/// `Iterable<Rect>` extensions
 ///
 extension SelectableExtOnIterableOfRect on Iterable<Rect> {
   /// Merges the rectangles into, at most, three rects, where the first rect
@@ -121,7 +124,7 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
   /// top to bottom. Does not support languages that have an alternate order.
   ///
   /// For example:
-  /// ```
+  /// ```sketch
   ///                 ┌─────────────────┐
   ///                 │ first line      │
   /// ┌───────────────┴─────────────────┤

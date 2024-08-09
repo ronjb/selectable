@@ -9,6 +9,7 @@ import 'package:flutter/rendering.dart';
 import '../selectable.dart';
 import '../selection_controls.dart';
 
+// The original file ignores these lints.
 // ignore_for_file: avoid_positional_boolean_parameters
 // ignore_for_file: avoid_setters_without_getters, omit_local_variable_types
 // ignore_for_file: avoid_as, cascade_invocations

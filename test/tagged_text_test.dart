@@ -7,6 +7,7 @@ import 'package:selectable/src/selection_paragraph.dart';
 import 'package:selectable/src/tagged_text.dart';
 import 'package:selectable/src/tagged_text_span.dart';
 
+// Ok to ignore in tests.
 // ignore_for_file: prefer_const_constructors
 // cspell: disable
 
@@ -31,6 +32,7 @@ void main() {
     );
     var i = 0;
     final result = paragraph.visitChildSpans((span, index) {
+      // Ok to ignore in tests.
       // ignore: avoid_as
       expect(int.parse((span as TextSpan).text!), i++);
       return true;

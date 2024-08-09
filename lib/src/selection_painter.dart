@@ -8,6 +8,7 @@ import 'package:flutter/painting.dart';
 
 import 'selection.dart';
 
+// Ok to ignore.
 // ignore_for_file: comment_references
 
 /// [SelectionPainter]

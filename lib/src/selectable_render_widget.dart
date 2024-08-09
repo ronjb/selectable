@@ -26,6 +26,7 @@ class SelectableRenderWidget extends SingleChildRenderObjectWidget {
     this.willChange = false,
     super.child,
   })  :
+        // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
         assert(isComplex != null && willChange != null),
         assert(painter != null ||

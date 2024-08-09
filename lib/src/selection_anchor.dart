@@ -20,6 +20,7 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
     this.textSel,
     this.rects,
   )   :
+        // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
         assert(paragraphIndex != null && textSel != null && rects != null),
         assert(paragraphIndex >= 0);

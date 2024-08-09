@@ -35,6 +35,7 @@ class TaggedWidgetSpan extends WidgetSpan {
     super.baseline,
     super.style,
   }) :
+        // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
         assert(tag != null && child != null);
 

@@ -38,6 +38,7 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
     super.locale,
     super.spellOut,
   }) :
+        // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
         assert(tag != null);
 

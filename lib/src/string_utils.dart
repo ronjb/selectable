@@ -191,6 +191,7 @@ const _emDash = 0x2014; // — em dash
 
 const _nonWordQuotes = <int>{_sglQtLft, _dblQuote, _dblQtLft, _dblQtRgt};
 
+// Okay to ignore.
 // ignore: unused_element
 const _allQuotes = <int>{
   _sglQuote,
@@ -201,6 +202,7 @@ const _allQuotes = <int>{
   _dblQtRgt
 };
 
+// Okay to ignore.
 // ignore: unused_element
 const _nonBreakingHyphen = 0x2011; // ‑ non-breaking hyphen
 

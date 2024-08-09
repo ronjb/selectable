@@ -55,6 +55,7 @@ class Selectable extends StatefulWidget {
   final bool useExperimentalPopupMenu;
 
   @override
+  // Stateful widgets with a private state class need this.
   // ignore: library_private_types_in_public_api
   _SelectableState createState() => _SelectableState();
 }
@@ -157,7 +158,6 @@ class _SelectableState extends State<Selectable>
 
     if (sc.isTextSelected &&
         (_selections.main?.isHidden ?? false) != sc.getSelection()!.isHidden) {
-      // ignore: avoid_positional_boolean_parameters
       // String bToStr(bool isHidden) => isHidden ? 'hidden' : 'visible';
       // dmPrint('Selection state changed from '
       //     '${bToStr(_selections.main?.isHidden ?? false)} to '
