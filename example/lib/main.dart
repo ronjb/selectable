@@ -7,6 +7,7 @@ import 'package:selectable/selectable.dart';
 
 // import 'my_selection_painter.dart';
 
+// Allow print in the example app.
 // ignore_for_file: avoid_print, unreachable_from_main
 
 void main() {
@@ -31,6 +32,7 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
   @override
+  // Stateful widgets with a private state class need this.
   // ignore: library_private_types_in_public_api
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -71,13 +73,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _selectionChangedListener() {
-    if (_isTextSelected != _selectionController.isTextSelected) {
-      if (mounted) {
-        setState(() {
-          _isTextSelected = _selectionController.isTextSelected;
-        });
-      }
+    // if (_isTextSelected != _selectionController.isTextSelected) {
+    if (mounted) {
+      setState(() {
+        _isTextSelected = _selectionController.isTextSelected;
+      });
     }
+    // }
   }
 
   void _toggleShowHideSelection() {
@@ -128,61 +130,74 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => Selectable(
-                selectWordOnDoubleTap: true,
-                topOverlayHeight:
-                    kToolbarHeight + MediaQuery.paddingOf(context).top,
-                selectionController: _selectionController,
-                scrollController: _scrollController,
-                useExperimentalPopupMenu: false, // !kIsWeb,
-                // selectionColor: Colors.orange.withAlpha(75),
-                // showSelection: _showSelection,
-                popupMenuItems: [
-                  const SelectableMenuItem(type: SelectableMenuItemType.copy),
-                  const SelectableMenuItem(type: SelectableMenuItemType.define),
-                  SelectableMenuItem(
-                    icon: Icons.brush_outlined,
-                    title: 'Color Red',
-                    isEnabled: (controller) => controller!.isTextSelected,
-                    handler: (controller) {
-                      final selection = controller?.getSelection();
-                      final startIndex = selection?.startIndex;
-                      final endIndex = selection?.endIndex;
-                      if (selection != null &&
-                          startIndex != null &&
-                          endIndex != null &&
-                          endIndex > startIndex) {
-                        // Split `_spans` at `startIndex`:
-                        final result1 = _spans
-                            .splitAtCharacterIndex(SplitAtIndex(startIndex));
+              (context, index) => Stack(
+                children: [
+                  Selectable(
+                    selectWordOnDoubleTap: true,
+                    topOverlayHeight:
+                        kToolbarHeight + MediaQuery.paddingOf(context).top,
+                    selectionController: _selectionController,
+                    scrollController: _scrollController,
+                    useExperimentalPopupMenu: false, // !kIsWeb,
+                    // selectionColor: Colors.orange.withAlpha(75),
+                    // showSelection: _showSelection,
+                    popupMenuItems: [
+                      const SelectableMenuItem(
+                          type: SelectableMenuItemType.copy),
+                      const SelectableMenuItem(
+                          type: SelectableMenuItemType.define),
+                      SelectableMenuItem(
+                        icon: Icons.brush_outlined,
+                        title: 'Color Red',
+                        isEnabled: (controller) => controller!.isTextSelected,
+                        handler: (controller) {
+                          final selection = controller?.getSelection();
+                          final startIndex = selection?.startIndex;
+                          final endIndex = selection?.endIndex;
+                          if (selection != null &&
+                              startIndex != null &&
+                              endIndex != null &&
+                              endIndex > startIndex) {
+                            // Split `_spans` at `startIndex`:
+                            final result1 = _spans.splitAtCharacterIndex(
+                                SplitAtIndex(startIndex));
 
-                        // Split `result1.last` at `endIndex - startIndex`:
-                        final result2 = result1.last.splitAtCharacterIndex(
-                            SplitAtIndex(endIndex - startIndex));
+                            // Split `result1.last` at `endIndex - startIndex`:
+                            final result2 = result1.last.splitAtCharacterIndex(
+                                SplitAtIndex(endIndex - startIndex));
 
-                        // Update the state with the new spans.
-                        setState(() {
-                          _spans = [
-                            if (result1.length > 1) ...result1.first,
-                            TextSpan(
-                              children: result2.first,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                            if (result2.length > 1) ...result2.last,
-                          ];
-                        });
+                            // Update the state with the new spans.
+                            setState(() {
+                              _spans = [
+                                if (result1.length > 1) ...result1.first,
+                                TextSpan(
+                                  children: result2.first,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                                if (result2.length > 1) ...result2.last,
+                              ];
+                            });
 
-                        controller!.deselect();
-                      }
+                            controller!.deselect();
+                          }
 
-                      return true;
-                    },
+                          return true;
+                        },
+                      ),
+                    ],
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      child:
+                          FloatColumn(children: [TextSpan(children: _spans)]),
+                    ),
                   ),
+                  ..._selectionController.getSelection()?.rects?.map((r) {
+                        return Positioned.fromRect(
+                            rect: r,
+                            child: InkWell(onTap: () => print('onTap: $r')));
+                      }) ??
+                      [],
                 ],
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  child: FloatColumn(children: [TextSpan(children: _spans)]),
-                ),
               ),
               childCount: 1,
             ),

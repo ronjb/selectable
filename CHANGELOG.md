@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.3.2] - August 12, 2024
+
+* Updated to use latest float_column version that supports Flutter 3.24.0.
+
 ## [0.3.1] - February 21, 2024
 
 * Updated to use latest float_column version with build fixes for Flutter 3.19.0.
