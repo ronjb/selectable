@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.3.3] - October 23, 2024
+
+* Started adding support for right-to-left languages, still a work in progress.
+
 ## [0.3.2] - August 12, 2024
 
 * Updated to use latest float_column version that supports Flutter 3.24.0.

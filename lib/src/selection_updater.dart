@@ -65,7 +65,9 @@ Selection updatedSelectionWith(
 
     if (!clearSelection && endAnchor != null) {
       endAnchor = paragraphs.updateAnchor(endAnchor);
-      endSelPt = endAnchor?.rects.last.centerRight;
+      endSelPt = endAnchor?.textDirection == TextDirection.rtl
+          ? endAnchor?.rects.last.centerLeft
+          : endAnchor?.rects.last.centerRight;
       clearSelection = (endAnchor == null);
     }
 
@@ -120,17 +122,16 @@ Selection updatedSelectionWith(
       }
     } else {
       //
-      // If dragging the left or right selection handle.
+      // If dragging the start or end selection handle.
       //
       if (startAnchor == null || endAnchor == null) {
         SelectionAnchor? anchor;
 
-        // If the selection point is above or to the left of this paragraph,
-        // set `anchor` to the first word in the paragraph.
-        if (selectionPt!.dy < paragraph.rect.top ||
-            (selectionPt.dx < paragraph.rect.left &&
-                selectionPt.dy
-                    .isInRange(paragraph.rect.top, paragraph.rect.bottom))) {
+        // If the selection point is above or before the starting edge of the
+        // paragraph, set `anchor` to the first word in the paragraph.
+        if (selectionPt!.isAbove(paragraph) ||
+            (selectionPt.isBeforeStartingEdgeOf(paragraph) &&
+                selectionPt.dyIsInRangeOf(paragraph))) {
           anchor = paragraph.anchorAtCharIndex(0, trim: false);
           assert(anchor != null);
         }
@@ -140,12 +141,12 @@ Selection updatedSelectionWith(
           anchor = paragraph.anchorAtPt(selectionPt, trim: false);
         }
 
-        // If the selection point is in, to the right of, or below the
-        // paragraph, but above the next paragraph (if any), set `anchor`
-        // to the last word in the paragraph.
+        // If the selection point is below the top of and past the starting
+        // edge of, or below the paragraph, but above the next paragraph
+        // (if any), set `anchor` to the last word in the paragraph.
         if (anchor == null &&
-            selectionPt.dx > paragraph.rect.left &&
-            selectionPt.dy > paragraph.rect.top &&
+            selectionPt.dy >= paragraph.rect.top &&
+            selectionPt.isPastStartingEdgeOf(paragraph) &&
             (paragraphContainingSelectionPt() == i ||
                 (paragraphContainingSelectionPt() == -1 &&
                     (i == paragraphs.length - 1 ||
@@ -255,5 +256,31 @@ Selection updatedSelectionWith(
         isHidden: selection.isHidden,
         animationDuration: selection.animationDuration,
         rectifier: selection.rectifier);
+  }
+}
+
+extension on Offset {
+  bool isAbove(SelectionParagraph paragraph) {
+    return dy < paragraph.rect.top;
+  }
+
+  bool isBeforeStartingEdgeOf(SelectionParagraph paragraph) {
+    if (paragraph.isRtl) {
+      return dx > paragraph.rect.right;
+    } else {
+      return dx < paragraph.rect.left;
+    }
+  }
+
+  bool isPastStartingEdgeOf(SelectionParagraph paragraph) {
+    if (paragraph.isRtl) {
+      return dx <= paragraph.rect.right;
+    } else {
+      return dx >= paragraph.rect.left;
+    }
+  }
+
+  bool dyIsInRangeOf(SelectionParagraph paragraph) {
+    return dy.isInRange(paragraph.rect.top, paragraph.rect.bottom);
   }
 }

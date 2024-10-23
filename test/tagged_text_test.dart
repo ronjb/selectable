@@ -59,6 +59,7 @@ void main() {
         0,
         TextSelection(baseOffset: 0, extentOffset: 1),
         const [],
+        paragraph.rp!.textDirection,
       ).taggedTextWithParagraphs([paragraph]),
       TaggedText('0', '0', 0),
     );
@@ -68,6 +69,7 @@ void main() {
         0,
         TextSelection(baseOffset: 0, extentOffset: 1),
         const [],
+        paragraph.rp!.textDirection,
       ).taggedTextWithParagraphs([paragraph], end: true),
       TaggedText('0', '0', 1),
     );
@@ -77,6 +79,7 @@ void main() {
         0,
         TextSelection(baseOffset: 2, extentOffset: 3),
         const [],
+        paragraph.rp!.textDirection,
       ).taggedTextWithParagraphs([paragraph]),
       TaggedText('2', '2', 0),
     );
@@ -86,6 +89,7 @@ void main() {
         0,
         TextSelection(baseOffset: 2, extentOffset: 3),
         const [],
+        paragraph.rp!.textDirection,
       ).taggedTextWithParagraphs([paragraph], end: true),
       TaggedText('2', '2', 1),
     );
@@ -95,6 +99,7 @@ void main() {
         0,
         TextSelection(baseOffset: 5, extentOffset: 6),
         const [],
+        paragraph.rp!.textDirection,
       ).taggedTextWithParagraphs([paragraph]),
       TaggedText('5', '5', 0),
     );
@@ -104,6 +109,7 @@ void main() {
         0,
         TextSelection(baseOffset: 5, extentOffset: 6),
         const [],
+        paragraph.rp!.textDirection,
       ).taggedTextWithParagraphs([paragraph], end: true),
       TaggedText('5', '5', 1),
     );

@@ -97,31 +97,45 @@ class SelectableBuildHelper {
     // If there is no selection, return an empty list.
     if (selection == null || !selection.isTextSelected) return []; //------->
 
-    final leftLineHeight = selection.rects!.first.height;
-    final rightLineHeight = selection.rects!.last.height;
+    final startLineHeight = selection.rects!.first.height;
+    final endLineHeight = selection.rects!.last.height;
 
-    final leftOffset =
-        controls!.getHandleAnchor(TextSelectionHandleType.left, leftLineHeight);
-    final rightOffset = controls!
-        .getHandleAnchor(TextSelectionHandleType.right, rightLineHeight);
+    final isRtl = Directionality.maybeOf(context) == TextDirection.rtl;
+    // final r = selection.rects!;
+    // print('\n${r.map((r) => '(l${r.left.s}, t${r.top.s})').join('\n')}\n');
 
-    final leftHandlePt = selection.rects!.first.bottomLeft;
-    final rightHandlePt = (usingCupertinoControls
-        ? selection.rects!.last.topRight
-        : selection.rects!.last.bottomRight);
+    final startHandleType =
+        isRtl ? TextSelectionHandleType.right : TextSelectionHandleType.left;
+    final endHandleType =
+        isRtl ? TextSelectionHandleType.left : TextSelectionHandleType.right;
 
-    final leftPt = Offset(
-        leftHandlePt.dx - leftOffset.dx, leftHandlePt.dy - leftOffset.dy);
-    final rightPt = Offset(rightHandlePt.dx - rightOffset.dx, rightHandlePt.dy);
+    final startOffset =
+        controls!.getHandleAnchor(startHandleType, startLineHeight);
+    final endOffset = controls!.getHandleAnchor(endHandleType, endLineHeight);
 
-    final leftSize = controls!.getHandleSize(leftLineHeight);
-    final rightSize = controls!.getHandleSize(rightLineHeight);
+    final startHandlePt = isRtl
+        ? selection.rects!.first.bottomRight
+        : selection.rects!.first.bottomLeft;
+    final endHandlePt = (usingCupertinoControls
+        ? (isRtl
+            ? selection.rects!.last.topLeft
+            : selection.rects!.last.topRight)
+        : (isRtl
+            ? selection.rects!.last.bottomLeft
+            : selection.rects!.last.bottomRight));
 
-    final leftRect =
-        Rect.fromLTWH(leftPt.dx, leftPt.dy, leftSize.width, leftSize.height)
+    final startPt = Offset(
+        startHandlePt.dx - startOffset.dx, startHandlePt.dy - startOffset.dy);
+    final endPt = Offset(endHandlePt.dx - endOffset.dx, endHandlePt.dy);
+
+    final startSize = controls!.getHandleSize(startLineHeight);
+    final endSize = controls!.getHandleSize(endLineHeight);
+
+    final startRect =
+        Rect.fromLTWH(startPt.dx, startPt.dy, startSize.width, startSize.height)
             .inflate(20);
-    final rightRect =
-        Rect.fromLTWH(rightPt.dx, rightPt.dy, rightSize.width, rightSize.height)
+    final endRect =
+        Rect.fromLTWH(endPt.dx, endPt.dy, endSize.width, endSize.height)
             .inflate(20);
 
     final isShowingPopupMenu = (showPopupMenu && !isScrolling);
@@ -132,23 +146,22 @@ class SelectableBuildHelper {
 
     return [
       Positioned.fromRect(
-        rect: leftRect,
+        rect: startRect,
         child: _SelectionHandle(
           delegate: selectionDelegate,
           handleType: SelectionHandleType.left,
           mainKey: mainKey,
-          child: controls!.buildHandle(
-              context, TextSelectionHandleType.left, leftLineHeight),
+          child:
+              controls!.buildHandle(context, startHandleType, startLineHeight),
         ),
       ),
       Positioned.fromRect(
-        rect: rightRect,
+        rect: endRect,
         child: _SelectionHandle(
           delegate: selectionDelegate,
           handleType: SelectionHandleType.right,
           mainKey: mainKey,
-          child: controls!.buildHandle(
-              context, TextSelectionHandleType.right, rightLineHeight),
+          child: controls!.buildHandle(context, endHandleType, endLineHeight),
         ),
       ),
       AnimatedOpacity(
@@ -173,6 +186,10 @@ class SelectableBuildHelper {
     ];
   }
 }
+
+// extension on double {
+//   String get s => toStringAsFixed(0).padLeft(4, ' ');
+// }
 
 class _PopupMenu extends StatefulWidget {
   const _PopupMenu({

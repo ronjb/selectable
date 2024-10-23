@@ -43,6 +43,9 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     return v;
   }
 
+  /// Returns `true` if the text direction is right-to-left.
+  bool get isRtl => rp?.textDirection == TextDirection.rtl;
+
   /// Returns a new `SelectionParagraph` or `null` if the provided
   /// `RenderTextMixin` has no size (i.e. has not undergone layout),
   /// or if its `text` is empty or just whitespace.
@@ -153,7 +156,8 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
       if (ts != null && ts.isValid && (!trim || !ts.isCollapsed)) {
         final rects = rectsForSelection(ts);
         if (rects.isNotEmpty) {
-          return SelectionAnchor(paragraphIndex, firstCharIndex, ts, rects);
+          return SelectionAnchor(
+              paragraphIndex, firstCharIndex, ts, rects, rp!.textDirection);
         }
       } else {
         // dmPrint('Word not found, invalid text selection: '

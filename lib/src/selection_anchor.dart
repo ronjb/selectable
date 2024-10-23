@@ -19,6 +19,7 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
     this.firstCharIndex,
     this.textSel,
     this.rects,
+    this.textDirection,
   )   :
         // In case this is called from non-null-safe code.
         // ignore: unnecessary_null_comparison
@@ -27,6 +28,8 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
 
   /// Index of this anchor's paragraph in the global paragraph list.
   final int paragraphIndex;
+
+  final TextDirection textDirection;
 
   /// Index of the first character of this anchor's paragraph in the global
   /// paragraph list.
@@ -55,6 +58,7 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
         firstCharIndex,
         textSel,
         rects.map((rect) => rect.inflate(delta)).toList(),
+        textDirection,
       );
 
   /// Returns `true` if the selected word's rectangle(s) contain the [point].

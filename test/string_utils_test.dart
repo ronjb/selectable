@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+// import 'package:intl/intl.dart';
 import 'package:selectable/src/string_utils.dart';
 
 void main() {
@@ -161,5 +162,21 @@ void main() {
       expect('0123👨‍👩‍👦2345'.indexOfCharacterBefore(5), 4);
       expect('0123👨‍👩‍👦2345'.indexOfCharacterBefore(4), 3);
     });
+
+    /* test('isRtlText', () {
+      expect(Bidi.isRtlLanguage('ar'), true);
+      expect(Bidi.isRtlLanguage('he'), true);
+      expect(Bidi.isRtlLanguage('fa'), true);
+      expect(Bidi.isRtlLanguage('ur'), true);
+      expect(Bidi.isRtlLanguage('ps'), true);
+      expect(Bidi.isRtlLanguage('yi'), true);
+      expect(Bidi.isRtlLanguage('en'), false);
+      // cspell: disable
+      expect(Bidi.detectRtlDirectionality('مرحبا بالعالم'), true);
+      expect(Bidi.estimateDirectionOfText('مرحبا بالعالم'), TextDirection.RTL);
+      // cspell: enable
+      expect(Bidi.detectRtlDirectionality('Hello world'), false);
+      expect(Bidi.estimateDirectionOfText('Hello world'), TextDirection.LTR);
+    }); */
   });
 }

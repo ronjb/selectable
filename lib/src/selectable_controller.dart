@@ -150,7 +150,11 @@ class SelectableController extends ChangeNotifier {
     // ignore: unnecessary_null_comparison
     if (start != null && end != null && start <= end) {
       final startPt = start.rects.first.center;
-      final endPt = end.rects.last.centerRight;
+
+      // When justification is turned on, centerRight.dx can be slightly
+      // outside of of the paragraph's rect, so we subtract 2.0 so it won't be.
+      final endPt = end.rects.last.centerRight - const Offset(2.0, 0);
+
       return selectWordsBetweenPoints(startPt, endPt, key: key);
     } else {
       assert(false);

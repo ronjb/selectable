@@ -106,8 +106,9 @@ extension SelectableExtOnListOfRect on List<Rect> {
 // ignore: avoid_classes_with_only_static_members
 class SelectionRectifiers {
   static List<Rect> identity(List<Rect> rects) => rects;
-
   static List<Rect> merged(List<Rect> rects) => rects.mergedToSelectionRects();
+  static List<Rect> mergedRtl(List<Rect> rects) =>
+      rects.mergedToSelectionRectsRtl();
 }
 
 ///
@@ -123,7 +124,7 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
   /// Assumes that the rectangles are in 'reading order', i.e. left to right,
   /// top to bottom. Does not support languages that have an alternate order.
   ///
-  /// For example:
+  /// For example, if [rtl] is `false`:
   /// ```sketch
   ///                 ┌─────────────────┐
   ///                 │ first line      │
@@ -134,7 +135,20 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
   /// │ last line            │
   /// └──────────────────────┘
   /// ```
-  List<Rect> mergedToSelectionRects() {
+  ///
+  /// Or, if [rtl] is true:
+  /// ```sketch
+  /// ┌─────────────────┐
+  /// │ first line      │
+  /// ├─────────────────┴───────────────┐
+  /// │ middle line(s)                  │
+  /// |                                 |
+  /// └──────────┬──────────────────────┤
+  ///            │ last line            │
+  ///            └──────────────────────┘
+  /// ```
+
+  List<Rect> mergedToSelectionRects({bool rtl = false}) {
     Rect? firstLine;
     Rect? lastLine;
     final rect = fold<Rect?>(
@@ -162,14 +176,51 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
     if (firstLine == null) return [];
     if (lastLine == null) return [rect!];
     if (firstLine!.bottom >= lastLine!.top) return [firstLine!, lastLine!];
-    return [
-      Rect.fromLTRB(
-          firstLine!.left, firstLine!.top, rect!.right, firstLine!.bottom),
-      Rect.fromLTRB(rect.left, firstLine!.bottom, rect.right, lastLine!.top),
-      Rect.fromLTRB(
-          rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
-    ];
+
+    List<Rect> rects;
+    if (rtl) {
+      rects = [
+        Rect.fromLTRB(
+            rect!.left, firstLine!.top, firstLine!.right, firstLine!.bottom),
+        Rect.fromLTRB(rect.left, firstLine!.bottom, rect.right, lastLine!.top),
+        Rect.fromLTRB(
+            lastLine!.left, lastLine!.top, rect.right, lastLine!.bottom),
+      ];
+      // print('merged rects: $rects');
+    } else {
+      rects = [
+        Rect.fromLTRB(
+            firstLine!.left, firstLine!.top, rect!.right, firstLine!.bottom),
+        Rect.fromLTRB(rect.left, firstLine!.bottom, rect.right, lastLine!.top),
+        Rect.fromLTRB(
+            rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
+      ];
+      // print('rtl merged rects: $rects');
+    }
+
+    return rects;
   }
+
+  /// Merges the rectangles into, at most, three rects, where the first rect
+  /// is the bounding box containing all the rects in the first line, the
+  /// second rect is the bounding box of lines 1 through N - 1 (where N is
+  /// the number of lines), and the third rect is the bounding box of the
+  /// last line.
+  ///
+  /// Assumes that the rectangles are in right-to-left order, top to bottom.
+  ///
+  /// For example:
+  /// ```sketch
+  /// ┌─────────────────┐
+  /// │ first line      │
+  /// ├─────────────────┴───────────────┐
+  /// │ middle line(s)                  │
+  /// |                                 |
+  /// └──────────┬──────────────────────┤
+  ///            │ last line            │
+  ///            └──────────────────────┘
+  /// ```
+  List<Rect> mergedToSelectionRectsRtl() => mergedToSelectionRects(rtl: true);
 
   Iterable<Rect> rounded() => map((rect) => Rect.fromLTRB(
       rect.left.roundToDouble(),
