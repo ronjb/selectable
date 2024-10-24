@@ -104,10 +104,12 @@ class SelectableBuildHelper {
     // final r = selection.rects!;
     // print('\n${r.map((r) => '(l${r.left.s}, t${r.top.s})').join('\n')}\n');
 
-    final startHandleType =
-        isRtl ? TextSelectionHandleType.right : TextSelectionHandleType.left;
-    final endHandleType =
-        isRtl ? TextSelectionHandleType.left : TextSelectionHandleType.right;
+    final startHandleType = isRtl && !usingCupertinoControls
+        ? TextSelectionHandleType.right
+        : TextSelectionHandleType.left;
+    final endHandleType = isRtl && !usingCupertinoControls
+        ? TextSelectionHandleType.left
+        : TextSelectionHandleType.right;
 
     final startOffset =
         controls!.getHandleAnchor(startHandleType, startLineHeight);
