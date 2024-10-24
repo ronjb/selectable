@@ -37,6 +37,7 @@
 /test/
 /web/
 /windows/
+README.md
 
 # Web related
 lib/generated_plugin_registrant.dart
