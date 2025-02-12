@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.4.0] - Feb 12, 2025
+
+* Breaking change: Flutter 3.29.0 required breaking change to the float_column package that this library depends on.
+
 ## [0.3.3] - October 23, 2024
 
 * Started adding support for right-to-left languages, still a work in progress.

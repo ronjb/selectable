@@ -271,8 +271,8 @@ class _SelectableState extends State<Selectable>
     final selectionColor = widget.selectionColor ??
         TextSelectionTheme.of(context).selectionColor ??
         (_buildHelper.usingCupertinoControls
-            ? CupertinoTheme.of(context).primaryColor.withOpacity(opacity)
-            : Theme.of(context).colorScheme.primary.withOpacity(opacity));
+            ? CupertinoTheme.of(context).primaryColor.withValues(alpha: opacity)
+            : Theme.of(context).colorScheme.primary.withValues(alpha: opacity));
 
     final result = Stack(
       key: _globalKey,

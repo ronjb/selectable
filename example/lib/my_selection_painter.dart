@@ -30,7 +30,7 @@ class MySelectionPainter extends SelectionPainter {
       // dmPrint('MySelectionPainter repainting with opacity $opacity '
       //     'from animation value ${opacity.value}');
 
-      final paint = Paint()..color = Colors.red.withOpacity(0.3);
+      final paint = Paint()..color = Colors.red.withValues(alpha: 0.3);
       const radius = Radius.circular(8);
 
       final rrects =
