@@ -4,7 +4,6 @@
 
 import 'dart:math' as math;
 
-import 'package:float_column/float_column.dart';
 import 'package:flutter/rendering.dart';
 
 import 'common.dart';
@@ -28,7 +27,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     required this.firstCharIndex,
   });
 
-  final RenderTextMixin? rp;
+  final RenderParagraph? rp;
   final Rect rect;
   final String text;
   final TextSelection trimmedSel;
@@ -47,13 +46,13 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   bool get isRtl => rp?.textDirection == TextDirection.rtl;
 
   /// Returns a new `SelectionParagraph` or `null` if the provided
-  /// `RenderTextMixin` has no size (i.e. has not undergone layout),
+  /// `RenderParagraph` has no size (i.e. has not undergone layout),
   /// or if its `text` is empty or just whitespace.
   ///
-  /// The [ancestor] must be an ancestor of the provided `RenderTextMixin`,
+  /// The [ancestor] must be an ancestor of the provided `RenderParagraph`,
   /// and is used to determine the offset of this paragraph's rect.
   static SelectionParagraph? from(
-    RenderTextMixin rp, {
+    RenderParagraph rp, {
     required RenderObject ancestor,
     int paragraphIndex = 0,
     int firstCharIndex = 0,
@@ -65,7 +64,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     // ignore: unnecessary_null_comparison
     assert(paragraphIndex != null && firstCharIndex != null);
 
-    if (!rp.renderBox.hasSize) return null;
+    if (!rp.hasSize) return null;
 
     try {
       final span = rp.text;
@@ -74,10 +73,10 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
             includeSemanticsLabels: false, includePlaceholders: true);
         final trimmedSel = createTextSelection(text);
         if (trimmedSel != null) {
-          final offset = rp.renderBox.getTransformTo(ancestor).getTranslation();
+          final offset = rp.getTransformTo(ancestor).getTranslation();
           final size = rp.textSize;
-          final rect = Rect.fromLTWH(offset.x + rp.offset.dx,
-              offset.y + rp.offset.dy, size.width, size.height);
+          final rect =
+              Rect.fromLTWH(offset.x, offset.y, size.width, size.height);
           return SelectionParagraph(
             rp: rp,
             rect: rect,
@@ -98,7 +97,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   /// Returns a copy of this paragraph with zero or more property values
   /// updated.
   SelectionParagraph copyWith({
-    RenderTextMixin? rp,
+    RenderParagraph? rp,
     Rect? rect,
     String? text,
     TextSelection? trimmedSel,
@@ -243,13 +242,30 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
 }
 
 extension SelectableExtOnObject on Object {
-  /// Returns a RenderTextMixin for this object if it is a RenderParagraph or
-  /// implements the RenderTextMixin, otherwise returns null.
-  RenderTextMixin? asRenderText() => this is RenderParagraph
-      ? RenderParagraphAdapter(this as RenderParagraph)
-      : this is RenderTextMixin
-          ? this as RenderTextMixin
-          : null;
+  /// If this is a RenderParagraph returns `this`, otherwise returns null.
+  @Deprecated(
+    'Replace `.asRenderText()` with `.asRenderParagraph()`. '
+    'This was deprecated after selectable version 0.4.0',
+  )
+  RenderParagraph? asRenderText() => asRenderParagraph();
+
+  /// If this is a RenderParagraph returns `this`, otherwise returns null.
+  RenderParagraph? asRenderParagraph() =>
+      this is RenderParagraph ? this as RenderParagraph : null;
+}
+
+extension SelectableExtOnRenderParagraph on RenderParagraph {
+  @Deprecated(
+    'Just delete the `.renderBox`. RenderParagraph is a RenderBox. '
+    'This was deprecated after selectable version 0.4.0',
+  )
+  RenderBox get renderBox => this;
+
+  @Deprecated(
+    'Replace `.offset` with `Offset.zero`. '
+    'This was deprecated after selectable version 0.4.0',
+  )
+  Offset get offset => Offset.zero;
 }
 
 /// Returns a new TextSelection, trimming whitespace characters if specified.

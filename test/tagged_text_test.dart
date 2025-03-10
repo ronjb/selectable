@@ -1,4 +1,3 @@
-import 'package:float_column/float_column.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,8 +21,7 @@ void main() {
     ]);
     const text = '012345';
     final paragraph = SelectionParagraph(
-      rp: RenderParagraphAdapter(
-          RenderParagraph(span, textDirection: TextDirection.rtl)),
+      rp: RenderParagraph(span, textDirection: TextDirection.rtl),
       rect: Rect.zero,
       text: text,
       trimmedSel: createTextSelection(text)!,
@@ -45,8 +43,7 @@ void main() {
         children: [tts('0'), tts('1'), tts('2'), tts('3'), tts('4'), tts('5')]);
     const text = '012345';
     final paragraph = SelectionParagraph(
-      rp: RenderParagraphAdapter(
-          RenderParagraph(span, textDirection: TextDirection.rtl)),
+      rp: RenderParagraph(span, textDirection: TextDirection.rtl),
       rect: Rect.zero,
       text: text,
       trimmedSel: createTextSelection(text)!,

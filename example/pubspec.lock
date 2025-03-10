@@ -69,10 +69,10 @@ packages:
     dependency: "direct main"
     description:
       name: float_column
-      sha256: bd92d0b29b6f6e39435a848e0b53268093abe548af9f91fb1eafd85bf1aa104b
+      sha256: e19fff548525630386f702bc96f897df35b8cb6c1c2d2a1e0cc05a7efe6df1bc
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "4.0.2"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -182,7 +182,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.4.0"
+    version: "0.5.0"
   sky_engine:
     dependency: transitive
     description: flutter

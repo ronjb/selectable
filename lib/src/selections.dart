@@ -171,10 +171,10 @@ class Paragraphs {
     var charIndex = 0;
 
     renderBox._visitChildrenAndTextRenderers((ro) {
-      final rt = ro.asRenderText();
-      if (rt != null) {
+      final rp = ro.asRenderParagraph();
+      if (rp != null) {
         final paragraphIndex = newParagraphs.length;
-        final paragraph = SelectionParagraph.from(rt,
+        final paragraph = SelectionParagraph.from(rp,
             ancestor: renderBox,
             paragraphIndex: paragraphIndex,
             firstCharIndex: charIndex);

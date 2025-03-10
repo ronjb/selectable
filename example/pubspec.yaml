@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   cupertino_icons: ^1.0.5
-  float_column: ^3.0.0
+  float_column: ^4.0.2
   flutter:
     sdk: flutter
   selectable:
