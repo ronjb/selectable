@@ -2,8 +2,6 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
-library selectable;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';

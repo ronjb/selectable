@@ -15,9 +15,6 @@ import 'selectable.dart';
 export 'cupertino/text_selection.dart';
 export 'material/text_selection.dart';
 
-// This is okay.
-// ignore_for_file: cascade_invocations
-
 /// An interface for building the selection UI, to be provided by the
 /// implementor of the popup menu widget.
 abstract class SelectionControls {
@@ -196,10 +193,7 @@ Future<void> _launchBrowserWithUrl(String url) async {
     if (await launcher.canLaunchUrl(uri)) {
       await launcher.launchUrl(uri);
     }
-  }
-  // This is okay.
-  // ignore: avoid_catches_without_on_clauses
-  catch (e) {
+  } catch (e) {
     dmPrint('WARNING: Selectable is unable to launch the browser with '
         'url "$url": $e');
   }

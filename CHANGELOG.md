@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.5.1] - July 31, 2025
+
+* Removed deprecated and unused code and some code cleanup.
+
 ## [0.5.0] - March 10, 2025
 
 * Updated to use the latest version of the float_column library which has new rendering code for better compatibility with a wider range of Flutter versions.

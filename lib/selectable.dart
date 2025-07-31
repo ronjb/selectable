@@ -15,7 +15,6 @@ export 'src/selection_controls.dart'
         SelectableMenuItemType;
 export 'src/selection_painter.dart';
 export 'src/selection_paragraph.dart';
-export 'src/string_utils.dart';
 export 'src/tagged_text.dart';
 export 'src/tagged_text_span.dart';
 export 'src/tagged_widget_span.dart';

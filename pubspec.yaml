@@ -1,6 +1,6 @@
 name: selectable
 description: A Flutter widget that enables text selection over all the text widgets it contains.
-version: 0.5.0
+version: 0.5.1
 repository: https://github.com/ronjb/selectable
 
 environment:

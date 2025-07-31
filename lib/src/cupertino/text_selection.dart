@@ -12,8 +12,7 @@ import '../selection_controls.dart';
 // The original file ignores these lints.
 // ignore_for_file: avoid_positional_boolean_parameters
 // ignore_for_file: avoid_setters_without_getters, omit_local_variable_types
-// ignore_for_file: avoid_as, cascade_invocations
-// ignore_for_file: avoid_types_on_closure_parameters
+// ignore_for_file: cascade_invocations, avoid_types_on_closure_parameters
 
 /// Text selection controls that follows iOS design conventions.
 final SelectionControls exCupertinoTextSelectionControls =
@@ -436,11 +435,11 @@ class _CupertinoTextSelectionControls extends SelectionControls {
 
       items.add(CupertinoButton(
         color: _kPopupMenuBackgroundColor,
-        minSize: _kPopupMenuHeight,
         padding: _kPopupMenuButtonPadding.add(arrowPadding),
         borderRadius: null,
         pressedOpacity: 0.7,
         onPressed: () => onPressed!(delegate.controller),
+        minimumSize: const Size(_kPopupMenuHeight, _kPopupMenuHeight),
         child: icon == null
             ? textWidget()
             : Row(

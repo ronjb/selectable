@@ -11,8 +11,6 @@ import 'package:flutter/widgets.dart';
 /// If kDebugMode is `true`, prints a string representation of the object
 /// to the console.
 void dmPrint(Object object) {
-  // Using print in debug mode is acceptable.
-  // ignore: avoid_print
   if (kDebugMode) print(object);
 }
 

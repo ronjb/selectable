@@ -30,8 +30,6 @@ void main() {
     );
     var i = 0;
     final result = paragraph.visitChildSpans((span, index) {
-      // Ok to ignore in tests.
-      // ignore: avoid_as
       expect(int.parse((span as TextSpan).text!), i++);
       return true;
     });
