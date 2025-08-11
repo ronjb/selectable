@@ -223,8 +223,14 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   ///
   /// When [visitor] returns `true`, the walk will continue. When [visitor]
   /// returns `false`, then the walk will end.
-  bool visitChildSpans(InlineSpanVisitorWithIndex visitor) =>
-      rp!.text.visitChildrenEx(visitor);
+  bool visitChildSpans(InlineSpanVisitorWithIndex visitor) {
+    try {
+      return rp!.text.visitChildrenEx(visitor);
+    } catch (e) {
+      dmPrint('Error in SelectionParagraph.visitChildSpans(): $e');
+      return true;
+    }
+  }
 
   Offset _toLocalPt(Offset pt) => Offset(pt.dx - rect.left, pt.dy - rect.top);
 

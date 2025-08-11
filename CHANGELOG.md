@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.5.2] - August 11, 2025
+
+* Added try/catch in SelectionParagraph visitChildSpans to catch rare cases where the RenderParagraph's text property might throw an exception because it returns `_textPainter.text!` and the `.text` can be null.
+
 ## [0.5.1] - July 31, 2025
 
 * Removed deprecated and unused code and some code cleanup.
