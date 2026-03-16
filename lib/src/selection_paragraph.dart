@@ -11,8 +11,6 @@ import 'inline_span_ext.dart';
 import 'selection_anchor.dart';
 import 'string_utils.dart';
 import 'tagged_text.dart';
-import 'tagged_text_span.dart';
-import 'tagged_widget_span.dart';
 
 ///
 /// Render paragraph data.
@@ -57,13 +55,6 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     int paragraphIndex = 0,
     int firstCharIndex = 0,
   }) {
-    // In case this is called from non-null-safe code.
-    // ignore: unnecessary_null_comparison
-    assert(rp != null && ancestor != null);
-    // In case this is called from non-null-safe code.
-    // ignore: unnecessary_null_comparison
-    assert(paragraphIndex != null && firstCharIndex != null);
-
     if (!rp.hasSize) return null;
 
     try {
@@ -168,21 +159,12 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
 
   /// Returns the list of [Rect]s for the [selection].
   List<Rect> rectsForSelection(TextSelection selection) {
-    // In case this is called from non-null-safe code.
-    // ignore: unnecessary_null_comparison
-    assert(selection != null && rp != null);
-    // In case this is called from non-null-safe code.
-    // ignore: unnecessary_null_comparison
-    if (selection != null) {
-      final textBoxes = rp!.getBoxesForSelection(selection);
-      if (textBoxes.isNotEmpty) {
-        return textBoxes
-            .map((r) => r.toRect().translate(rect.left, rect.top))
-            .toList();
-      } else {
-        // dmPrint('getBoxesForSelection($selection) returned no boxes in '
-        //     'string "$text"');
-      }
+    assert(rp != null);
+    final textBoxes = rp!.getBoxesForSelection(selection);
+    if (textBoxes.isNotEmpty) {
+      return textBoxes
+          .map((r) => r.toRect().translate(rect.left, rect.top))
+          .toList();
     }
     return [];
   }
@@ -233,18 +215,6 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   }
 
   Offset _toLocalPt(Offset pt) => Offset(pt.dx - rect.left, pt.dy - rect.top);
-
-  /// Returns the [TextRange] of the word after [range].
-  // TextRange wordRangeAfter(TextRange range) {
-  //   assert(rp != null);
-  //   if (range == null || range.end >= trimmedSel.end) return null;
-  //   var i = range.end;
-  //   while (i < trimmedSel.end && _shouldSkip(text.codeUnitAt(i))) {
-  //     i++;
-  //   }
-  //   if (i >= trimmedSel.end) return null;
-  //   return rp.getWordBoundary(TextPosition(offset: i)); // + 1));
-  // }
 }
 
 extension SelectableExtOnObject on Object {
@@ -283,12 +253,7 @@ TextSelection? createTextSelection(
   int? extentOffset,
   bool trim = true,
 }) {
-  // In case this is called from non-null-safe code.
-  // ignore: unnecessary_null_comparison
-  assert(str != null);
-  // In case this is called from non-null-safe code.
-  // ignore: unnecessary_null_comparison
-  if (str == null || str.isEmpty) return null;
+  if (str.isEmpty) return null;
   final len = str.length;
   var first = baseOffset ?? 0;
   var last = extentOffset != null ? math.min(extentOffset, len) - 1 : len - 1;
@@ -335,17 +300,4 @@ extension SelectableExtOnListOfSelectionParagraph on List<SelectionParagraph> {
 
 bool _shouldSkip(int rune) {
   return rune == objectReplacementCharacterCode || isWhitespaceCharacter(rune);
-}
-
-///
-/// Returns an iterable list of tags in the [span] or an empty list if none.
-///
-// ignore: unused_element
-Iterable<Object> _tagsFromSpan(InlineSpan span) {
-  if (span is TaggedTextSpan) return [span.tag];
-  if (span is TaggedWidgetSpan) return [span.tag];
-  if (span is TextSpan && (span.children?.isNotEmpty ?? false)) {
-    return span.children!.expand<Object>(_tagsFromSpan);
-  }
-  return [];
 }

@@ -500,9 +500,11 @@ class _CupertinoTextSelectionControls extends SelectionControls {
         // Right handle is a vertical mirror of the left.
         return Transform(
           transform: Matrix4.identity()
-            ..translate(desiredSize.width / 2, desiredSize.height / 2)
+            ..translateByDouble(
+                desiredSize.width / 2, desiredSize.height / 2, 0.0, 1.0)
             ..rotateZ(math.pi)
-            ..translate(-desiredSize.width / 2, -desiredSize.height / 2),
+            ..translateByDouble(
+                -desiredSize.width / 2, -desiredSize.height / 2, 0.0, 1.0),
           child: handle,
         );
       // iOS doesn't draw anything for collapsed selections.

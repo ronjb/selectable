@@ -72,7 +72,9 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
     double? minDistance;
     for (final rect in rects) {
       final center = rect.center;
-      final distance = (center.distanceSquared - point.distanceSquared).abs();
+      final dx = center.dx - point.dx;
+      final dy = center.dy - point.dy;
+      final distance = dx * dx + dy * dy;
       if (minDistance == null || distance < minDistance) {
         minDistance = distance;
       }
@@ -109,13 +111,12 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
     List<SelectionParagraph> paragraphs, {
     bool end = false,
   }) {
-    TaggedText? taggedText;
-    if (paragraphs.length > paragraphIndex) {
-      taggedText = paragraphs[paragraphIndex]
-          .rp
-          ?.text
-          .taggedTextForIndex(end ? textSel.end : textSel.start, end: end);
-    }
+    if (paragraphs.length <= paragraphIndex) return null;
+
+    final taggedText = paragraphs[paragraphIndex]
+        .rp
+        ?.text
+        .taggedTextForIndex(end ? textSel.end : textSel.start, end: end);
     if (taggedText == null) {
       final rp = paragraphs[paragraphIndex].rp;
       dmPrint('ERROR: Selectable '

@@ -2,6 +2,8 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -162,9 +164,9 @@ class _SelectableState extends State<Selectable>
       //     '${bToStr(sc.isHidden)}.');
       _selectionIsHidden = sc.getSelection()!.isHidden;
       if (_selectionIsHidden) {
-        _selectionOpacityController.reverse();
+        unawaited(_selectionOpacityController.reverse());
       } else {
-        _selectionOpacityController.forward();
+        unawaited(_selectionOpacityController.forward());
       }
     }
 

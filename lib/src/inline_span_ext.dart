@@ -124,7 +124,8 @@ extension SelectableExtOnInlineSpan on InlineSpan {
     InlineSpanVisitorWithIndex visitor, {
     bool includesPlaceholders = true,
   }) =>
-      _visitChildrenEx(_Index(0), visitor);
+      _visitChildrenEx(_Index(0), visitor,
+          includesPlaceholders: includesPlaceholders);
 
   bool _visitChildrenEx(
     _Index index,
