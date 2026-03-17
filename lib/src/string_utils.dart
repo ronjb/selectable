@@ -162,7 +162,7 @@ bool isWhitespaceCharacter(int char) => _isWhitespace(char);
 // PRIVATE
 //
 
-extension<T> on Set<T> {
+extension _SetExt<T> on Set<T> {
   Set<T> subtracting(Iterable<T>? items) {
     if (items == null || items.isEmpty) return this;
     return Set.of(this)..removeAll(items);

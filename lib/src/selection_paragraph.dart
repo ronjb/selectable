@@ -32,6 +32,8 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   final int paragraphIndex;
   final int firstCharIndex;
 
+  /// Accepts nullable [other] intentionally. Returns positive when [other]
+  /// is null.
   @override
   int compareTo(SelectionParagraph? other) {
     var v = (other == null ? 1 : 0);
@@ -119,7 +121,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     int i, {
     bool trim = true,
   }) {
-    assert(rp != null);
+    if (rp == null || trimmedSel.isCollapsed) return null;
     var offset = math.min(trimmedSel.end - 1, math.max(trimmedSel.start, i));
 
     // If trimming whitespace, skip whitespace.
@@ -159,7 +161,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
 
   /// Returns the list of [Rect]s for the [selection].
   List<Rect> rectsForSelection(TextSelection selection) {
-    assert(rp != null);
+    if (rp == null) return [];
     final textBoxes = rp!.getBoxesForSelection(selection);
     if (textBoxes.isNotEmpty) {
       return textBoxes
@@ -219,29 +221,8 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
 
 extension SelectableExtOnObject on Object {
   /// If this is a RenderParagraph returns `this`, otherwise returns null.
-  @Deprecated(
-    'Replace `.asRenderText()` with `.asRenderParagraph()`. '
-    'This was deprecated after selectable version 0.4.0',
-  )
-  RenderParagraph? asRenderText() => asRenderParagraph();
-
-  /// If this is a RenderParagraph returns `this`, otherwise returns null.
   RenderParagraph? asRenderParagraph() =>
       this is RenderParagraph ? this as RenderParagraph : null;
-}
-
-extension SelectableExtOnRenderParagraph on RenderParagraph {
-  @Deprecated(
-    'Just delete the `.renderBox`. RenderParagraph is a RenderBox. '
-    'This was deprecated after selectable version 0.4.0',
-  )
-  RenderBox get renderBox => this;
-
-  @Deprecated(
-    'Replace `.offset` with `Offset.zero`. '
-    'This was deprecated after selectable version 0.4.0',
-  )
-  Offset get offset => Offset.zero;
 }
 
 /// Returns a new TextSelection, trimming whitespace characters if specified.

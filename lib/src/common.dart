@@ -60,7 +60,7 @@ extension SelectableExtOnIterable<T> on Iterable<T> {
     while (it.moveNext()) {
       if (++count > l) return true;
     }
-    return l < 0;
+    return l < 0; // Any iterable's length is greater than a negative number.
   }
 }
 

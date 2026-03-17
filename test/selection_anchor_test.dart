@@ -62,6 +62,36 @@ void main() {
       });
     });
 
+    group('Issue #6: compareTo and operators with null', () {
+      test('compareTo returns positive when other is null', () {
+        const anchor = SelectionAnchor(
+          0,
+          0,
+          TextSelection(baseOffset: 0, extentOffset: 1),
+          [],
+          TextDirection.ltr,
+        );
+
+        // Non-null is always "greater than" null.
+        expect(anchor.compareTo(null), greaterThan(0));
+      });
+
+      test('operators handle null correctly', () {
+        const anchor = SelectionAnchor(
+          0,
+          0,
+          TextSelection(baseOffset: 0, extentOffset: 1),
+          [],
+          TextDirection.ltr,
+        );
+
+        expect(anchor > null, isTrue);
+        expect(anchor >= null, isTrue);
+        expect(anchor < null, isFalse);
+        expect(anchor <= null, isFalse);
+      });
+    });
+
     group('taggedTextWithParagraphs', () {
       test('returns null without crashing when paragraphIndex is out of range',
           () {

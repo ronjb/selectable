@@ -87,6 +87,8 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
   bool operator >(SelectionAnchor? other) => (compareTo(other) > 0);
   bool operator >=(SelectionAnchor? other) => (compareTo(other) >= 0);
 
+  /// Accepts nullable [other] intentionally so the comparison operators above
+  /// work with nullable anchor variables. Returns positive when [other] is null.
   @override
   int compareTo(SelectionAnchor? other) {
     var v = (other == null ? 1 : 0);
