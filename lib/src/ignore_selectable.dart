@@ -18,9 +18,7 @@ class IgnoreSelectable extends SingleChildRenderObjectWidget {
     this.ignoring = true,
     this.ignoringSemantics,
     super.child,
-  }) : // In case this is called from non-null-safe code.
-       // ignore: unnecessary_null_comparison
-       assert(ignoring != null);
+  });
 
   /// Whether this widget is ignored for selection via its [Selectable] ancestor
   /// widget.

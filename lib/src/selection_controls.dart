@@ -107,12 +107,9 @@ class SelectableMenuItem {
     String? title,
     SelectableMenuItemHandlerFunc? isEnabled,
     SelectableMenuItemHandlerFunc? handler,
-  }) : // In case this is called from non-null-safe code.
-       // ignore: unnecessary_null_comparison
-       assert(
-         type != null &&
-             (type != SelectableMenuItemType.other ||
-                 (title != null && isEnabled != null && handler != null)),
+  }) : assert(
+         type != SelectableMenuItemType.other ||
+             (title != null && isEnabled != null && handler != null),
        ),
        title =
            title ??

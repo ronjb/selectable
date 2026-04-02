@@ -42,12 +42,7 @@ class SelectablePanGestureDetector extends StatelessWidget {
     this.behavior,
     this.excludeFromSemantics = false,
     this.dragStartBehavior = DragStartBehavior.start,
-  }) : // In case this is called from non-null-safe code.
-       // ignore: unnecessary_null_comparison
-       assert(excludeFromSemantics != null),
-       // In case this is called from non-null-safe code.
-       // ignore: unnecessary_null_comparison
-       assert(dragStartBehavior != null);
+  });
 
   /// The widget below this widget in the tree.
   ///

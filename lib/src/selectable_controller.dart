@@ -94,9 +94,7 @@ class SelectableController extends ChangeNotifier {
   /// If [end] is `null`, selects the words between [start] up to an including
   /// the last word in the last paragraph.
   bool selectWordsBetweenIndexes(int start, int? end, {int? key}) {
-    // In case this is called from non-null-safe code.
-    // ignore: unnecessary_null_comparison
-    assert(start != null && (end == null || start <= end));
+    assert(end == null || start <= end);
 
     SelectionAnchor? startAnchor, endAnchor;
     SelectionParagraph? lastParagraph;
@@ -152,9 +150,7 @@ class SelectableController extends ChangeNotifier {
     SelectionAnchor end, {
     int? key,
   }) {
-    // In case this is called from non-null-safe code.
-    // ignore: unnecessary_null_comparison
-    if (start != null && end != null && start <= end) {
+    if (start <= end) {
       final startPt = start.rects.first.center;
 
       // When justification is turned on, centerRight.dx can be slightly
@@ -245,15 +241,11 @@ class SelectableController extends ChangeNotifier {
     bool Function(SelectionParagraph paragraph, InlineSpan span, int index)
     visitor,
   ) {
-    // In case this is called from non-null-safe code.
-    // ignore: unnecessary_null_comparison
-    if (visitor != null) {
-      for (final paragraph in _selections.cachedParagraphs.list) {
-        if (!paragraph.visitChildSpans(
-          (span, index) => visitor(paragraph, span, index),
-        )) {
-          return false;
-        }
+    for (final paragraph in _selections.cachedParagraphs.list) {
+      if (!paragraph.visitChildSpans(
+        (span, index) => visitor(paragraph, span, index),
+      )) {
+        return false;
       }
     }
     return true;

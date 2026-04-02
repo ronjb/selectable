@@ -44,9 +44,7 @@ extension SelectableExtOnInlineSpan on InlineSpan {
     bool includesPlaceholders = true,
     bool end = false,
   }) {
-    // In case this is called from non-null-safe code.
-    // ignore: unnecessary_null_comparison
-    assert(index != null && index >= 0);
+    assert(index >= 0);
     final idx = _Index(end ? math.max(0, index - 1) : index);
     final span = _spanWithIndex(
       idx,

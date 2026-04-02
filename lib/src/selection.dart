@@ -30,15 +30,7 @@ class Selection extends Equatable {
     this.isHidden = false,
     this.animationDuration = const Duration(seconds: 1),
     this.rectifier = SelectionRectifiers.identity,
-  }) : // In case this is called from non-null-safe code.
-       // ignore: unnecessary_null_comparison
-       assert(version != null),
-       // In case this is called from non-null-safe code.
-       // ignore: unnecessary_null_comparison
-       assert(isHidden != null && animationDuration != null),
-       // In case this is called from non-null-safe code.
-       // ignore: unnecessary_null_comparison
-       assert(rectifier != null);
+  });
 
   @override
   List<Object?> get props => [
