@@ -56,29 +56,35 @@ void main() {
       expect(() => '01234567'.indexOfCharacterAfter(9), throwsAssertionError);
     });
 
-    test('skips spaces in normal strings when includeWhitespace is `false`',
-        () {
+    test('skips spaces in normal strings when includeWhitespace is `false`', () {
       expect('0123 5678'.indexOfCharacterAfter(3, includeWhitespace: false), 5);
       expect('0123 5678'.indexOfCharacterAfter(4, includeWhitespace: false), 5);
       expect(
-          '0123      0123'.indexOfCharacterAfter(3, includeWhitespace: false),
-          10);
+        '0123      0123'.indexOfCharacterAfter(3, includeWhitespace: false),
+        10,
+      );
       expect(
-          '0123      0123'.indexOfCharacterAfter(2, includeWhitespace: false),
-          3);
+        '0123      0123'.indexOfCharacterAfter(2, includeWhitespace: false),
+        3,
+      );
       expect(
-          '0123      0123'.indexOfCharacterAfter(4, includeWhitespace: false),
-          10);
+        '0123      0123'.indexOfCharacterAfter(4, includeWhitespace: false),
+        10,
+      );
       expect(
-          '0123      0123'.indexOfCharacterAfter(9, includeWhitespace: false),
-          10);
+        '0123      0123'.indexOfCharacterAfter(9, includeWhitespace: false),
+        10,
+      );
       expect(
-          '0123      0123'.indexOfCharacterAfter(10, includeWhitespace: false),
-          11);
+        '0123      0123'.indexOfCharacterAfter(10, includeWhitespace: false),
+        11,
+      );
       // If the subsequent characters are all whitespace, it returns the length
       // of the string.
       expect(
-          '0123      '.indexOfCharacterAfter(5, includeWhitespace: false), 10);
+        '0123      '.indexOfCharacterAfter(5, includeWhitespace: false),
+        10,
+      );
     });
 
     test('handles surrogate pairs correctly', () {
@@ -116,30 +122,40 @@ void main() {
       expect(() => '01234567'.indexOfCharacterBefore(9), throwsAssertionError);
     });
 
-    test('skips spaces in normal strings when includeWhitespace is `false`',
-        () {
-      expect(
-          '0123 0123'.indexOfCharacterBefore(5, includeWhitespace: false), 3);
-      expect(
+    test(
+      'skips spaces in normal strings when includeWhitespace is `false`',
+      () {
+        expect(
+          '0123 0123'.indexOfCharacterBefore(5, includeWhitespace: false),
+          3,
+        );
+        expect(
           '0123      0123'.indexOfCharacterBefore(10, includeWhitespace: false),
-          3);
-      expect(
+          3,
+        );
+        expect(
           '0123      0123'.indexOfCharacterBefore(11, includeWhitespace: false),
-          10);
-      expect(
+          10,
+        );
+        expect(
           '0123      0123'.indexOfCharacterBefore(9, includeWhitespace: false),
-          3);
-      expect(
+          3,
+        );
+        expect(
           '0123      0123'.indexOfCharacterBefore(4, includeWhitespace: false),
-          3);
-      expect(
+          3,
+        );
+        expect(
           '0123      0123'.indexOfCharacterBefore(3, includeWhitespace: false),
-          2);
-      // If the previous characters are all whitespace, it returns zero.
-      expect(
+          2,
+        );
+        // If the previous characters are all whitespace, it returns zero.
+        expect(
           '          0123'.indexOfCharacterBefore(3, includeWhitespace: false),
-          0);
-    });
+          0,
+        );
+      },
+    );
 
     test('handles surrogate pairs correctly', () {
       expect('0123👨👩👦0123'.indexOfCharacterBefore(11), 10);

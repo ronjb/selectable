@@ -37,10 +37,9 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
     super.semanticsLabel,
     super.locale,
     super.spellOut,
-  }) :
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(tag != null);
+  }) : // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(tag != null);
 
   /// The tag object.
   final Object tag;
@@ -114,24 +113,30 @@ class TaggedTextSpan extends TextSpan with SplittableMixin<InlineSpan> {
               text: text,
               children: children,
               noText: text == null,
-              noChildren: children == null)
+              noChildren: children == null,
+            )
           : span.copyWith(
               text: text,
               children: children,
               noText: text == null,
-              noChildren: children == null),
+              noChildren: children == null,
+            ),
     );
 
     // If this span was split, and its tag is splittable, split the tag too.
     if (result.length == 2 && tag is SplittableTextSpanTag) {
       assert(result.first is TaggedTextSpan && result.last is TaggedTextSpan);
-      final splitTags = (tag as SplittableTextSpanTag)
-          .splitWith(this, atCharacter: initialIndex);
+      final splitTags = (tag as SplittableTextSpanTag).splitWith(
+        this,
+        atCharacter: initialIndex,
+      );
       assert(splitTags.length == 2);
-      result[0] =
-          (result[0] as TaggedTextSpan).ttsCopyWith(tag: splitTags.first);
-      result[1] =
-          (result[1] as TaggedTextSpan).ttsCopyWith(tag: splitTags.last);
+      result[0] = (result[0] as TaggedTextSpan).ttsCopyWith(
+        tag: splitTags.first,
+      );
+      result[1] = (result[1] as TaggedTextSpan).ttsCopyWith(
+        tag: splitTags.last,
+      );
     }
 
     return result;

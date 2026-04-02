@@ -20,11 +20,10 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
     this.textSel,
     this.rects,
     this.textDirection,
-  )   :
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(paragraphIndex != null && textSel != null && rects != null),
-        assert(paragraphIndex >= 0);
+  ) : // In case this is called from non-null-safe code.
+      // ignore: unnecessary_null_comparison
+      assert(paragraphIndex != null && textSel != null && rects != null),
+      assert(paragraphIndex >= 0);
 
   /// Index of this anchor's paragraph in the global paragraph list.
   final int paragraphIndex;
@@ -54,12 +53,12 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
   /// Returns a new SelectionAnchor with the selected word's rectangles
   /// inflated by [delta].
   SelectionAnchor copyInflated(double delta) => SelectionAnchor(
-        paragraphIndex,
-        firstCharIndex,
-        textSel,
-        rects.map((rect) => rect.inflate(delta)).toList(),
-        textDirection,
-      );
+    paragraphIndex,
+    firstCharIndex,
+    textSel,
+    rects.map((rect) => rect.inflate(delta)).toList(),
+    textDirection,
+  );
 
   /// Returns `true` if the selected word's rectangle(s) contain the [point].
   bool containsPoint(Offset? point) => rects.containsPoint(point);
@@ -94,19 +93,25 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
     var v = (other == null ? 1 : 0);
     if (v == 0) v = paragraphIndex - other!.paragraphIndex;
     if (v == 0) {
-      v = (textSel.start + firstCharIndex) -
+      v =
+          (textSel.start + firstCharIndex) -
           (other!.textSel.start + other.firstCharIndex);
     }
     if (v == 0) {
-      v = (textSel.end + firstCharIndex) -
+      v =
+          (textSel.end + firstCharIndex) -
           (other!.textSel.end + other.firstCharIndex);
     }
     return v;
   }
 
   @override
-  List<Object?> get props =>
-      [paragraphIndex, firstCharIndex, textSel.start, textSel.end];
+  List<Object?> get props => [
+    paragraphIndex,
+    firstCharIndex,
+    textSel.start,
+    textSel.end,
+  ];
 
   /// Creates and returns the [TaggedText] object for this anchor.
   TaggedText? taggedTextWithParagraphs(
@@ -115,16 +120,18 @@ class SelectionAnchor extends Equatable implements Comparable<SelectionAnchor> {
   }) {
     if (paragraphs.length <= paragraphIndex) return null;
 
-    final taggedText = paragraphs[paragraphIndex]
-        .rp
-        ?.text
-        .taggedTextForIndex(end ? textSel.end : textSel.start, end: end);
+    final taggedText = paragraphs[paragraphIndex].rp?.text.taggedTextForIndex(
+      end ? textSel.end : textSel.start,
+      end: end,
+    );
     if (taggedText == null) {
       final rp = paragraphs[paragraphIndex].rp;
-      dmPrint('ERROR: Selectable '
-          'taggedTextForIndex(${end ? textSel.end : textSel.start},'
-          ' end: ${end ? 'true' : 'false'}) failed for string: '
-          '${rp?.text.toPlainText(includeSemanticsLabels: false)}');
+      dmPrint(
+        'ERROR: Selectable '
+        'taggedTextForIndex(${end ? textSel.end : textSel.start},'
+        ' end: ${end ? 'true' : 'false'}) failed for string: '
+        '${rp?.text.toPlainText(includeSemanticsLabels: false)}',
+      );
       assert(false);
     }
     return taggedText;

@@ -151,8 +151,10 @@ extension SelectableExtOnString on String {
 }
 
 /// Returns `true` if the character is a whitespace character.
-@Deprecated('Use `isWhitespaceCharacter` instead. '
-    'This feature was deprecated after v0.2.6')
+@Deprecated(
+  'Use `isWhitespaceCharacter` instead. '
+  'This feature was deprecated after v0.2.6',
+)
 bool isWhitespaceRune(int char) => _isWhitespace(char);
 
 /// Returns `true` if the character is a whitespace character.
@@ -172,7 +174,9 @@ extension _SetExt<T> on Set<T> {
 bool isNonWordCharacter(int char) => _nonWordChars.contains(char);
 final _nonWordChars = _whitespace
     .union(_asciiPunctuation)
-    .union({_emDash}).subtracting([_sglQuote]).union(_nonWordQuotes);
+    .union({_emDash})
+    .subtracting([_sglQuote])
+    .union(_nonWordQuotes);
 
 bool _isApostrophe(int char) => _apostrophes.contains(char);
 const _apostrophes = <int>{_sglQuote, _sglQtRgt};
@@ -199,7 +203,7 @@ const _allQuotes = <int>{
   _sglQtRgt,
   _dblQuote,
   _dblQtLft,
-  _dblQtRgt
+  _dblQtRgt,
 };
 
 // Okay to ignore.
@@ -223,13 +227,11 @@ const _asciiPunctuation = <int>{
   0x002D, // - hyphen or minus sign
   0x002E, // . period, full stop, dot, or decimal point
   0x002F, // / slash, solidus, or virgule
-
   /* Ignore numbers.
   0x0030, // 0
   ...
   0x0039, // 9
   */
-
   0x003A, // : colon
   0x003B, // ; semicolon
   0x003C, // < less-than sign, left bracket
@@ -238,26 +240,22 @@ const _asciiPunctuation = <int>{
   0x003F, // ? question mark
 
   0x0040, // @ at sign, commercial at
-
   /* Ignore uppercase letters (capital letters).
   0x0041, // A
   ...
   0x005A, // Z
   */
-
   0x005B, // [ left square bracket
   0x005C, // \ backslash or reverse solidus
   0x005D, // ] right square bracket
   0x005E, // ^ circumflex accent, or up arrowhead
   0x005F, // _ underscore, low line
   0x0060, // ` grave accent
-
   /* Ignore lowercase letters.
   0x0061, // a
   ...
   0x007A, // z
   */
-
   0x007B, // { left curly bracket
   0x007C, // | vertical line or bar
   0x007D, // } right curly bracket
@@ -286,13 +284,11 @@ const _whitespace = <int>{
   0x000B, // [␋] vertical tab
   0x000C, // [␌] form feed
   0x000D, // [␍] carriage return
-
   // Not sure we need to include these chars, so commented out for now.
   // 0x001C, // [␜] file separator
   // 0x001D, // [␝] group separator
   // 0x001E, // [␞] record separator
   // 0x001F, // [␟] unit separator
-
   0x0020, // [ ] space
   0x0085, // next line
   0x00A0, // [ ] no-break space

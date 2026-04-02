@@ -48,15 +48,17 @@ extension SelectableExtOnInlineSpan on InlineSpan {
     // ignore: unnecessary_null_comparison
     assert(index != null && index >= 0);
     final idx = _Index(end ? math.max(0, index - 1) : index);
-    final span =
-        _spanWithIndex(idx, includesPlaceholders: includesPlaceholders);
+    final span = _spanWithIndex(
+      idx,
+      includesPlaceholders: includesPlaceholders,
+    );
     if (span != null) {
       return TaggedText(
         span is TaggedTextSpan
             ? span.tag
             : span is TaggedWidgetSpan
-                ? span.tag
-                : null,
+            ? span.tag
+            : null,
         span is TextSpan
             ? span.text!
             : String.fromCharCode(objectReplacementCharacterCode),
@@ -86,8 +88,10 @@ extension SelectableExtOnInlineSpan on InlineSpan {
     int index, {
     bool includesPlaceholders = true,
   }) {
-    return _spanWithIndex(_Index(index),
-        includesPlaceholders: includesPlaceholders);
+    return _spanWithIndex(
+      _Index(index),
+      includesPlaceholders: includesPlaceholders,
+    );
   }
 
   InlineSpan? _spanWithIndex(_Index index, {bool includesPlaceholders = true}) {
@@ -103,8 +107,10 @@ extension SelectableExtOnInlineSpan on InlineSpan {
       }
       if (span.children != null) {
         for (final child in span.children!) {
-          final inlineSpan = child._spanWithIndex(index,
-              includesPlaceholders: includesPlaceholders);
+          final inlineSpan = child._spanWithIndex(
+            index,
+            includesPlaceholders: includesPlaceholders,
+          );
           if (inlineSpan != null) return inlineSpan;
         }
       }
@@ -123,9 +129,11 @@ extension SelectableExtOnInlineSpan on InlineSpan {
   bool visitChildrenEx(
     InlineSpanVisitorWithIndex visitor, {
     bool includesPlaceholders = true,
-  }) =>
-      _visitChildrenEx(_Index(0), visitor,
-          includesPlaceholders: includesPlaceholders);
+  }) => _visitChildrenEx(
+    _Index(0),
+    visitor,
+    includesPlaceholders: includesPlaceholders,
+  );
 
   bool _visitChildrenEx(
     _Index index,
@@ -140,8 +148,11 @@ extension SelectableExtOnInlineSpan on InlineSpan {
       }
       if (span.children != null) {
         for (final child in span.children!) {
-          if (!child._visitChildrenEx(index, visitor,
-              includesPlaceholders: includesPlaceholders)) {
+          if (!child._visitChildrenEx(
+            index,
+            visitor,
+            includesPlaceholders: includesPlaceholders,
+          )) {
             return false;
           }
         }

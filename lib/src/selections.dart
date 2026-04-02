@@ -174,10 +174,12 @@ class Paragraphs {
       final rp = ro.asRenderParagraph();
       if (rp != null) {
         final paragraphIndex = newParagraphs.length;
-        final paragraph = SelectionParagraph.from(rp,
-            ancestor: renderBox,
-            paragraphIndex: paragraphIndex,
-            firstCharIndex: charIndex);
+        final paragraph = SelectionParagraph.from(
+          rp,
+          ancestor: renderBox,
+          paragraphIndex: paragraphIndex,
+          firstCharIndex: charIndex,
+        );
         if (paragraph != null) {
           // If we're not expecting the paragraph to have changed,
           // check to see if it has...

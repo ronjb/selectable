@@ -56,8 +56,10 @@ const TextStyle _kPopupMenuButtonFontStyle = TextStyle(
 );
 
 // Eyeballed value.
-const EdgeInsets _kPopupMenuButtonPadding =
-    EdgeInsets.symmetric(vertical: 10.0, horizontal: 18.0);
+const EdgeInsets _kPopupMenuButtonPadding = EdgeInsets.symmetric(
+  vertical: 10.0,
+  horizontal: 18.0,
+);
 
 /// An iOS-style popup menu that appears in response to text selection.
 ///
@@ -74,9 +76,9 @@ class _CupertinoTextSelectionPopupMenu extends SingleChildRenderObjectWidget {
     double? arrowTipX,
     bool? isArrowPointingDown,
     super.child,
-  })  : _barTopY = barTopY,
-        _arrowTipX = arrowTipX,
-        _isArrowPointingDown = isArrowPointingDown;
+  }) : _barTopY = barTopY,
+       _arrowTipX = arrowTipX,
+       _isArrowPointingDown = isArrowPointingDown;
 
   // The y-coordinate of popup menu's top edge, in global coordinate system.
   final double? _barTopY;
@@ -95,7 +97,9 @@ class _CupertinoTextSelectionPopupMenu extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _PopupMenuRenderBox renderObject) {
+    BuildContext context,
+    _PopupMenuRenderBox renderObject,
+  ) {
     renderObject
       ..barTopY = _barTopY
       ..arrowTipX = _arrowTipX
@@ -154,8 +158,9 @@ class _PopupMenuRenderBox extends RenderShiftedBox {
     markNeedsSemanticsUpdate();
   }
 
-  final BoxConstraints heightConstraint =
-      const BoxConstraints.tightFor(height: _kPopupMenuHeight);
+  final BoxConstraints heightConstraint = const BoxConstraints.tightFor(
+    height: _kPopupMenuHeight,
+  );
 
   @override
   void setupParentData(RenderObject child) {
@@ -173,7 +178,8 @@ class _PopupMenuRenderBox extends RenderShiftedBox {
     }
     final BoxConstraints enforcedConstraint = constraints
         .deflate(
-            const EdgeInsets.symmetric(horizontal: _kPopupMenuScreenPadding))
+          const EdgeInsets.symmetric(horizontal: _kPopupMenuScreenPadding),
+        )
         .loosen();
 
     child!.layout(
@@ -189,8 +195,10 @@ class _PopupMenuRenderBox extends RenderShiftedBox {
         size.width - child!.size.width / 2 - _kPopupMenuScreenPadding;
     final double adjustedCenterX = _arrowTipX!.clamp(lowerBound, upperBound);
 
-    childParentData.offset =
-        Offset(adjustedCenterX - child!.size.width / 2, _barTopY!);
+    childParentData.offset = Offset(
+      adjustedCenterX - child!.size.width / 2,
+      _barTopY!,
+    );
     childParentData.arrowXOffsetFromCenter = _arrowTipX! - adjustedCenterX;
   }
 
@@ -201,12 +209,11 @@ class _PopupMenuRenderBox extends RenderShiftedBox {
     final Path rrect = Path()
       ..addRRect(
         RRect.fromRectAndRadius(
-          Offset(
-                0,
-                _isArrowPointingDown! ? 0 : _kPopupMenuArrowSize.height,
-              ) &
-              Size(child!.size.width,
-                  child!.size.height - _kPopupMenuArrowSize.height),
+          Offset(0, _isArrowPointingDown! ? 0 : _kPopupMenuArrowSize.height) &
+              Size(
+                child!.size.width,
+                child!.size.height - _kPopupMenuArrowSize.height,
+              ),
           _kPopupMenuBorderRadius,
         ),
       );
@@ -264,7 +271,7 @@ class _PopupMenuRenderBox extends RenderShiftedBox {
             const Color(0x00000000),
             const Color(0xFFFF00FF),
             const Color(0xFFFF00FF),
-            const Color(0x00000000)
+            const Color(0x00000000),
           ],
           <double>[0.25, 0.25, 0.75, 0.75],
           TileMode.repeated,
@@ -275,7 +282,9 @@ class _PopupMenuRenderBox extends RenderShiftedBox {
       final _PopupMenuParentData childParentData =
           (child!.parentData as _PopupMenuParentData?)!;
       context.canvas.drawPath(
-          _clipPath().shift(offset + childParentData.offset), _debugPaint!);
+        _clipPath().shift(offset + childParentData.offset),
+        _debugPaint!,
+      );
       return true;
     }());
   }
@@ -303,10 +312,7 @@ class _TextSelectionHandlePainter extends CustomPainter {
         _kSelectionHandleRadius,
         2 * _kSelectionHandleRadius - _kSelectionHandleOverlap,
       ),
-      Offset(
-        _kSelectionHandleRadius,
-        size.height,
-      ),
+      Offset(_kSelectionHandleRadius, size.height),
       paint,
     );
   }
@@ -342,27 +348,28 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     // TextSelectionPoint(rects.first.bottomLeft, TextDirection.ltr),
     // TextSelectionPoint(rects.last.bottomRight, TextDirection.ltr)
 
-    final double popupMenuHeightNeeded = padding.top +
+    final double popupMenuHeightNeeded =
+        padding.top +
         _kPopupMenuScreenPadding +
         _kPopupMenuHeight +
         _kPopupMenuContentDistance;
 
     final primaryY = math.min(
-        viewport.bottom -
-            (_kPopupMenuContentDistance * 2.0) -
-            _kPopupMenuHeight,
-        selectionRects!.first.top -
-            _kPopupMenuContentDistance -
-            _kPopupMenuHeight);
+      viewport.bottom - (_kPopupMenuContentDistance * 2.0) - _kPopupMenuHeight,
+      selectionRects!.first.top -
+          _kPopupMenuContentDistance -
+          _kPopupMenuHeight,
+    );
 
     double? secondaryY;
 
     // Will fit below?
     if (viewport.bottom - selectionRects.last.bottom >= popupMenuHeightNeeded) {
-      secondaryY = math.max(viewport.top + _kPopupMenuContentDistance,
-          selectionRects.last.bottom + _kPopupMenuContentDistance);
+      secondaryY = math.max(
+        viewport.top + _kPopupMenuContentDistance,
+        selectionRects.last.bottom + _kPopupMenuContentDistance,
+      );
     }
-
     // Else, show in center.
     else {
       secondaryY = viewport.center.dy - (_kPopupMenuHeight / 2.0);
@@ -370,9 +377,11 @@ class _CupertinoTextSelectionControls extends SelectionControls {
 
     final double arrowTipX =
         ((selectionRects.last.left + selectionRects.first.right) / 2.0).clamp(
-      _kArrowScreenPadding + padding.left,
-      MediaQuery.sizeOf(context).width - padding.right - _kArrowScreenPadding,
-    );
+          _kArrowScreenPadding + padding.left,
+          MediaQuery.sizeOf(context).width -
+              padding.right -
+              _kArrowScreenPadding,
+        );
 
     if (useExperimentalPopupMenu) {
       // print('building menu at $arrowTipX, $localBarTopY');
@@ -390,21 +399,20 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     if (selectionRects.first.top - viewport.top >= popupMenuHeightNeeded) {
       localBarTopY = primaryY;
     } else
-
     // Will fit below?
     if (viewport.bottom - selectionRects.last.bottom >= popupMenuHeightNeeded) {
       localBarTopY = secondaryY;
       isArrowPointingDown = false;
     }
-
     // Else, show in center.
     else {
       localBarTopY = secondaryY;
     }
 
     final List<Widget> items = <Widget>[];
-    final Widget onePhysicalPixelVerticalDivider =
-        SizedBox(width: 1.0 / MediaQuery.devicePixelRatioOf(context));
+    final Widget onePhysicalPixelVerticalDivider = SizedBox(
+      width: 1.0 / MediaQuery.devicePixelRatioOf(context),
+    );
     final EdgeInsets arrowPadding = isArrowPointingDown
         ? EdgeInsets.only(bottom: _kPopupMenuArrowSize.height)
         : EdgeInsets.only(top: _kPopupMenuArrowSize.height);
@@ -427,38 +435,40 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       }
 
       Widget textWidget() => MediaQuery.withNoTextScaling(
-            child: Text(
-              icon == null ? text : ' $text',
-              style: _kPopupMenuButtonFontStyle,
-            ),
-          );
+        child: Text(
+          icon == null ? text : ' $text',
+          style: _kPopupMenuButtonFontStyle,
+        ),
+      );
 
-      items.add(CupertinoButton(
-        color: _kPopupMenuBackgroundColor,
-        padding: _kPopupMenuButtonPadding.add(arrowPadding),
-        borderRadius: null,
-        pressedOpacity: 0.7,
-        onPressed: () => onPressed!(delegate.controller),
-        minimumSize: const Size(_kPopupMenuHeight, _kPopupMenuHeight),
-        child: icon == null
-            ? textWidget()
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    icon,
-                    size: 18.0,
-                    color: const Color(0xffffffff),
-                  ),
-                  textWidget(),
-                ],
-              ),
-      ));
+      items.add(
+        CupertinoButton(
+          color: _kPopupMenuBackgroundColor,
+          padding: _kPopupMenuButtonPadding.add(arrowPadding),
+          borderRadius: null,
+          pressedOpacity: 0.7,
+          onPressed: () => onPressed!(delegate.controller),
+          minimumSize: const Size(_kPopupMenuHeight, _kPopupMenuHeight),
+          child: icon == null
+              ? textWidget()
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 18.0, color: const Color(0xffffffff)),
+                    textWidget(),
+                  ],
+                ),
+        ),
+      );
     }
 
     for (final item in delegate.menuItems) {
       addPopupMenuButtonIfNeeded(
-          item.icon, item.title ?? '', item.isEnabled!, item.handler);
+        item.icon,
+        item.title ?? '',
+        item.isEnabled!,
+        item.handler,
+      );
     }
 
     return _CupertinoTextSelectionPopupMenu._(
@@ -476,8 +486,11 @@ class _CupertinoTextSelectionControls extends SelectionControls {
 
   /// Builder for iOS text selection edges.
   @override
-  Widget buildHandle(BuildContext context, TextSelectionHandleType type,
-      double textLineHeight) {
+  Widget buildHandle(
+    BuildContext context,
+    TextSelectionHandleType type,
+    double textLineHeight,
+  ) {
     // We want a size that's a vertical line the height of the text plus a 18.0
     // padding in every direction that will constitute the selection drag area.
     final Size desiredSize = getHandleSize(textLineHeight);
@@ -486,7 +499,8 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       size: desiredSize,
       child: CustomPaint(
         painter: _TextSelectionHandlePainter(
-            CupertinoTheme.of(context).primaryColor),
+          CupertinoTheme.of(context).primaryColor,
+        ),
       ),
     );
 
@@ -501,10 +515,18 @@ class _CupertinoTextSelectionControls extends SelectionControls {
         return Transform(
           transform: Matrix4.identity()
             ..translateByDouble(
-                desiredSize.width / 2, desiredSize.height / 2, 0.0, 1.0)
+              desiredSize.width / 2,
+              desiredSize.height / 2,
+              0.0,
+              1.0,
+            )
             ..rotateZ(math.pi)
             ..translateByDouble(
-                -desiredSize.width / 2, -desiredSize.height / 2, 0.0, 1.0),
+              -desiredSize.width / 2,
+              -desiredSize.height / 2,
+              0.0,
+              1.0,
+            ),
           child: handle,
         );
       // iOS doesn't draw anything for collapsed selections.
@@ -523,10 +545,7 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       // The circle is at the top for the left handle, and the anchor point is
       // all the way at the bottom of the line.
       case TextSelectionHandleType.left:
-        return Offset(
-          handleSize.width / 2,
-          handleSize.height,
-        );
+        return Offset(handleSize.width / 2, handleSize.height);
       // The right handle is vertically flipped, and the anchor point is near
       // the top of the circle to give slight overlap.
       case TextSelectionHandleType.right:

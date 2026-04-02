@@ -42,13 +42,12 @@ class SelectablePanGestureDetector extends StatelessWidget {
     this.behavior,
     this.excludeFromSemantics = false,
     this.dragStartBehavior = DragStartBehavior.start,
-  })  :
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(excludeFromSemantics != null),
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(dragStartBehavior != null);
+  }) : // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(excludeFromSemantics != null),
+       // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(dragStartBehavior != null);
 
   /// The widget below this widget in the tree.
   ///
@@ -135,19 +134,18 @@ class SelectablePanGestureDetector extends StatelessWidget {
   Widget build(BuildContext context) {
     return RawGestureDetector(
       gestures: {
-        SelectablePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-            SelectablePanGestureRecognizer>(
-          SelectablePanGestureRecognizer.new,
-          (instance) {
-            instance
-              ..onDown = onPanDown
-              ..onStart = onPanStart
-              ..onUpdate = onPanUpdate
-              ..onEnd = onPanEnd
-              ..onCancel = onPanCancel
-              ..dragStartBehavior = dragStartBehavior;
-          },
-        ),
+        SelectablePanGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<
+              SelectablePanGestureRecognizer
+            >(SelectablePanGestureRecognizer.new, (instance) {
+              instance
+                ..onDown = onPanDown
+                ..onStart = onPanStart
+                ..onUpdate = onPanUpdate
+                ..onEnd = onPanEnd
+                ..onCancel = onPanCancel
+                ..dragStartBehavior = dragStartBehavior;
+            }),
       },
       behavior: behavior,
       excludeFromSemantics: excludeFromSemantics,
@@ -159,7 +157,8 @@ class SelectablePanGestureDetector extends StatelessWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(
-        EnumProperty<DragStartBehavior>('startBehavior', dragStartBehavior));
+      EnumProperty<DragStartBehavior>('startBehavior', dragStartBehavior),
+    );
   }
 }
 

@@ -25,13 +25,14 @@ class SelectableRenderWidget extends SingleChildRenderObjectWidget {
     this.isComplex = false,
     this.willChange = false,
     super.child,
-  })  :
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(isComplex != null && willChange != null),
-        assert(painter != null ||
-            foregroundPainter != null ||
-            (!isComplex && !willChange));
+  }) : // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(isComplex != null && willChange != null),
+       assert(
+         painter != null ||
+             foregroundPainter != null ||
+             (!isComplex && !willChange),
+       );
 
   /// The cached paragraphs.
   final Paragraphs paragraphs;
@@ -76,7 +77,9 @@ class SelectableRenderWidget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderSelectableWidget renderObject) {
+    BuildContext context,
+    RenderSelectableWidget renderObject,
+  ) {
     renderObject
       ..paragraphs = paragraphs
       ..selections = selections
@@ -126,11 +129,11 @@ class RenderSelectableWidget extends RenderProxyBox {
     this.isComplex = false,
     this.willChange = false,
     RenderBox? child,
-  })  : _paragraphs = paragraphs,
-        _selections = selections,
-        _painter = painter,
-        _foregroundPainter = foregroundPainter,
-        super(child);
+  }) : _paragraphs = paragraphs,
+       _selections = selections,
+       _painter = painter,
+       _foregroundPainter = foregroundPainter,
+       super(child);
 
   /// The paragraphs.
   Paragraphs get paragraphs => _paragraphs;
@@ -231,7 +234,9 @@ class RenderSelectableWidget extends RenderProxyBox {
   }
 
   void _didUpdatePainter(
-      SelectionPainter? newPainter, SelectionPainter? oldPainter) {
+    SelectionPainter? newPainter,
+    SelectionPainter? oldPainter,
+  ) {
     // Check if we need to repaint.
     if (newPainter == null) {
       assert(oldPainter != null); // We should be called only for changes.
@@ -342,7 +347,10 @@ class RenderSelectableWidget extends RenderProxyBox {
   }
 
   void _paintWithPainter(
-      Canvas canvas, Offset offset, SelectionPainter painter) {
+    Canvas canvas,
+    Offset offset,
+    SelectionPainter painter,
+  ) {
     late int previousCanvasSaveCount;
     canvas.save();
     assert(() {
@@ -375,11 +383,13 @@ class RenderSelectableWidget extends RenderProxyBox {
             'than it called canvas.restore().',
           ),
           ErrorDescription(
-              'This leaves the canvas in an inconsistent state and will '
-              'probably result in a broken display.'),
+            'This leaves the canvas in an inconsistent state and will '
+            'probably result in a broken display.',
+          ),
           ErrorHint(
-              'You must pair each call to save()/saveLayer() with a later '
-              'matching call to restore().'),
+            'You must pair each call to save()/saveLayer() with a later '
+            'matching call to restore().',
+          ),
         ]);
       }
       if (canvasSaveCount < previousCanvasSaveCount) {
@@ -391,11 +401,13 @@ class RenderSelectableWidget extends RenderProxyBox {
             'than it called canvas.save() or canvas.saveLayer().',
           ),
           ErrorDescription(
-              'This leaves the canvas in an inconsistent state and will result '
-              'in a broken display.'),
+            'This leaves the canvas in an inconsistent state and will result '
+            'in a broken display.',
+          ),
           ErrorHint(
-              'You should only call restore() if you first called save() or '
-              'saveLayer().'),
+            'You should only call restore() if you first called save() or '
+            'saveLayer().',
+          ),
         ]);
       }
       return canvasSaveCount == previousCanvasSaveCount;
@@ -417,13 +429,24 @@ class RenderSelectableWidget extends RenderProxyBox {
     super.debugFillProperties(properties);
     properties
       ..add(MessageProperty('painter', '$painter'))
-      ..add(MessageProperty('foregroundPainter', '$foregroundPainter',
+      ..add(
+        MessageProperty(
+          'foregroundPainter',
+          '$foregroundPainter',
           level: foregroundPainter != null
               ? DiagnosticLevel.info
-              : DiagnosticLevel.fine))
-      ..add(DiagnosticsProperty<bool>('isComplex', isComplex,
-          defaultValue: false))
-      ..add(DiagnosticsProperty<bool>('willChange', willChange,
-          defaultValue: false));
+              : DiagnosticLevel.fine,
+        ),
+      )
+      ..add(
+        DiagnosticsProperty<bool>('isComplex', isComplex, defaultValue: false),
+      )
+      ..add(
+        DiagnosticsProperty<bool>(
+          'willChange',
+          willChange,
+          defaultValue: false,
+        ),
+      );
   }
 }

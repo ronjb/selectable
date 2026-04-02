@@ -21,8 +21,11 @@ abstract class SelectionControls {
   // Adapted from TextSelectionControls in
   // flutter/lib/src/widgets/text_selection.dart
 
-  Widget buildHandle(BuildContext context, TextSelectionHandleType type,
-      double textLineHeight);
+  Widget buildHandle(
+    BuildContext context,
+    TextSelectionHandleType type,
+    double textLineHeight,
+  );
 
   Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight);
 
@@ -44,8 +47,11 @@ abstract class SelectionControls {
 enum SelectionHandleType { left, right }
 
 mixin SelectionDelegate {
-  void onDragSelectionHandleUpdate(SelectionHandleType handle, Offset offset,
-      {PointerDeviceKind? kind}) {}
+  void onDragSelectionHandleUpdate(
+    SelectionHandleType handle,
+    Offset offset, {
+    PointerDeviceKind? kind,
+  }) {}
 
   void onDragSelectionHandleEnd(SelectionHandleType handle) {}
 
@@ -55,36 +61,43 @@ mixin SelectionDelegate {
 
   void hidePopupMenu() {}
 
-  Widget buildMenu(BuildContext context,
-      {required Offset primaryAnchor, Offset? secondaryAnchor}) {
+  Widget buildMenu(
+    BuildContext context, {
+    required Offset primaryAnchor,
+    Offset? secondaryAnchor,
+  }) {
     final buttonItems = _buttonItems();
     // print('buildMenu: buttonItems=$buttonItems');
 
     return AdaptiveTextSelectionToolbar.buttonItems(
       buttonItems: buttonItems,
       anchors: TextSelectionToolbarAnchors(
-          primaryAnchor: primaryAnchor, secondaryAnchor: secondaryAnchor),
+        primaryAnchor: primaryAnchor,
+        secondaryAnchor: secondaryAnchor,
+      ),
     );
   }
 
   List<ContextMenuButtonItem>? _buttonItems() {
     return menuItems
-        .expand<ContextMenuButtonItem>((e) => e.isEnabled!(controller)
-            ? [
-                ContextMenuButtonItem(
-                  label: e.title ?? '',
-                  onPressed: () => e.handler!(controller),
-                )
-              ]
-            : [])
+        .expand<ContextMenuButtonItem>(
+          (e) => e.isEnabled!(controller)
+              ? [
+                  ContextMenuButtonItem(
+                    label: e.title ?? '',
+                    onPressed: () => e.handler!(controller),
+                  ),
+                ]
+              : [],
+        )
         .toList();
   }
 }
 
 enum SelectableMenuItemType { copy, define, webSearch, other }
 
-typedef SelectableMenuItemHandlerFunc = bool Function(
-    SelectableController? controller);
+typedef SelectableMenuItemHandlerFunc =
+    bool Function(SelectableController? controller);
 
 @immutable
 class SelectableMenuItem {
@@ -94,36 +107,40 @@ class SelectableMenuItem {
     String? title,
     SelectableMenuItemHandlerFunc? isEnabled,
     SelectableMenuItemHandlerFunc? handler,
-  })  :
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(type != null &&
-            (type != SelectableMenuItemType.other ||
-                (title != null && isEnabled != null && handler != null))),
-        title = title ??
-            (type == SelectableMenuItemType.copy
-                ? 'Copy'
-                : type == SelectableMenuItemType.define
-                    ? 'Define'
-                    : type == SelectableMenuItemType.webSearch
-                        ? 'WebSearch'
-                        : null),
-        isEnabled = isEnabled ??
-            (type == SelectableMenuItemType.copy
-                ? _canCopy
-                : type == SelectableMenuItemType.define
-                    ? _canDefine
-                    : type == SelectableMenuItemType.webSearch
-                        ? _canWebSearch
-                        : null),
-        handler = handler ??
-            (type == SelectableMenuItemType.copy
-                ? _handleCopy
-                : type == SelectableMenuItemType.define
-                    ? _handleDefine
-                    : type == SelectableMenuItemType.webSearch
-                        ? _handleWebSearch
-                        : null);
+  }) : // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(
+         type != null &&
+             (type != SelectableMenuItemType.other ||
+                 (title != null && isEnabled != null && handler != null)),
+       ),
+       title =
+           title ??
+           (type == SelectableMenuItemType.copy
+               ? 'Copy'
+               : type == SelectableMenuItemType.define
+               ? 'Define'
+               : type == SelectableMenuItemType.webSearch
+               ? 'WebSearch'
+               : null),
+       isEnabled =
+           isEnabled ??
+           (type == SelectableMenuItemType.copy
+               ? _canCopy
+               : type == SelectableMenuItemType.define
+               ? _canDefine
+               : type == SelectableMenuItemType.webSearch
+               ? _canWebSearch
+               : null),
+       handler =
+           handler ??
+           (type == SelectableMenuItemType.copy
+               ? _handleCopy
+               : type == SelectableMenuItemType.define
+               ? _handleDefine
+               : type == SelectableMenuItemType.webSearch
+               ? _handleWebSearch
+               : null);
 
   final SelectableMenuItemType type;
   final IconData? icon;
@@ -143,7 +160,8 @@ bool _canCopy(SelectableController? controller) {
 bool _handleCopy(SelectableController? controller) {
   if (controller?.isTextSelected ?? false) {
     unawaited(
-        Clipboard.setData(ClipboardData(text: _selectedText(controller))));
+      Clipboard.setData(ClipboardData(text: _selectedText(controller))),
+    );
     controller?.deselectAll();
     return true;
   }
@@ -194,8 +212,10 @@ Future<void> _launchBrowserWithUrl(String url) async {
       await launcher.launchUrl(uri);
     }
   } catch (e) {
-    dmPrint('WARNING: Selectable is unable to launch the browser with '
-        'url "$url": $e');
+    dmPrint(
+      'WARNING: Selectable is unable to launch the browser with '
+      'url "$url": $e',
+    );
   }
 }
 
@@ -221,10 +241,7 @@ String _googleSearch(String text, {bool define = false}) {
 // This is okay.
 // ignore: unused_element
 String _duckDuckGoSearch(String text, {bool define = false}) {
-  final params = <String, dynamic>{
-    'q': text,
-    if (define) 'ia': 'definition',
-  };
+  final params = <String, dynamic>{'q': text, if (define) 'ia': 'definition'};
   return Uri(
     scheme: 'https',
     host: 'duckduckgo.com',

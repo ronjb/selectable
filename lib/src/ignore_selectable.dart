@@ -18,10 +18,9 @@ class IgnoreSelectable extends SingleChildRenderObjectWidget {
     this.ignoring = true,
     this.ignoringSemantics,
     super.child,
-  }) :
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(ignoring != null);
+  }) : // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(ignoring != null);
 
   /// Whether this widget is ignored for selection via its [Selectable] ancestor
   /// widget.
@@ -61,8 +60,13 @@ class IgnoreSelectable extends SingleChildRenderObjectWidget {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty<bool>('ignoring', ignoring))
-      ..add(DiagnosticsProperty<bool>('ignoringSemantics', ignoringSemantics,
-          defaultValue: null));
+      ..add(
+        DiagnosticsProperty<bool>(
+          'ignoringSemantics',
+          ignoringSemantics,
+          defaultValue: null,
+        ),
+      );
   }
 }
 
@@ -81,9 +85,9 @@ class RenderIgnoreSelectable extends RenderProxyBox {
     RenderBox? child,
     bool ignoring = true,
     bool? ignoringSemantics,
-  })  : _ignoring = ignoring,
-        _ignoringSemantics = ignoringSemantics,
-        super(child);
+  }) : _ignoring = ignoring,
+       _ignoringSemantics = ignoringSemantics,
+       super(child);
 
   bool get ignoring => _ignoring;
   bool _ignoring;
@@ -122,10 +126,14 @@ class RenderIgnoreSelectable extends RenderProxyBox {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty<bool>('ignoring', ignoring))
-      ..add(DiagnosticsProperty<bool>(
-          'ignoringSemantics', _effectiveIgnoringSemantics,
+      ..add(
+        DiagnosticsProperty<bool>(
+          'ignoringSemantics',
+          _effectiveIgnoringSemantics,
           description: ignoringSemantics == null
               ? 'implicitly $_effectiveIgnoringSemantics'
-              : null));
+              : null,
+        ),
+      );
   }
 }

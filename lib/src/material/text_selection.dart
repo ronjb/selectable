@@ -35,16 +35,18 @@ class _TextSelectionPopupMenu extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     //final localizations = MaterialLocalizations.of(context);
     final items = delegate!.menuItems
-        .expand<Widget>((e) => e.isEnabled!(delegate!.controller)
-            ? [
-                _Button(
-                  icon: e.icon,
-                  title: e.title ?? '',
-                  isDarkMode: isDarkMode,
-                  onPressed: () => e.handler!(delegate!.controller),
-                )
-              ]
-            : [])
+        .expand<Widget>(
+          (e) => e.isEnabled!(delegate!.controller)
+              ? [
+                  _Button(
+                    icon: e.icon,
+                    title: e.title ?? '',
+                    isDarkMode: isDarkMode,
+                    onPressed: () => e.handler!(delegate!.controller),
+                  ),
+                ]
+              : [],
+        )
         .toList();
 
     // If there is no option available, build an empty widget.
@@ -89,31 +91,33 @@ class _Button extends StatelessWidget {
   final void Function()? onPressed;
 
   Widget get _text => Text(
-        icon == null ? title : ' $title',
-        style: popupMenuTextStyle.copyWith(
-            color: isDarkMode! ? Colors.white : Colors.black),
-      );
+    icon == null ? title : ' $title',
+    style: popupMenuTextStyle.copyWith(
+      color: isDarkMode! ? Colors.white : Colors.black,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) => TextButton(
-        style: TextButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: _kButtonPadding)),
-        onPressed: onPressed,
-        child: icon == null
-            ? _text
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    icon,
-                    size: 20.0 *
-                        (MediaQuery.textScalerOf(context).scale(18) / 18.0),
-                    color: isDarkMode! ? Colors.white : Colors.black,
-                  ),
-                  _text,
-                ],
+    style: TextButton.styleFrom(
+      padding: EdgeInsets.symmetric(horizontal: _kButtonPadding),
+    ),
+    onPressed: onPressed,
+    child: icon == null
+        ? _text
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size:
+                    20.0 * (MediaQuery.textScalerOf(context).scale(18) / 18.0),
+                color: isDarkMode! ? Colors.white : Colors.black,
               ),
-      );
+              _text,
+            ],
+          ),
+  );
 }
 
 /// Centers the popup menu around the given position, ensuring that it remains
@@ -192,13 +196,15 @@ class _MaterialTextSelectionControls extends SelectionControls {
     assert(debugCheckHasMediaQuery(context));
     assert(debugCheckHasMaterialLocalizations(context));
 
-    const double popupMenuHeightNeeded = _kPopupMenuScreenPadding +
+    const double popupMenuHeightNeeded =
+        _kPopupMenuScreenPadding +
         _kPopupMenuHeight +
         _kPopupMenuContentDistance;
 
     final primaryY = math.min(
-        viewport.bottom - (_kPopupMenuContentDistance * 3.0),
-        selectionRects!.first.top - _kPopupMenuContentDistance);
+      viewport.bottom - (_kPopupMenuContentDistance * 3.0),
+      selectionRects!.first.top - _kPopupMenuContentDistance,
+    );
 
     double? secondaryY;
 
@@ -206,13 +212,13 @@ class _MaterialTextSelectionControls extends SelectionControls {
     if (viewport.bottom - selectionRects.last.bottom >=
         _kHandleSize + _kPopupMenuHeight + _kPopupMenuContentDistance) {
       secondaryY = math.max(
-          viewport.top + _kPopupMenuContentDistance + _kPopupMenuHeight,
-          selectionRects.last.bottom +
-              _kHandleSize +
-              _kPopupMenuHeight +
-              _kPopupMenuContentDistance);
+        viewport.top + _kPopupMenuContentDistance + _kPopupMenuHeight,
+        selectionRects.last.bottom +
+            _kHandleSize +
+            _kPopupMenuHeight +
+            _kPopupMenuContentDistance,
+      );
     }
-
     // Show in center.
     else {
       secondaryY = viewport.center.dy;
@@ -240,10 +246,7 @@ class _MaterialTextSelectionControls extends SelectionControls {
     final Offset preciseMidpoint = Offset(arrowTipX, localBarTopY);
 
     return CustomSingleChildLayout(
-      delegate: _TextSelectionPopupMenuLayout(
-        viewport.width,
-        preciseMidpoint,
-      ),
+      delegate: _TextSelectionPopupMenuLayout(viewport.width, preciseMidpoint),
       child: _TextSelectionPopupMenu(delegate: delegate),
     );
   }
@@ -251,18 +254,19 @@ class _MaterialTextSelectionControls extends SelectionControls {
   /// Builder for material-style text selection handles.
   @override
   Widget buildHandle(
-      BuildContext context, TextSelectionHandleType type, double textHeight) {
+    BuildContext context,
+    TextSelectionHandleType type,
+    double textHeight,
+  ) {
     final ThemeData theme = Theme.of(context);
     final Color handleColor =
         TextSelectionTheme.of(context).selectionHandleColor ??
-            theme.colorScheme.primary;
+        theme.colorScheme.primary;
     final Widget handle = SizedBox(
       width: _kHandleSize,
       height: _kHandleSize,
       child: CustomPaint(
-        painter: _TextSelectionHandlePainter(
-          color: handleColor,
-        ),
+        painter: _TextSelectionHandlePainter(color: handleColor),
       ),
     );
 
@@ -271,17 +275,11 @@ class _MaterialTextSelectionControls extends SelectionControls {
     // straight up or up-right depending on the handle type.
     switch (type) {
       case TextSelectionHandleType.left: // points up-right
-        return Transform.rotate(
-          angle: math.pi / 2.0,
-          child: handle,
-        );
+        return Transform.rotate(angle: math.pi / 2.0, child: handle);
       case TextSelectionHandleType.right: // points up-left
         return handle;
       case TextSelectionHandleType.collapsed: // points up
-        return Transform.rotate(
-          angle: math.pi / 4.0,
-          child: handle,
-        );
+        return Transform.rotate(angle: math.pi / 4.0, child: handle);
     }
   }
 

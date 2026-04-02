@@ -18,7 +18,8 @@ class SelectableController extends ChangeNotifier {
     return _selections[k] ??
         (k == 0
             ? Selection(
-                rectifier: _rectifiers[k] ?? SelectionRectifiers.identity)
+                rectifier: _rectifiers[k] ?? SelectionRectifiers.identity,
+              )
             : null);
   }
 
@@ -28,8 +29,10 @@ class SelectableController extends ChangeNotifier {
     final k = key ?? 0;
     final selection = _selections[k];
     if (selection != null && !selection.isHidden) {
-      _selections[k] =
-          selection.copyWith(isHidden: true, animationDuration: duration);
+      _selections[k] = selection.copyWith(
+        isHidden: true,
+        animationDuration: duration,
+      );
       notifyListeners();
       return true;
     }
@@ -42,8 +45,10 @@ class SelectableController extends ChangeNotifier {
     final k = key ?? 0;
     final selection = _selections[k];
     if (selection != null && selection.isHidden) {
-      _selections[k] =
-          selection.copyWith(isHidden: false, animationDuration: duration);
+      _selections[k] = selection.copyWith(
+        isHidden: false,
+        animationDuration: duration,
+      );
       notifyListeners();
       return true;
     }
@@ -128,8 +133,9 @@ class SelectableController extends ChangeNotifier {
     });
 
     if (startAnchor != null && end == null) {
-      endAnchor =
-          lastParagraph!.anchorAtCharIndex(lastCharIndexInLastParagraph - 1);
+      endAnchor = lastParagraph!.anchorAtCharIndex(
+        lastCharIndexInLastParagraph - 1,
+      );
     }
 
     if (startAnchor != null && endAnchor != null) {
@@ -174,7 +180,8 @@ class SelectableController extends ChangeNotifier {
     if (k < 0) return false;
 
     // First, clear and unhide the selection, or create it if it doesn't exist.
-    var selection = _selections[k]?.cleared().copyWith(isHidden: false) ??
+    var selection =
+        _selections[k]?.cleared().copyWith(isHidden: false) ??
         Selection(rectifier: _rectifiers[k] ?? SelectionRectifiers.identity);
 
     // Next, attempt to select the word under the first point.
@@ -235,14 +242,16 @@ class SelectableController extends ChangeNotifier {
   /// Note, if there are no render paragraphs contained in the Selectable,
   /// `true` is returned, and [visitor] is not called.
   bool visitContainedSpans(
-      bool Function(SelectionParagraph paragraph, InlineSpan span, int index)
-          visitor) {
+    bool Function(SelectionParagraph paragraph, InlineSpan span, int index)
+    visitor,
+  ) {
     // In case this is called from non-null-safe code.
     // ignore: unnecessary_null_comparison
     if (visitor != null) {
       for (final paragraph in _selections.cachedParagraphs.list) {
         if (!paragraph.visitChildSpans(
-            (span, index) => visitor(paragraph, span, index))) {
+          (span, index) => visitor(paragraph, span, index),
+        )) {
           return false;
         }
       }

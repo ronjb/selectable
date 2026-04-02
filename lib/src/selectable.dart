@@ -147,9 +147,10 @@ class _SelectableState extends State<Selectable>
   void _refresh([VoidCallback? fn]) => !mounted
       ? null
       : isBuilding
-          ? WidgetsBinding.instance
-              .addPostFrameCallback((timeStamp) => setState(fn ?? () {}))
-          : setState(fn ?? () {});
+      ? WidgetsBinding.instance.addPostFrameCallback(
+          (timeStamp) => setState(fn ?? () {}),
+        )
+      : setState(fn ?? () {});
 
   void _selectionControllerListener() {
     if (!mounted || _selectionController == null) return;
@@ -199,8 +200,9 @@ class _SelectableState extends State<Selectable>
       if (scrollController?.hasOneClient ?? false) {
         _scrollController = scrollController;
         _scrollPosition = _scrollController!.position;
-        _scrollController!.position.isScrollingNotifier
-            .addListener(_isScrollingListener);
+        _scrollController!.position.isScrollingNotifier.addListener(
+          _isScrollingListener,
+        );
         // dmPrint('Selectable: Added listener to scroll controller.');
       } else if (scrollController != null) {
         // dmPrint('Selectable: Cannot add listener, '
@@ -214,8 +216,9 @@ class _SelectableState extends State<Selectable>
       // dmPrint('Selectable: Removed listener from scroll controller.');
     }
     if (_scrollController?.hasOneClient ?? false) {
-      _scrollController!.position.isScrollingNotifier
-          .removeListener(_isScrollingListener);
+      _scrollController!.position.isScrollingNotifier.removeListener(
+        _isScrollingListener,
+      );
     }
     _scrollController = null;
     _scrollPosition = null;
@@ -223,7 +226,8 @@ class _SelectableState extends State<Selectable>
 
   void _isScrollingListener() {
     if (!mounted) return;
-    final isScrolling = (_scrollController?.hasOneClient ?? false) &&
+    final isScrolling =
+        (_scrollController?.hasOneClient ?? false) &&
         (_scrollController?.position.isScrollingNotifier.value ?? false);
     if (isScrolling != _buildHelper.isScrolling) {
       // dmPrint(isScrolling ? 'STARTED SCROLLING...' : 'STOPPED SCROLLING.');
@@ -261,14 +265,16 @@ class _SelectableState extends State<Selectable>
 
     // Ignore taps if text is not selected, because the child might want to
     // handle them.
-    final ignoreTap = !(widget.showSelectionControls &&
-        (_selections.main?.isTextSelected ?? false));
+    final ignoreTap =
+        !(widget.showSelectionControls &&
+            (_selections.main?.isTextSelected ?? false));
 
     // This is how the selection color is set in the Flutter 2.5.2
     // version of src/material/selectable_text.dart, except that
     // it uses opacity of 0.40, which I think looks too dark.
     const opacity = 0.25;
-    final selectionColor = widget.selectionColor ??
+    final selectionColor =
+        widget.selectionColor ??
         TextSelectionTheme.of(context).selectionColor ??
         (_buildHelper.usingCupertinoControls
             ? CupertinoTheme.of(context).primaryColor.withValues(alpha: opacity)
@@ -300,19 +306,21 @@ class _SelectableState extends State<Selectable>
             selections: _selections,
             foregroundPainter: widget.showSelection
                 ? _selectionController?.getCustomPainter() ??
-                    DefaultSelectionPainter(
-                      color: selectionColor,
-                      opacityAnimation: _selectionIsHidden ==
-                              (_selections.main?.isHidden ?? false)
-                          ? _selectionOpacityController
-                          : (_selections.main?.isHidden ?? false)
-                              ? kAlwaysDismissedAnimation
-                              : kAlwaysCompleteAnimation,
-                    )
+                      DefaultSelectionPainter(
+                        color: selectionColor,
+                        opacityAnimation:
+                            _selectionIsHidden ==
+                                (_selections.main?.isHidden ?? false)
+                            ? _selectionOpacityController
+                            : (_selections.main?.isHidden ?? false)
+                            ? kAlwaysDismissedAnimation
+                            : kAlwaysCompleteAnimation,
+                      )
                 : null,
             child: IgnorePointer(
               // Ignore gestures (e.g. taps) on the child if text is selected.
-              ignoring: widget.showSelectionControls &&
+              ignoring:
+                  widget.showSelectionControls &&
                   (_selections.dragInfo.isSelectingWordOrDraggingHandle ||
                       (_selections.main?.isTextSelected ?? false)),
               child: widget.child,
@@ -499,8 +507,9 @@ class _SelectableState extends State<Selectable>
     if (_hasDraggedAReasonableDistance) {
       _refresh(() {
         // For touch, offset the y value by -30.
-        final yOffset =
-            _pointerDeviceKind == PointerDeviceKind.touch ? -30.0 : 0.0;
+        final yOffset = _pointerDeviceKind == PointerDeviceKind.touch
+            ? -30.0
+            : 0.0;
 
         _buildHelper.showPopupMenu = false;
         _selections.dragInfo
@@ -542,7 +551,7 @@ class _SelectableState extends State<Selectable>
 final _defaultMenuItems = [
   const SelectableMenuItem(type: SelectableMenuItemType.copy),
   const SelectableMenuItem(type: SelectableMenuItemType.define),
-  const SelectableMenuItem(type: SelectableMenuItemType.webSearch)
+  const SelectableMenuItem(type: SelectableMenuItemType.webSearch),
 ];
 
 bool _useCupertinoSelectionControls(BuildContext context) {
@@ -576,9 +585,7 @@ class _ColoredRect extends StatelessWidget {
             color: color,
             border: borderColor == null
                 ? null
-                : Border.all(
-                    color: borderColor!,
-                  ),
+                : Border.all(color: borderColor!),
           ),
         ),
       ),

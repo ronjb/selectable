@@ -90,14 +90,14 @@ extension SelectableExtOnListOfRect on List<Rect> {
   /// Returns a new rect which is the bounding box containing all the
   /// rects in the list.
   Rect? merged() => fold<Rect?>(
-        null,
-        (previous, rect) => Rect.fromLTRB(
-          math.min(previous?.left ?? rect.left, rect.left),
-          math.min(previous?.top ?? rect.top, rect.top),
-          math.max(previous?.right ?? rect.right, rect.right),
-          math.max(previous?.bottom ?? rect.bottom, rect.bottom),
-        ),
-      );
+    null,
+    (previous, rect) => Rect.fromLTRB(
+      math.min(previous?.left ?? rect.left, rect.left),
+      math.min(previous?.top ?? rect.top, rect.top),
+      math.max(previous?.right ?? rect.right, rect.right),
+      math.max(previous?.bottom ?? rect.bottom, rect.bottom),
+    ),
+  );
 }
 
 // We want these function to be in a namespace.
@@ -149,28 +149,25 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
   List<Rect> mergedToSelectionRects({bool rtl = false}) {
     Rect? firstLine;
     Rect? lastLine;
-    final rect = fold<Rect?>(
-      null,
-      (previous, r) {
-        if (firstLine == null) {
-          firstLine = r;
-        } else if (lastLine == null &&
-            (r.vCenter < firstLine!.bottom || firstLine!.vCenter > r.top)) {
-          firstLine = firstLine!.expandToInclude(r);
-        } else if (lastLine == null ||
-            (r.vCenter > lastLine!.bottom && lastLine!.vCenter < r.top)) {
-          lastLine = r;
-        } else {
-          lastLine = lastLine!.expandToInclude(r);
-        }
-        return Rect.fromLTRB(
-          math.min(previous?.left ?? r.left, r.left),
-          math.min(previous?.top ?? r.top, r.top),
-          math.max(previous?.right ?? r.right, r.right),
-          math.max(previous?.bottom ?? r.bottom, r.bottom),
-        );
-      },
-    );
+    final rect = fold<Rect?>(null, (previous, r) {
+      if (firstLine == null) {
+        firstLine = r;
+      } else if (lastLine == null &&
+          (r.vCenter < firstLine!.bottom || firstLine!.vCenter > r.top)) {
+        firstLine = firstLine!.expandToInclude(r);
+      } else if (lastLine == null ||
+          (r.vCenter > lastLine!.bottom && lastLine!.vCenter < r.top)) {
+        lastLine = r;
+      } else {
+        lastLine = lastLine!.expandToInclude(r);
+      }
+      return Rect.fromLTRB(
+        math.min(previous?.left ?? r.left, r.left),
+        math.min(previous?.top ?? r.top, r.top),
+        math.max(previous?.right ?? r.right, r.right),
+        math.max(previous?.bottom ?? r.bottom, r.bottom),
+      );
+    });
     if (firstLine == null) return [];
     if (lastLine == null) return [rect!];
     if (firstLine!.bottom >= lastLine!.top) return [firstLine!, lastLine!];
@@ -179,19 +176,35 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
     if (rtl) {
       rects = [
         Rect.fromLTRB(
-            rect!.left, firstLine!.top, firstLine!.right, firstLine!.bottom),
+          rect!.left,
+          firstLine!.top,
+          firstLine!.right,
+          firstLine!.bottom,
+        ),
         Rect.fromLTRB(rect.left, firstLine!.bottom, rect.right, lastLine!.top),
         Rect.fromLTRB(
-            lastLine!.left, lastLine!.top, rect.right, lastLine!.bottom),
+          lastLine!.left,
+          lastLine!.top,
+          rect.right,
+          lastLine!.bottom,
+        ),
       ];
       // print('merged rects: $rects');
     } else {
       rects = [
         Rect.fromLTRB(
-            firstLine!.left, firstLine!.top, rect!.right, firstLine!.bottom),
+          firstLine!.left,
+          firstLine!.top,
+          rect!.right,
+          firstLine!.bottom,
+        ),
         Rect.fromLTRB(rect.left, firstLine!.bottom, rect.right, lastLine!.top),
         Rect.fromLTRB(
-            rect.left, lastLine!.top, lastLine!.right, lastLine!.bottom),
+          rect.left,
+          lastLine!.top,
+          lastLine!.right,
+          lastLine!.bottom,
+        ),
       ];
       // print('rtl merged rects: $rects');
     }
@@ -220,11 +233,14 @@ extension SelectableExtOnIterableOfRect on Iterable<Rect> {
   /// ```
   List<Rect> mergedToSelectionRectsRtl() => mergedToSelectionRects(rtl: true);
 
-  Iterable<Rect> rounded() => map((rect) => Rect.fromLTRB(
+  Iterable<Rect> rounded() => map(
+    (rect) => Rect.fromLTRB(
       rect.left.roundToDouble(),
       rect.top.roundToDouble(),
       rect.right.roundToDouble(),
-      rect.bottom.roundToDouble()));
+      rect.bottom.roundToDouble(),
+    ),
+  );
 }
 
 ///
@@ -292,8 +308,13 @@ extension SelectableExtOnTextBox on TextBox {
   /// To translate a text box by separate x and y components rather than by an
   /// [Offset], consider [translate].
   TextBox shift(Offset offset) {
-    return TextBox.fromLTRBD(left + offset.dx, top + offset.dy,
-        right + offset.dx, bottom + offset.dy, direction);
+    return TextBox.fromLTRBD(
+      left + offset.dx,
+      top + offset.dy,
+      right + offset.dx,
+      bottom + offset.dy,
+      direction,
+    );
   }
 
   /// Returns a new text box with translateX added to the x components and
@@ -302,14 +323,24 @@ extension SelectableExtOnTextBox on TextBox {
   /// To translate a text box by an [Offset] rather than by separate x and y
   /// components, consider [shift].
   TextBox translate(double translateX, double translateY) {
-    return TextBox.fromLTRBD(left + translateX, top + translateY,
-        right + translateX, bottom + translateY, direction);
+    return TextBox.fromLTRBD(
+      left + translateX,
+      top + translateY,
+      right + translateX,
+      bottom + translateY,
+      direction,
+    );
   }
 
   /// Returns a new text box with edges inflated by [delta].
   TextBox inflate(double delta) {
     return TextBox.fromLTRBD(
-        left - delta, top - delta, right + delta, bottom + delta, direction);
+      left - delta,
+      top - delta,
+      right + delta,
+      bottom + delta,
+      direction,
+    );
   }
 
   /// Returns a new text box with edges deflated by [delta].

@@ -19,20 +19,22 @@ void main() {
       expect(paragraph.anchorAtCharIndex(0), isNull);
     });
 
-    test('anchorAtCharIndex returns null when rp is null and trim is false',
-        () {
-      const text = 'hello world';
-      final paragraph = SelectionParagraph(
-        rp: null,
-        rect: Rect.zero,
-        text: text,
-        trimmedSel: createTextSelection(text)!,
-        paragraphIndex: 0,
-        firstCharIndex: 0,
-      );
+    test(
+      'anchorAtCharIndex returns null when rp is null and trim is false',
+      () {
+        const text = 'hello world';
+        final paragraph = SelectionParagraph(
+          rp: null,
+          rect: Rect.zero,
+          text: text,
+          trimmedSel: createTextSelection(text)!,
+          paragraphIndex: 0,
+          firstCharIndex: 0,
+        );
 
-      expect(paragraph.anchorAtCharIndex(0, trim: false), isNull);
-    });
+        expect(paragraph.anchorAtCharIndex(0, trim: false), isNull);
+      },
+    );
   });
 
   group('Issue #5: rectsForSelection with null rp', () {
@@ -50,7 +52,8 @@ void main() {
       // This should return [], not throw a null dereference.
       expect(
         paragraph.rectsForSelection(
-            const TextSelection(baseOffset: 0, extentOffset: 5)),
+          const TextSelection(baseOffset: 0, extentOffset: 5),
+        ),
         isEmpty,
       );
     });

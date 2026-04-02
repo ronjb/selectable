@@ -30,52 +30,51 @@ class Selection extends Equatable {
     this.isHidden = false,
     this.animationDuration = const Duration(seconds: 1),
     this.rectifier = SelectionRectifiers.identity,
-  })  :
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(version != null),
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(isHidden != null && animationDuration != null),
-        // In case this is called from non-null-safe code.
-        // ignore: unnecessary_null_comparison
-        assert(rectifier != null);
+  }) : // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(version != null),
+       // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(isHidden != null && animationDuration != null),
+       // In case this is called from non-null-safe code.
+       // ignore: unnecessary_null_comparison
+       assert(rectifier != null);
 
   @override
   List<Object?> get props => [
-        version,
-        text,
-        start,
-        end,
-        startPt,
-        endPt,
-        startAnchor,
-        endAnchor,
-        rects,
-        isHidden,
-        animationDuration,
-        rectifier,
-      ];
+    version,
+    text,
+    start,
+    end,
+    startPt,
+    endPt,
+    startAnchor,
+    endAnchor,
+    rects,
+    isHidden,
+    animationDuration,
+    rectifier,
+  ];
 
   Selection copyWith({
     int? version,
     bool? isHidden,
     Duration? animationDuration,
     List<Rect> Function(List<Rect>)? rectifier,
-  }) =>
-      Selection(
-          version: version ?? this.version,
-          text: text,
-          start: start,
-          end: end,
-          startPt: startPt,
-          endPt: endPt,
-          startAnchor: startAnchor,
-          endAnchor: endAnchor,
-          rects: rects,
-          isHidden: isHidden ?? this.isHidden,
-          animationDuration: animationDuration ?? this.animationDuration,
-          rectifier: rectifier ?? this.rectifier);
+  }) => Selection(
+    version: version ?? this.version,
+    text: text,
+    start: start,
+    end: end,
+    startPt: startPt,
+    endPt: endPt,
+    startAnchor: startAnchor,
+    endAnchor: endAnchor,
+    rects: rects,
+    isHidden: isHidden ?? this.isHidden,
+    animationDuration: animationDuration ?? this.animationDuration,
+    rectifier: rectifier ?? this.rectifier,
+  );
 
   /// Build version of the Selections that contains this selection.
   final int version;
@@ -143,17 +142,14 @@ class Selection extends Equatable {
   bool containsPoint(Offset point) => rects?.containsPoint(point) ?? false;
 
   Selection cleared() => Selection(
-        isHidden: isHidden,
-        animationDuration: animationDuration,
-        rectifier: rectifier,
-      );
+    isHidden: isHidden,
+    animationDuration: animationDuration,
+    rectifier: rectifier,
+  );
 
   /// Returns a new Selection, updated with the provided [paragraphs] and
   /// an optional [dragInfo].
-  Selection updatedWith(
-    Paragraphs paragraphs,
-    SelectionDragInfo? dragInfo,
-  ) =>
+  Selection updatedWith(Paragraphs paragraphs, SelectionDragInfo? dragInfo) =>
       updatedSelectionWith(this, paragraphs, dragInfo);
 }
 

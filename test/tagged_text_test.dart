@@ -12,13 +12,15 @@ import 'package:selectable/src/tagged_text_span.dart';
 
 void main() {
   test('SelectionParagraph visitChildSpans', () {
-    final span = TextSpan(children: [
-      tts('0'),
-      tts('1'),
-      TextSpan(children: [tts('2'), tts('3')]),
-      tts('4'),
-      tts('5')
-    ]);
+    final span = TextSpan(
+      children: [
+        tts('0'),
+        tts('1'),
+        TextSpan(children: [tts('2'), tts('3')]),
+        tts('4'),
+        tts('5'),
+      ],
+    );
     const text = '012345';
     final paragraph = SelectionParagraph(
       rp: RenderParagraph(span, textDirection: TextDirection.rtl),
@@ -38,7 +40,8 @@ void main() {
 
   test('anchor.taggedTextWithParagraphs', () {
     final span = TextSpan(
-        children: [tts('0'), tts('1'), tts('2'), tts('3'), tts('4'), tts('5')]);
+      children: [tts('0'), tts('1'), tts('2'), tts('3'), tts('4'), tts('5')],
+    );
     const text = '012345';
     final paragraph = SelectionParagraph(
       rp: RenderParagraph(span, textDirection: TextDirection.rtl),
@@ -112,8 +115,10 @@ void main() {
 
   test('TaggedText', () {
     final tt = TaggedText(_VerseTag(1, 2, 3), r'"test" \text', 0);
-    expect(tt.toString(),
-        r'{ "tag": [1, 2, 3], "index": 0, "text": "\"test\" \\text" }');
+    expect(
+      tt.toString(),
+      r'{ "tag": [1, 2, 3], "index": 0, "text": "\"test\" \\text" }',
+    );
   });
 }
 

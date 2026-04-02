@@ -136,10 +136,8 @@ abstract class SelectionPainter extends Listenable {
 /// DefaultSelectionPainter
 ///
 class DefaultSelectionPainter extends SelectionPainter {
-  DefaultSelectionPainter({
-    required this.color,
-    required this.opacityAnimation,
-  }) : super(repaint: opacityAnimation);
+  DefaultSelectionPainter({required this.color, required this.opacityAnimation})
+    : super(repaint: opacityAnimation);
 
   final Color color;
   final Animation<double>? opacityAnimation;
@@ -223,7 +221,8 @@ class DefaultSelectionPainter extends SelectionPainter {
 
   @override
   bool shouldRepaint(DefaultSelectionPainter oldDelegate) {
-    final needsRepaint = color != oldDelegate.color ||
+    final needsRepaint =
+        color != oldDelegate.color ||
         opacityAnimation != oldDelegate.opacityAnimation;
     // dmPrint('SelectionPainter '
     //     '${needsRepaint ? 'needs repaint' : 'does not need repaint'}');

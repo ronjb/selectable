@@ -63,13 +63,19 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
       final span = rp.text;
       if (span is TextSpan) {
         final text = span.toPlainText(
-            includeSemanticsLabels: false, includePlaceholders: true);
+          includeSemanticsLabels: false,
+          includePlaceholders: true,
+        );
         final trimmedSel = createTextSelection(text);
         if (trimmedSel != null) {
           final offset = rp.getTransformTo(ancestor).getTranslation();
           final size = rp.textSize;
-          final rect =
-              Rect.fromLTWH(offset.x, offset.y, size.width, size.height);
+          final rect = Rect.fromLTWH(
+            offset.x,
+            offset.y,
+            size.width,
+            size.height,
+          );
           return SelectionParagraph(
             rp: rp,
             rect: rect,
@@ -96,15 +102,14 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     TextSelection? trimmedSel,
     int? paragraphIndex,
     int? firstCharIndex,
-  }) =>
-      SelectionParagraph(
-        rp: rp ?? this.rp,
-        rect: rect ?? this.rect,
-        text: text ?? this.text,
-        trimmedSel: trimmedSel ?? this.trimmedSel,
-        paragraphIndex: paragraphIndex ?? this.paragraphIndex,
-        firstCharIndex: firstCharIndex ?? this.firstCharIndex,
-      );
+  }) => SelectionParagraph(
+    rp: rp ?? this.rp,
+    rect: rect ?? this.rect,
+    text: text ?? this.text,
+    trimmedSel: trimmedSel ?? this.trimmedSel,
+    paragraphIndex: paragraphIndex ?? this.paragraphIndex,
+    firstCharIndex: firstCharIndex ?? this.firstCharIndex,
+  );
 
   /// Returns a new [SelectionAnchor] at the provided [Offset].
   SelectionAnchor? anchorAtPt(
@@ -112,15 +117,14 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     bool onlyIfInRect = true,
     bool trim = true,
   }) {
-    return anchorAtRange(wordBoundaryAtPt(pt, onlyIfInRect: onlyIfInRect),
-        trim: trim);
+    return anchorAtRange(
+      wordBoundaryAtPt(pt, onlyIfInRect: onlyIfInRect),
+      trim: trim,
+    );
   }
 
   /// Returns a new [SelectionAnchor] at the provided character index.
-  SelectionAnchor? anchorAtCharIndex(
-    int i, {
-    bool trim = true,
-  }) {
+  SelectionAnchor? anchorAtCharIndex(int i, {bool trim = true}) {
     if (rp == null || trimmedSel.isCollapsed) return null;
     var offset = math.min(trimmedSel.end - 1, math.max(trimmedSel.start, i));
 
@@ -138,18 +142,24 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   }
 
   /// Returns a new [SelectionAnchor] with the provided text [range].
-  SelectionAnchor? anchorAtRange(
-    TextRange? range, {
-    bool trim = true,
-  }) {
+  SelectionAnchor? anchorAtRange(TextRange? range, {bool trim = true}) {
     if (range != null) {
-      final ts = createTextSelection(text,
-          baseOffset: range.start, extentOffset: range.end, trim: trim);
+      final ts = createTextSelection(
+        text,
+        baseOffset: range.start,
+        extentOffset: range.end,
+        trim: trim,
+      );
       if (ts != null && ts.isValid && (!trim || !ts.isCollapsed)) {
         final rects = rectsForSelection(ts);
         if (rects.isNotEmpty) {
           return SelectionAnchor(
-              paragraphIndex, firstCharIndex, ts, rects, rp!.textDirection);
+            paragraphIndex,
+            firstCharIndex,
+            ts,
+            rects,
+            rp!.textDirection,
+          );
         }
       } else {
         // dmPrint('Word not found, invalid text selection: '
@@ -182,9 +192,11 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
       // If the `pt` is on the right side of the last letter of a word,
       // `getPositionForOffset` returns the position AFTER the word, so
       // we subtract 1 from the position to counteract that.
-      final range = rp!.getWordBoundary(textPosition.offset == 0
-          ? textPosition
-          : TextPosition(offset: textPosition.offset - 1));
+      final range = rp!.getWordBoundary(
+        textPosition.offset == 0
+            ? textPosition
+            : TextPosition(offset: textPosition.offset - 1),
+      );
       if (range.start >= 0 && range.end > range.start) {
         // If the `pt` is on the left side of the first letter of a word,
         // the range will be of the whitespace before the word, so check
@@ -263,13 +275,15 @@ extension SelectableExtOnListOfSelectionParagraph on List<SelectionParagraph> {
   SelectionAnchor? updateAnchor(SelectionAnchor anchor) {
     // Uses char index at the middle of the word to better handle slight
     // changes in word position.
-    final globalCharIndex = anchor.firstCharIndex +
+    final globalCharIndex =
+        anchor.firstCharIndex +
         ((anchor.textSel.start + anchor.textSel.end) / 2).floor();
     final paraIndex = indexOfParagraphWithCharIndex(globalCharIndex);
     if (paraIndex >= 0) {
       final paragraph = this[paraIndex];
-      return paragraph
-          .anchorAtCharIndex(globalCharIndex - paragraph.firstCharIndex);
+      return paragraph.anchorAtCharIndex(
+        globalCharIndex - paragraph.firstCharIndex,
+      );
     }
     return null;
   }

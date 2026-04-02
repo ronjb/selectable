@@ -28,7 +28,9 @@ void main() {
 
         // Point at (53, 54) — distance squared = 9 + 16 = 25.
         expect(
-            anchor.centerDistanceSquaredFromPoint(const Offset(53, 54)), 25.0);
+          anchor.centerDistanceSquaredFromPoint(const Offset(53, 54)),
+          25.0,
+        );
       });
 
       test('returns correct distance for points in different quadrants', () {
@@ -36,8 +38,10 @@ void main() {
         final anchor = makeAnchor([const Rect.fromLTWH(90, -10, 20, 20)]);
 
         // Point at (0, 100) — distance squared = 10000 + 10000 = 20000.
-        expect(anchor.centerDistanceSquaredFromPoint(const Offset(0, 100)),
-            20000.0);
+        expect(
+          anchor.centerDistanceSquaredFromPoint(const Offset(0, 100)),
+          20000.0,
+        );
       });
 
       test('picks closest rect when multiple rects exist', () {
@@ -50,15 +54,18 @@ void main() {
         // Point at (12, 12) — closest to rect A center (10,10).
         // Distance squared to A = 4 + 4 = 8.
         // Distance squared to B = 7744 + 7744 = 15488.
-        final dist =
-            anchor.centerDistanceSquaredFromPoint(const Offset(12, 12));
+        final dist = anchor.centerDistanceSquaredFromPoint(
+          const Offset(12, 12),
+        );
         expect(dist, 8.0);
       });
 
       test('returns infinity for empty rects list', () {
         final anchor = makeAnchor([]);
-        expect(anchor.centerDistanceSquaredFromPoint(Offset.zero),
-            double.infinity);
+        expect(
+          anchor.centerDistanceSquaredFromPoint(Offset.zero),
+          double.infinity,
+        );
       });
     });
 
@@ -93,20 +100,22 @@ void main() {
     });
 
     group('taggedTextWithParagraphs', () {
-      test('returns null without crashing when paragraphIndex is out of range',
-          () {
-        // Anchor with paragraphIndex = 5, but we only have an empty list.
-        const anchor = SelectionAnchor(
-          5,
-          0,
-          TextSelection(baseOffset: 0, extentOffset: 1),
-          [],
-          TextDirection.ltr,
-        );
+      test(
+        'returns null without crashing when paragraphIndex is out of range',
+        () {
+          // Anchor with paragraphIndex = 5, but we only have an empty list.
+          const anchor = SelectionAnchor(
+            5,
+            0,
+            TextSelection(baseOffset: 0, extentOffset: 1),
+            [],
+            TextDirection.ltr,
+          );
 
-        // Should return null, not throw a RangeError.
-        expect(anchor.taggedTextWithParagraphs([]), isNull);
-      });
+          // Should return null, not throw a RangeError.
+          expect(anchor.taggedTextWithParagraphs([]), isNull);
+        },
+      );
     });
   });
 }

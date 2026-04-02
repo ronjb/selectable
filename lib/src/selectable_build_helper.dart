@@ -32,13 +32,23 @@ class SelectableBuildHelper {
   ) {
     if (scrollController?.hasOneClient ?? false) {
       _autoscroll(
-          scrollController, globalKey, selectionPt, maxY, topOverlayHeight);
+        scrollController,
+        globalKey,
+        selectionPt,
+        maxY,
+        topOverlayHeight,
+      );
     }
   }
 
   /// Autoscrolls if the drag point is near the top or bottom of the viewport.
-  void _autoscroll(ScrollController? scrollController, GlobalKey globalKey,
-      Offset? dragPt, double maxY, double topOverlayHeight) {
+  void _autoscroll(
+    ScrollController? scrollController,
+    GlobalKey globalKey,
+    Offset? dragPt,
+    double maxY,
+    double topOverlayHeight,
+  ) {
     assert(scrollController?.hasOneClient ?? false);
 
     final renderObject = globalKey.currentContext!.findRenderObject();
@@ -50,8 +60,10 @@ class SelectableBuildHelper {
     assert(vp != null);
     if (vp == null) return;
 
-    final renderObjScrollPos =
-        renderObject.getTransformTo(vp).getTranslation().y;
+    final renderObjScrollPos = renderObject
+        .getTransformTo(vp)
+        .getTranslation()
+        .y;
     final renderObjectTop = scrollController!.offset + renderObjScrollPos;
     final renderObjectBottom = maxY;
     final scrollOffset = -renderObjScrollPos;
@@ -73,11 +85,19 @@ class SelectableBuildHelper {
 
     if (scrollDelta != 0.0) {
       final newScrollOffset = math.min(
-          renderObjectBottom - viewportExtent + 100.0,
-          math.max(-renderObjectTop,
-              scrollOffset + (scrollDelta * scrollDistanceMultiplier)));
-      unawaited(scrollController.animateTo(newScrollOffset + renderObjectTop,
-          duration: const Duration(milliseconds: 250), curve: Curves.ease));
+        renderObjectBottom - viewportExtent + 100.0,
+        math.max(
+          -renderObjectTop,
+          scrollOffset + (scrollDelta * scrollDistanceMultiplier),
+        ),
+      );
+      unawaited(
+        scrollController.animateTo(
+          newScrollOffset + renderObjectTop,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.ease,
+        ),
+      );
     }
   }
 
@@ -111,8 +131,10 @@ class SelectableBuildHelper {
         ? TextSelectionHandleType.left
         : TextSelectionHandleType.right;
 
-    final startOffset =
-        controls!.getHandleAnchor(startHandleType, startLineHeight);
+    final startOffset = controls!.getHandleAnchor(
+      startHandleType,
+      startLineHeight,
+    );
     final endOffset = controls!.getHandleAnchor(endHandleType, endLineHeight);
 
     final startHandlePt = isRtl
@@ -120,25 +142,33 @@ class SelectableBuildHelper {
         : selection.rects!.first.bottomLeft;
     final endHandlePt = (usingCupertinoControls
         ? (isRtl
-            ? selection.rects!.last.topLeft
-            : selection.rects!.last.topRight)
+              ? selection.rects!.last.topLeft
+              : selection.rects!.last.topRight)
         : (isRtl
-            ? selection.rects!.last.bottomLeft
-            : selection.rects!.last.bottomRight));
+              ? selection.rects!.last.bottomLeft
+              : selection.rects!.last.bottomRight));
 
     final startPt = Offset(
-        startHandlePt.dx - startOffset.dx, startHandlePt.dy - startOffset.dy);
+      startHandlePt.dx - startOffset.dx,
+      startHandlePt.dy - startOffset.dy,
+    );
     final endPt = Offset(endHandlePt.dx - endOffset.dx, endHandlePt.dy);
 
     final startSize = controls!.getHandleSize(startLineHeight);
     final endSize = controls!.getHandleSize(endLineHeight);
 
-    final startRect =
-        Rect.fromLTWH(startPt.dx, startPt.dy, startSize.width, startSize.height)
-            .inflate(20);
-    final endRect =
-        Rect.fromLTWH(endPt.dx, endPt.dy, endSize.width, endSize.height)
-            .inflate(20);
+    final startRect = Rect.fromLTWH(
+      startPt.dx,
+      startPt.dy,
+      startSize.width,
+      startSize.height,
+    ).inflate(20);
+    final endRect = Rect.fromLTWH(
+      endPt.dx,
+      endPt.dy,
+      endSize.width,
+      endSize.height,
+    ).inflate(20);
 
     final isShowingPopupMenu = (showPopupMenu && !isScrolling);
     // dmPrint('SelectionUpdater.buildSelectionControls isShowingPopupMenu ==
@@ -153,8 +183,11 @@ class SelectableBuildHelper {
           delegate: selectionDelegate,
           handleType: SelectionHandleType.left,
           mainKey: mainKey,
-          child:
-              controls!.buildHandle(context, startHandleType, startLineHeight),
+          child: controls!.buildHandle(
+            context,
+            startHandleType,
+            startLineHeight,
+          ),
         ),
       ),
       Positioned.fromRect(
@@ -242,7 +275,11 @@ class _PopupMenuState extends State<_PopupMenu> {
       // [viewport] is the rectangle that can be seen, in render object
       // coordinates, which defaults to the render object rect.
       Rect? viewport = Rect.fromLTWH(
-          0, 0, widget.constraints.maxWidth, widget.constraints.maxHeight);
+        0,
+        0,
+        widget.constraints.maxWidth,
+        widget.constraints.maxHeight,
+      );
 
       // If there is a scroll controller, update the viewport to the visible
       // rect in render object coordinates.
@@ -252,15 +289,20 @@ class _PopupMenuState extends State<_PopupMenu> {
         assert(vp != null);
         if (vp != null) {
           try {
-            final renderObjScrollPos =
-                renderObject!.getTransformTo(vp).getTranslation().y;
+            final renderObjScrollPos = renderObject!
+                .getTransformTo(vp)
+                .getTranslation()
+                .y;
             final scrollOffset = -renderObjScrollPos + widget.topOverlayHeight;
             final viewportExtent =
                 widget.scrollController!.position.viewportDimension -
-                    widget.topOverlayHeight;
-            viewport =
-                Rect.fromLTWH(0, scrollOffset, viewport.width, viewportExtent)
-                    .intersect(viewport);
+                widget.topOverlayHeight;
+            viewport = Rect.fromLTWH(
+              0,
+              scrollOffset,
+              viewport.width,
+              viewportExtent,
+            ).intersect(viewport);
             if (viewport.height < 50) viewport = null;
           } catch (e) {
             dmPrint('Selectable popup menu build error: $e');
@@ -279,12 +321,13 @@ class _PopupMenuState extends State<_PopupMenu> {
         // dmPrint('buildPopupMenu with viewport $viewport, '
         //     'topOverlayHeight: ${widget.topOverlayHeight}');
         _menu = widget.controls.buildPopupMenu(
-            context,
-            viewport,
-            widget.selectionRects,
-            widget.selectionDelegate,
-            widget.topOverlayHeight,
-            widget.useExperimentalPopupMenu);
+          context,
+          viewport,
+          widget.selectionRects,
+          widget.selectionDelegate,
+          widget.topOverlayHeight,
+          widget.useExperimentalPopupMenu,
+        );
       } else {
         _menu = const SizedBox();
       }
@@ -317,8 +360,11 @@ class _SelectionHandle extends StatelessWidget {
     final mainKeyRenderObject = mainKey.currentContext!.findRenderObject();
     if (mainKeyRenderObject is RenderBox) {
       final offset = mainKeyRenderObject.globalToLocal(globalPosition);
-      delegate.onDragSelectionHandleUpdate(handleType, offset,
-          kind: pointerKind);
+      delegate.onDragSelectionHandleUpdate(
+        handleType,
+        offset,
+        kind: pointerKind,
+      );
     }
   }
 

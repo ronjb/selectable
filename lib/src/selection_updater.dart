@@ -80,8 +80,9 @@ Selection updatedSelectionWith(
   // selection point, if any.
   int? indexOfParagraphContainingSelectionPt;
   int? paragraphContainingSelectionPt() {
-    indexOfParagraphContainingSelectionPt ??=
-        paragraphs.indexWhere((p) => p.rect.contains(selectionPt!));
+    indexOfParagraphContainingSelectionPt ??= paragraphs.indexWhere(
+      (p) => p.rect.contains(selectionPt!),
+    );
     return indexOfParagraphContainingSelectionPt;
   }
 
@@ -117,7 +118,8 @@ Selection updatedSelectionWith(
         startSelPt = endSelPt = selectionPt;
         rects.addAll(anchor!.rects);
         buff.write(
-            paragraph.text.substring(anchor.textSel.start, anchor.textSel.end));
+          paragraph.text.substring(anchor.textSel.start, anchor.textSel.end),
+        );
         break; // ------------------------------------------------>
       }
     } else {
@@ -151,8 +153,10 @@ Selection updatedSelectionWith(
                 (paragraphContainingSelectionPt() == -1 &&
                     (i == paragraphs.length - 1 ||
                         selectionPt.dy < paragraphs[i + 1].rect.top)))) {
-          anchor = paragraph.anchorAtCharIndex(paragraph.trimmedSel.end - 1,
-              trim: false);
+          anchor = paragraph.anchorAtCharIndex(
+            paragraph.trimmedSel.end - 1,
+            trim: false,
+          );
           assert(anchor != null);
         }
 
@@ -198,8 +202,12 @@ Selection updatedSelectionWith(
             : paragraph.trimmedSel.end);
 
         // Collect the selection rects and text, if not empty.
-        final ts = createTextSelection(paragraph.text,
-            baseOffset: start, extentOffset: end, trim: false);
+        final ts = createTextSelection(
+          paragraph.text,
+          baseOffset: start,
+          extentOffset: end,
+          trim: false,
+        );
         if (ts != null) {
           final selectionRects = paragraph.rectsForSelection(ts);
           rects.addAll(selectionRects);
@@ -244,18 +252,19 @@ Selection updatedSelectionWith(
     return selection.cleared(); // ----------------------------------------->
   } else {
     return Selection(
-        version: cachedParagraphs.version,
-        text: buff.toString(),
-        start: startAnchor.taggedTextWithParagraphs(paragraphs),
-        end: endAnchor.taggedTextWithParagraphs(paragraphs, end: true),
-        startPt: startSelPt,
-        endPt: endSelPt,
-        startAnchor: startAnchor,
-        endAnchor: endAnchor,
-        rects: selection.rectifier(rects),
-        isHidden: selection.isHidden,
-        animationDuration: selection.animationDuration,
-        rectifier: selection.rectifier);
+      version: cachedParagraphs.version,
+      text: buff.toString(),
+      start: startAnchor.taggedTextWithParagraphs(paragraphs),
+      end: endAnchor.taggedTextWithParagraphs(paragraphs, end: true),
+      startPt: startSelPt,
+      endPt: endSelPt,
+      startAnchor: startAnchor,
+      endAnchor: endAnchor,
+      rects: selection.rectifier(rects),
+      isHidden: selection.isHidden,
+      animationDuration: selection.animationDuration,
+      rectifier: selection.rectifier,
+    );
   }
 }
 
