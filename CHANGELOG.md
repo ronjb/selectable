@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.6.0-dev.1] - April 16, 2026
+
+* Extracted `SelectableControllerBase` abstract base class from `SelectableController`, enabling alternative controller implementations.
+* Added comprehensive unit tests for the controller API.
+
 ## [0.5.2] - August 11, 2025
 
 * Added try/catch in SelectionParagraph visitChildSpans to catch rare cases where the RenderParagraph's text property might throw an exception because it returns `_textPainter.text!` and the `.text` can be null.
