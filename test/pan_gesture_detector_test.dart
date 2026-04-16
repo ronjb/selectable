@@ -2,7 +2,6 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:selectable/src/pan_gesture_detector.dart';

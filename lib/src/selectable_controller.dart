@@ -4,15 +4,13 @@
 
 part of 'selectable.dart';
 
-/// Provides a way to be notified of selection changes and a way to select
-/// and deselect text.
-class SelectableController extends ChangeNotifier {
-  /// Returns `true` if text is selected in any selections.
+/// Concrete implementation of [SelectableControllerBase] that manages
+/// selections, custom painters, and custom rectifiers.
+class SelectableController extends SelectableControllerBase {
+  @override
   bool get isTextSelected => _selections.isTextSelected;
 
-  /// Returns the selection, or null if a selection with the provided [key]
-  /// does not exist. Note, if [key] is not provided, it returns the main
-  /// selection (with key 0), which is guaranteed to be non-null.
+  @override
   Selection? getSelection({int? key}) {
     final k = key ?? 0;
     return _selections[k] ??
@@ -23,8 +21,7 @@ class SelectableController extends ChangeNotifier {
             : null);
   }
 
-  /// Hides the selection, if it is not already hidden. Returns `true` if
-  /// the selection was updated to be hidden.
+  @override
   bool hide({Duration? duration, int? key}) {
     final k = key ?? 0;
     final selection = _selections[k];
@@ -39,8 +36,7 @@ class SelectableController extends ChangeNotifier {
     return false;
   }
 
-  /// Unhides the selection, if it isn't already unhidden. Returns `true` if
-  /// the selection was updated to be unhidden.
+  @override
   bool unhide({Duration? duration, int? key}) {
     final k = key ?? 0;
     final selection = _selections[k];
@@ -55,8 +51,7 @@ class SelectableController extends ChangeNotifier {
     return false;
   }
 
-  /// If text is selected, deselects it. Returns `true` if any selections
-  /// were updated to be deselected.
+  @override
   bool deselectAll() {
     final didDeselectAny = _selections.deselectAll();
     if (didDeselectAny) {
@@ -65,8 +60,7 @@ class SelectableController extends ChangeNotifier {
     return didDeselectAny;
   }
 
-  /// If text is selected, deselects it. Returns `true` if the selection was
-  /// updated to be deselected.
+  @override
   bool deselect({int? key}) {
     final k = key ?? 0;
     final selection = _selections[k];
@@ -78,21 +72,16 @@ class SelectableController extends ChangeNotifier {
     return false;
   }
 
-  /// Attempts to select all the words in the text, if any. Returns `true` if
-  /// successful.
+  @override
   bool selectAll({int? key}) {
     return selectWordsBetweenIndexes(0, null, key: key);
   }
 
-  /// Attempts to select the word at [index], returning `true` if successful.
+  @override
   bool selectWordAtIndex(int index, {int? key}) =>
       selectWordsBetweenIndexes(index, index, key: key);
 
-  /// Attempts to select the words between [start] and [end] indexes, returning
-  /// `true` if successful.
-  ///
-  /// If [end] is `null`, selects the words between [start] up to an including
-  /// the last word in the last paragraph.
+  @override
   bool selectWordsBetweenIndexes(int start, int? end, {int? key}) {
     assert(end == null || start <= end);
 
@@ -143,8 +132,7 @@ class SelectableController extends ChangeNotifier {
     return false;
   }
 
-  /// Attempts to select the words between [start] and [end] selection anchors,
-  /// returning `true` if successful.
+  @override
   bool selectWordsBetweenAnchors(
     SelectionAnchor start,
     SelectionAnchor end, {
@@ -165,12 +153,11 @@ class SelectableController extends ChangeNotifier {
     return false;
   }
 
-  /// Attempts to select the word under [point], returning `true` if successful.
+  @override
   bool selectWordAtPoint(Offset point, {int? key}) =>
       selectWordsBetweenPoints(point, point, key: key);
 
-  /// Attempts to select the words between [startPt] and [endPt], returning
-  /// `true` if successful.
+  @override
   bool selectWordsBetweenPoints(Offset startPt, Offset endPt, {int? key}) {
     final k = key ?? 0;
     if (k < 0) return false;
@@ -212,9 +199,7 @@ class SelectableController extends ChangeNotifier {
     return false;
   }
 
-  /// Returns a String containing the combined text of all render paragraphs
-  /// contained in the Selectable. This can be used with `selectWordAtIndex`
-  /// and `selectWordsBetweenIndexes` to select a word or words.
+  @override
   String getContainedText() {
     final buff = StringBuffer();
     for (final paragraph in _selections.cachedParagraphs.list) {
@@ -223,20 +208,7 @@ class SelectableController extends ChangeNotifier {
     return buff.toString();
   }
 
-  /// Walks the tree of render objects contained in the Selectable, and the
-  /// sub-tree of each render paragraph's InlineSpan children in pre-order,
-  /// calling [visitor] for each `span` that has content. A span has content
-  /// if it is a `TextSpan` whose `text` property is not null, or it is a
-  /// `WidgetSpan`.
-  ///
-  /// When [visitor] returns `true`, the walk will continue. When [visitor]
-  /// returns `false`, the walk will end.
-  ///
-  /// Returns `true` if the walk completed, returns `false` if [visitor]
-  /// returned `false`, ending the walk prematurely.
-  ///
-  /// Note, if there are no render paragraphs contained in the Selectable,
-  /// `true` is returned, and [visitor] is not called.
+  @override
   bool visitContainedSpans(
     bool Function(SelectionParagraph paragraph, InlineSpan span, int index)
     visitor,
@@ -251,7 +223,7 @@ class SelectableController extends ChangeNotifier {
     return true;
   }
 
-  /// Sets the custom selection painter to be used to paint selections.
+  @override
   void setCustomPainter(SelectionPainter? painter, {int? key}) {
     final k = key ?? 0;
     if (painter == null) {
@@ -265,11 +237,10 @@ class SelectableController extends ChangeNotifier {
     }
   }
 
-  /// Returns the selection painter, or null if none.
+  @override
   SelectionPainter? getCustomPainter({int? key}) => _painters[key ?? 0];
 
-  /// Sets the custom rectifier, which is used to convert the raw rectangles of
-  /// selected text into the displayed selection rects.
+  @override
   void setCustomRectifier(
     List<Rect> Function(List<Rect>)? rectifier, {
     int? key,
@@ -302,7 +273,7 @@ class SelectableController extends ChangeNotifier {
     }
   }
 
-  /// Returns the custom rectifier, or null if none.
+  @override
   List<Rect> Function(List<Rect>)? getCustomRectifier({int? key}) =>
       _rectifiers[key ?? 0];
 
