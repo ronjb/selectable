@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.5.3] - April 29, 2026
+
+* Fixed the Cupertino text selection popup menu so its buttons render flush (no rounded corners) by passing `BorderRadius.zero` instead of `null` to `CupertinoButton.borderRadius`. Thanks to @madoka3530 for the fix (#27).
+
 ## [0.5.2] - August 11, 2025
 
 * Added try/catch in SelectionParagraph visitChildSpans to catch rare cases where the RenderParagraph's text property might throw an exception because it returns `_textPainter.text!` and the `.text` can be null.
