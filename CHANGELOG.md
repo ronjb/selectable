@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.6.0-dev.2] - April 29, 2026
+
+* Fixed the Cupertino text selection popup menu so its buttons render flush (no rounded corners) by passing `BorderRadius.zero` instead of `null` to `CupertinoButton.borderRadius`. Thanks to @madoka3530 for the fix (#27).
+
 ## [0.6.0-dev.1] - April 16, 2026
 
 * Extracted `SelectableControllerBase` abstract base class from `SelectableController`, enabling alternative controller implementations.
