@@ -73,7 +73,9 @@ class _TextSelectionPopupMenu extends StatelessWidget {
 }
 
 const TextStyle popupMenuTextStyle = TextStyle(
+  inherit: false,
   fontSize: 16,
+  height: 1.25,
   fontWeight: FontWeight.w500,
 );
 
@@ -100,7 +102,9 @@ class _Button extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextButton(
     style: TextButton.styleFrom(
+      minimumSize: const Size(0, _kPopupMenuHeight),
       padding: EdgeInsets.symmetric(horizontal: _kButtonPadding),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     ),
     onPressed: onPressed,
     child: icon == null

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+* Fixed the Material text selection popup menu so Japanese (and other tall) text labels are not clipped vertically. Thanks to @madoka3530 for the fix (#28).
+
 ## [0.6.0] - June 4, 2026
 
 * Raised the minimum SDK constraints to Dart 3.10.0 and Flutter 3.28.0.
