@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [0.6.1] - June 4, 2026
 
 * Fixed the Material text selection popup menu so Japanese (and other tall) text labels are not clipped vertically. Thanks to @madoka3530 for the fix (#28).
 
