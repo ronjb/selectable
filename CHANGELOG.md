@@ -1,13 +1,11 @@
 # CHANGELOG
 
-## [0.6.0-dev.2] - April 29, 2026
+## [0.6.0] - June 4, 2026
 
-* Fixed the Cupertino text selection popup menu so its buttons render flush (no rounded corners) by passing `BorderRadius.zero` instead of `null` to `CupertinoButton.borderRadius`. Thanks to @madoka3530 for the fix (#27).
-
-## [0.6.0-dev.1] - April 16, 2026
-
+* Raised the minimum SDK constraints to Dart 3.10.0 and Flutter 3.28.0.
 * Extracted `SelectableControllerBase` abstract base class from `SelectableController`, enabling alternative controller implementations.
 * Added comprehensive unit tests for the controller API.
+* Fixed the Cupertino text selection popup menu so its buttons render flush (no rounded corners) by passing `BorderRadius.zero` instead of `null` to `CupertinoButton.borderRadius`. Thanks to @madoka3530 for the fix (#27).
 
 ## [0.5.2] - August 11, 2025
 

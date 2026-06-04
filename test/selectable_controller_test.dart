@@ -82,16 +82,18 @@ void main() {
 
     test('setCustomPainter notifies listeners', () {
       var notified = false;
-      controller.addListener(() => notified = true);
-      controller.setCustomPainter(_TestSelectionPainter());
+      controller
+        ..addListener(() => notified = true)
+        ..setCustomPainter(_TestSelectionPainter());
       expect(notified, isTrue);
     });
 
     test('removing custom painter notifies listeners', () {
       controller.setCustomPainter(_TestSelectionPainter());
       var notified = false;
-      controller.addListener(() => notified = true);
-      controller.setCustomPainter(null);
+      controller
+        ..addListener(() => notified = true)
+        ..setCustomPainter(null);
       expect(notified, isTrue);
     });
 
@@ -118,8 +120,9 @@ void main() {
 
     test('setCustomRectifier notifies listeners', () {
       var notified = false;
-      controller.addListener(() => notified = true);
-      controller.setCustomRectifier((rects) => rects);
+      controller
+        ..addListener(() => notified = true)
+        ..setCustomRectifier((rects) => rects);
       expect(notified, isTrue);
     });
 
