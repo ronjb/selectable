@@ -38,11 +38,13 @@ class _TextSelectionPopupMenu extends StatelessWidget {
         .expand<Widget>(
           (e) => e.isEnabled!(delegate!.controller)
               ? [
-                  _Button(
-                    icon: e.icon,
-                    title: e.title ?? '',
-                    isDarkMode: isDarkMode,
-                    onPressed: () => e.handler!(delegate!.controller),
+                  Flexible(
+                    child: _Button(
+                      icon: e.icon,
+                      title: e.title ?? '',
+                      isDarkMode: isDarkMode,
+                      onPressed: () => e.handler!(delegate!.controller),
+                    ),
                   ),
                 ]
               : [],
@@ -94,6 +96,9 @@ class _Button extends StatelessWidget {
 
   Widget get _text => Text(
     icon == null ? title : ' $title',
+    maxLines: 1,
+    softWrap: false,
+    overflow: TextOverflow.ellipsis,
     style: popupMenuTextStyle.copyWith(
       color: isDarkMode! ? Colors.white : Colors.black,
     ),
@@ -118,7 +123,7 @@ class _Button extends StatelessWidget {
                     20.0 * (MediaQuery.textScalerOf(context).scale(18) / 18.0),
                 color: isDarkMode! ? Colors.white : Colors.black,
               ),
-              _text,
+              Flexible(child: _text),
             ],
           ),
   );
@@ -137,7 +142,12 @@ class _TextSelectionPopupMenuLayout extends SingleChildLayoutDelegate {
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    return constraints.loosen();
+    // Bound the menu to the viewport width (minus screen padding on each side)
+    // so a long title or too many items shrink/ellipsize to fit instead of
+    // overflowing.
+    return BoxConstraints(
+      maxWidth: math.max(0.0, maxWidth - _kPopupMenuScreenPadding * 2),
+    );
   }
 
   @override
