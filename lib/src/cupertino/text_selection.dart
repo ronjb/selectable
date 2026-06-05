@@ -50,6 +50,7 @@ const Color _kPopupMenuDividerColor = Color(0xFF808080);
 const TextStyle _kPopupMenuButtonFontStyle = TextStyle(
   inherit: false,
   fontSize: 14.0,
+  height: 1.2,
   letterSpacing: -0.15,
   fontWeight: FontWeight.w400,
   color: CupertinoColors.white,
@@ -57,7 +58,7 @@ const TextStyle _kPopupMenuButtonFontStyle = TextStyle(
 
 // Eyeballed value.
 const EdgeInsets _kPopupMenuButtonPadding = EdgeInsets.symmetric(
-  vertical: 10.0,
+  vertical: 5.0,
   horizontal: 18.0,
 );
 
@@ -437,6 +438,8 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       Widget textWidget() => MediaQuery.withNoTextScaling(
         child: Text(
           icon == null ? text : ' $text',
+          maxLines: 1,
+          softWrap: false,
           style: _kPopupMenuButtonFontStyle,
         ),
       );
