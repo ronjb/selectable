@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+* Fixed the Cupertino (iOS-style) text selection popup menu so Japanese (and other tall) text labels are not clipped vertically. Thanks to @madoka3530 for the fix (#29).
+
 ## [0.6.2] - June 4, 2026
 
 * Fixed the Material text selection popup menu so a long menu-item title (or too many items to fit) shrinks and ellipsizes within the viewport instead of throwing a `RenderFlex` overflow error (#6, #17).
