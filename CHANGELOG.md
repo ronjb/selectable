@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [0.6.3] - June 6, 2026
 
 * Fixed the Cupertino (iOS-style) text selection popup menu so Japanese (and other tall) text labels are not clipped vertically. Thanks to @madoka3530 for the fix (#29).
 
