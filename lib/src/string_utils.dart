@@ -161,7 +161,7 @@ bool isWhitespaceRune(int char) => _isWhitespace(char);
 bool isWhitespaceCharacter(int char) => _isWhitespace(char);
 
 //
-// PRIVATE
+// MARK: Private
 //
 
 extension _SetExt<T> on Set<T> {

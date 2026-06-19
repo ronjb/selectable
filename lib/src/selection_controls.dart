@@ -147,7 +147,7 @@ class SelectableMenuItem {
 }
 
 //
-// PRIVATE
+// MARK: Private
 //
 
 bool _canCopy(SelectableController? controller) {

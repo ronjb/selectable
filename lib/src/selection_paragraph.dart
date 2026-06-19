@@ -290,7 +290,7 @@ extension SelectableExtOnListOfSelectionParagraph on List<SelectionParagraph> {
 }
 
 //
-// PRIVATE
+// MARK: Private
 //
 
 bool _shouldSkip(int rune) {

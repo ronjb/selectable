@@ -418,7 +418,7 @@ class _SelectableState extends State<Selectable>
   }
 
   //
-  // PRIVATE
+  // MARK: Private
   //
 
   Offset? _localTapOrLongPressPt;
@@ -546,7 +546,7 @@ class _SelectableState extends State<Selectable>
 }
 
 //
-// PRIVATE
+// MARK: Private
 //
 
 final _defaultMenuItems = [

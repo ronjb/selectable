@@ -95,7 +95,7 @@ class Selections {
   }
 
   //
-  // PRIVATE
+  // MARK: Private
   //
 
   final _selectionsMap = <int, Selection>{};

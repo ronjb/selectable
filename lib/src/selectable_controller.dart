@@ -296,7 +296,7 @@ class SelectableController extends SelectableControllerBase {
       _rectifiers[key ?? 0];
 
   //
-  // PRIVATE
+  // MARK: Private
   //
 
   final _selections = Selections();
