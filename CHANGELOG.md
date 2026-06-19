@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.6.4] - June 19, 2026
+
+* Added the `containedTextLength` getter to `SelectableController`, which returns the number of characters (UTF-16 code units) in the combined text of all contained paragraphs without allocating the combined string. The result is memoized against the paragraph cache version, so repeated reads between content changes are O(1).
+
 ## [0.6.3] - June 6, 2026
 
 * Fixed the Cupertino (iOS-style) text selection popup menu so Japanese (and other tall) text labels are not clipped vertically. Thanks to @madoka3530 for the fix (#29).
