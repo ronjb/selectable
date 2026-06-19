@@ -75,6 +75,15 @@ abstract class SelectableControllerBase extends ChangeNotifier {
   /// and `selectWordsBetweenIndexes` to select a word or words.
   String getContainedText();
 
+  /// Returns the number of characters (UTF-16 code units) in the combined text
+  /// of all render paragraphs contained in the Selectable.
+  ///
+  /// This is equivalent to `getContainedText().length`. The default
+  /// implementation returns exactly that; subclasses may override it to count
+  /// without allocating the combined string, which is more efficient when only
+  /// the count is needed.
+  int get containedTextLength => getContainedText().length;
+
   /// Walks the tree of render objects contained in the Selectable, and the
   /// sub-tree of each render paragraph's InlineSpan children in pre-order,
   /// calling [visitor] for each `span` that has content. A span has content

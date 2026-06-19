@@ -2,8 +2,7 @@
 // Use of this source code is governed by a license that can be found in the
 // LICENSE file.
 
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:selectable/selectable.dart';
 
@@ -37,6 +36,10 @@ void main() {
 
     test('getContainedText returns empty string initially', () {
       expect(controller.getContainedText(), isEmpty);
+    });
+
+    test('containedTextLength is zero initially', () {
+      expect(controller.containedTextLength, 0);
     });
 
     test('deselectAll returns false when nothing is selected', () {
@@ -135,6 +138,53 @@ void main() {
 
     test('visitContainedSpans returns true when no paragraphs', () {
       expect(controller.visitContainedSpans((p, s, i) => true), isTrue);
+    });
+  });
+
+  group('SelectableController.containedTextLength with rendered content', () {
+    testWidgets('matches the length of the contained text', (tester) async {
+      // The Selectable does not own a controller passed to it, so dispose it.
+      final controller = SelectableController();
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Selectable(
+              selectionController: controller,
+              child: const Column(
+                children: [Text('Hello, world!'), Text('Second paragraph.')],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(controller.containedTextLength, greaterThan(0));
+      expect(
+        controller.containedTextLength,
+        controller.getContainedText().length,
+      );
+    });
+
+    testWidgets('updates when the contained text changes', (tester) async {
+      final controller = SelectableController();
+      addTearDown(controller.dispose);
+
+      Widget build(String text) => MaterialApp(
+        home: Scaffold(
+          body: Selectable(selectionController: controller, child: Text(text)),
+        ),
+      );
+
+      await tester.pumpWidget(build('Hello'));
+      await tester.pumpAndSettle();
+      expect(controller.containedTextLength, 'Hello'.length);
+
+      await tester.pumpWidget(build('Hello, world!'));
+      await tester.pumpAndSettle();
+      expect(controller.containedTextLength, 'Hello, world!'.length);
     });
   });
 }

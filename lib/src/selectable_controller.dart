@@ -209,6 +209,24 @@ class SelectableController extends SelectableControllerBase {
   }
 
   @override
+  int get containedTextLength {
+    final paragraphs = _selections.cachedParagraphs;
+
+    // The total only changes when the paragraphs do, so memoize it against the
+    // paragraph cache version and recompute only when that version changes.
+    if (_containedTextLengthVersion != paragraphs.version) {
+      var count = 0;
+      for (final paragraph in paragraphs.list) {
+        count += paragraph.text.length;
+      }
+      _containedTextLength = count;
+      _containedTextLengthVersion = paragraphs.version;
+    }
+
+    return _containedTextLength;
+  }
+
+  @override
   bool visitContainedSpans(
     bool Function(SelectionParagraph paragraph, InlineSpan span, int index)
     visitor,
@@ -284,6 +302,11 @@ class SelectableController extends SelectableControllerBase {
   final _selections = Selections();
   final _painters = <int, SelectionPainter>{};
   final _rectifiers = <int, List<Rect> Function(List<Rect>)>{};
+
+  /// Memoized [containedTextLength] and the paragraph cache version it was
+  /// computed for. The version starts at 1, so 0 forces the first computation.
+  int _containedTextLength = 0;
+  int _containedTextLengthVersion = 0;
 
   /// Updates the [Selections]. This is called by Selectable when the
   /// selection changes. It should not be called by any other code.
