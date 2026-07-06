@@ -497,7 +497,8 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       // Measure the button's natural width so its flex factor is
       // proportional to it — with equal flex factors, a long label can be
       // needlessly truncated when its siblings don't use their equal shares
-      // of the available width.
+      // of the available width. Note, no `textScaler` is applied because the
+      // label is rendered with `MediaQuery.withNoTextScaling`.
       final painter = TextPainter(
         text: TextSpan(
           text: icon == null ? text : ' $text',

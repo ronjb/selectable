@@ -39,6 +39,7 @@ Future<void> _pumpMenu(
   required List<String> titles,
   double viewportWidth = 800,
   double viewportHeight = 600,
+  double viewportTop = 0,
   Rect selectionRect = const Rect.fromLTWH(100, 200, 50, 20),
   TextScaler textScaler = TextScaler.noScaling,
   ThemeData? theme,
@@ -53,7 +54,7 @@ Future<void> _pumpMenu(
             builder: (context) =>
                 exMaterialTextSelectionControls.buildPopupMenu(
                   context,
-                  Rect.fromLTWH(0, 0, viewportWidth, viewportHeight),
+                  Rect.fromLTWH(0, viewportTop, viewportWidth, viewportHeight),
                   [selectionRect],
                   _FakeSelectionDelegate(titles),
                   0,
@@ -178,10 +179,45 @@ void main() {
 
   testWidgets('the menu placed below the selection keeps the minimum screen '
       'padding from the viewport bottom', (tester) async {
+    // The selection extends above the visible viewport (e.g. scrolled
+    // partially under a pinned app bar), so the menu is placed below the
+    // selection at the minimum distance from the viewport top — which, in
+    // this short viewport, must be capped to keep the 8px minimum screen
+    // padding from the viewport bottom.
+    const viewportTop = 100.0;
+    const viewportHeight = 55.0;
+    const selectionRect = Rect.fromLTWH(100, 46, 50, 14);
+
+    await _pumpMenu(
+      tester,
+      titles: ['Copy'],
+      viewportTop: viewportTop,
+      viewportHeight: viewportHeight,
+      selectionRect: selectionRect,
+    );
+
+    final menuRect = _menuRect(tester);
+    expect(
+      menuRect.top,
+      greaterThanOrEqualTo(viewportTop),
+      reason: 'The menu should be in the visible viewport.',
+    );
+    expect(
+      menuRect.bottom,
+      lessThanOrEqualTo(viewportTop + viewportHeight - _popupMenuScreenPadding),
+      reason:
+          'The menu should keep the minimum screen padding from the '
+          'bottom of the viewport.',
+    );
+  });
+
+  testWidgets('the menu falls back to the center when placing it below the '
+      'selection would violate the minimum screen padding', (tester) async {
     // With the selection near the top (no room for the menu above it) and
-    // 78px below the selection, the menu is placed below the selection —
-    // but flush placement would leave only 4px to the viewport bottom,
-    // violating the documented 8px minimum screen padding.
+    // 78px below the selection, placing the menu below the selection
+    // handle would leave only 4px to the viewport bottom — less than the
+    // 8px minimum screen padding — so the menu falls back to the centered
+    // position instead of encroaching on the handle or the padding.
     const viewportHeight = 142.0;
     const selectionRect = Rect.fromLTWH(100, 50, 50, 14);
 
@@ -192,19 +228,7 @@ void main() {
       selectionRect: selectionRect,
     );
 
-    final menuRect = _menuRect(tester);
-    expect(
-      menuRect.top,
-      greaterThanOrEqualTo(selectionRect.bottom),
-      reason: 'The menu should not overlap the selection.',
-    );
-    expect(
-      menuRect.bottom,
-      lessThanOrEqualTo(viewportHeight - _popupMenuScreenPadding),
-      reason:
-          'The menu should keep the minimum screen padding from the '
-          'bottom of the viewport.',
-    );
+    expect(_menuRect(tester).bottom, viewportHeight / 2);
   });
 
   testWidgets('the menu placed below the selection leaves room for the end '

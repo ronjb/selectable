@@ -246,9 +246,14 @@ class _MaterialTextSelectionControls extends SelectionControls {
 
     double? secondaryY;
 
-    // Will fit below?
+    // Will fit below? Note, the space needed includes the minimum screen
+    // padding from the viewport bottom, so the capping below never eats
+    // into the content distance between the handle and the menu.
     if (viewport.bottom - selectionRects.last.bottom >=
-        _kHandleSize + _kPopupMenuHeight + _kPopupMenuContentDistance) {
+        _kHandleSize +
+            _kPopupMenuHeight +
+            _kPopupMenuContentDistance +
+            _kPopupMenuScreenPadding) {
       // Note, `secondaryY` is the menu's bottom-edge y, capped so the menu
       // keeps the minimum screen padding from the viewport bottom.
       secondaryY = math.min(
