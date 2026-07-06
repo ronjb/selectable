@@ -199,12 +199,24 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
       );
       if (range.start >= 0 && range.end > range.start) {
         // If the `pt` is on the left side of the first letter of a word,
-        // the range will be of the whitespace before the word, so check
-        // for that...
-        if (textPosition.offset > 0 &&
-            range.end == range.start + 1 &&
-            text.isWhitespaceAtIndex(range.start)) {
-          return rp!.getWordBoundary(textPosition);
+        // the range will be of the whitespace or punctuation before the
+        // word, so check for that...
+        if (textPosition.offset > 0 && _isNonWordRange(range)) {
+          final next = rp!.getWordBoundary(textPosition);
+          if (!_isNonWordRange(next)) {
+            return next;
+          }
+          // Otherwise, `next` is still non-word, which happens when the
+          // position has upstream affinity (e.g. it was clamped to the end
+          // of a line). If the range is visible punctuation (e.g. a closing
+          // quote at the end of a paragraph), select it; if it is invisible
+          // whitespace, select the word before it.
+          if (!_isWhitespaceRange(range)) {
+            return range;
+          }
+          if (range.start > 0) {
+            return rp!.getWordBoundary(TextPosition(offset: range.start - 1));
+          }
         }
         return range;
       } else {
@@ -212,6 +224,24 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
       }
     }
     return null;
+  }
+
+  /// Returns `true` if [range] is non-empty and contains only non-word
+  /// characters (whitespace, punctuation, and quotes).
+  bool _isNonWordRange(TextRange range) {
+    for (var i = range.start; i < range.end; i++) {
+      if (!text.isNonWordCharacterAtIndex(i)) return false;
+    }
+    return range.end > range.start;
+  }
+
+  /// Returns `true` if [range] is non-empty and contains only whitespace
+  /// characters.
+  bool _isWhitespaceRange(TextRange range) {
+    for (var i = range.start; i < range.end; i++) {
+      if (!text.isWhitespaceAtIndex(i)) return false;
+    }
+    return range.end > range.start;
   }
 
   /// Walks this paragraph's `InlineSpan` and its descendants in pre-order and

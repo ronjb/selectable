@@ -115,6 +115,17 @@ class Selections {
       if (isSelectingWordOrDraggingHandle ||
           (selection.isTextSelected &&
               selection.version != cachedParagraphs.version)) {
+        // During a word-select or handle drag, the inputs to the selection
+        // computation only change between frames, but the selection may be
+        // accessed many times per frame, so skip recomputing if nothing has
+        // changed.
+        if (isSelectingWordOrDraggingHandle &&
+            !dragInfo.needsComputeForVersion(cachedParagraphs.version) &&
+            !(selection.isTextSelected &&
+                selection.version != cachedParagraphs.version)) {
+          return selection;
+        }
+
         // dmPrint('Selectable: refreshing selection $key with layout '
         //     '${cachedParagraphs.version}, selecting word or dragging '
         //     'handle: $isSelectingWordOrDraggingHandle');
@@ -123,6 +134,9 @@ class Selections {
           // Only the [main] selection (i.e. key == 0) uses [dragInfo].
           useDragInfo && key == 0 ? dragInfo : null,
         );
+        if (isSelectingWordOrDraggingHandle) {
+          dragInfo.markComputedForVersion(cachedParagraphs.version);
+        }
 
         // If the selection was hidden and was updated from having no selected
         // text to having selected text, unhide it.
@@ -144,16 +158,51 @@ class Selections {
 ///
 class Paragraphs {
   /// The cached [SelectionParagraph]s contained in the Selectable widget.
-  List<SelectionParagraph> get list => _paragraphList;
+  List<SelectionParagraph> get list {
+    _updateIfNeeded();
+    return _paragraphList;
+  }
+
   var _paragraphList = <SelectionParagraph>[];
 
   /// The [version] starts at 1 and gets incremented every time the paragraph
   /// list is updated. Once it reaches the max safe int value, 0x1FFFFFFFFFFFFF,
   /// it wraps back around to 1.
-  int get version => _version;
+  int get version {
+    _updateIfNeeded();
+    return _version;
+  }
+
   var _version = 1;
 
   void _incVersion() => _version = _version.incWithJsSafeWrap();
+
+  /// Marks the cached paragraphs as needing to be updated with the render
+  /// paragraphs contained in [renderBox]. The update happens lazily the next
+  /// time [list] or [version] is accessed — often not at all, e.g. when no
+  /// text is selected. Called by the render object on every layout.
+  void invalidateWithRenderBox(RenderBox renderBox) {
+    _renderBox = renderBox;
+    _needsUpdate = true;
+  }
+
+  /// Drops the reference to the render box, so that a pending update doesn't
+  /// walk a disposed render tree. Called when the render object is disposed.
+  void detachRenderBox() {
+    _renderBox = null;
+    _needsUpdate = false;
+  }
+
+  RenderBox? _renderBox;
+  var _needsUpdate = false;
+
+  void _updateIfNeeded() {
+    if (_needsUpdate && _renderBox != null) {
+      // Clear the flag before updating, in case of reentrant access.
+      _needsUpdate = false;
+      updateCachedParagraphsWithRenderBox(_renderBox!);
+    }
+  }
 
   /// Updates the paragraph list with all [SelectionParagraph]s contained in
   /// the [renderBox].
@@ -217,6 +266,12 @@ class Paragraphs {
 
       return true; // Continue walking the render tree.
     });
+
+    // The loop above only detects added or changed paragraphs, so check
+    // for removed trailing paragraphs here.
+    if (newParagraphs.length < _paragraphList.length) {
+      paragraphsHaveChanged = true;
+    }
 
     if (_paragraphList.isEmpty && newParagraphs.isEmpty) {
       paragraphsHaveChanged = false;

@@ -33,23 +33,50 @@ class _TextSelectionPopupMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    //final localizations = MaterialLocalizations.of(context);
-    final items = delegate!.menuItems
-        .expand<Widget>(
-          (e) => e.isEnabled!(delegate!.controller)
-              ? [
-                  Flexible(
-                    child: _Button(
-                      icon: e.icon,
-                      title: e.title ?? '',
-                      isDarkMode: isDarkMode,
-                      onPressed: () => e.handler!(delegate!.controller),
-                    ),
-                  ),
-                ]
-              : [],
-        )
-        .toList();
+    final textScaler = MediaQuery.textScalerOf(context);
+    final items = delegate!.menuItems.expand<Widget>((e) {
+      // Note, items with a null handler or isEnabled are skipped, which
+      // can only happen in release builds, where the SelectableMenuItem
+      // constructor assert is not enforced.
+      if (e.handler == null ||
+          !(e.isEnabled?.call(delegate!.controller) ?? false)) {
+        return const <Widget>[];
+      }
+
+      final title =
+          e.title ?? defaultTitleForMenuItemType(context, e.type) ?? '';
+
+      // Measure the button's natural width so its flex factor is
+      // proportional to it — with equal flex factors, a long label can be
+      // needlessly truncated when its siblings don't use their equal shares
+      // of the available width.
+      final painter = TextPainter(
+        text: TextSpan(
+          text: e.icon == null ? title : ' $title',
+          style: popupMenuTextStyle,
+        ),
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+        textScaler: textScaler,
+      )..layout();
+      final naturalWidth =
+          painter.width +
+          _kButtonPadding * 2 +
+          (e.icon == null ? 0.0 : 20.0 * (textScaler.scale(18) / 18.0));
+      painter.dispose();
+
+      return [
+        Flexible(
+          flex: math.max(1, naturalWidth.ceil()),
+          child: _Button(
+            icon: e.icon,
+            title: title,
+            isDarkMode: isDarkMode,
+            onPressed: () => e.handler?.call(delegate!.controller),
+          ),
+        ),
+      ];
+    }).toList();
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
@@ -62,13 +89,10 @@ class _TextSelectionPopupMenu extends StatelessWidget {
       elevation: 4.0,
       color: Theme.of(context).canvasColor,
       borderRadius: BorderRadius.circular(8),
-      child: Theme(
-        data: ThemeData(buttonTheme: ButtonThemeData(minWidth: 0)),
-        child: Container(
-          height: _kPopupMenuHeight,
-          padding: EdgeInsets.symmetric(horizontal: _kButtonPadding),
-          child: Row(mainAxisSize: MainAxisSize.min, children: items),
-        ),
+      child: Container(
+        height: _kPopupMenuHeight,
+        padding: EdgeInsets.symmetric(horizontal: _kButtonPadding),
+        child: Row(mainAxisSize: MainAxisSize.min, children: items),
       ),
     );
   }
@@ -167,7 +191,7 @@ class _TextSelectionPopupMenuLayout extends SingleChildLayoutDelegate {
 
   @override
   bool shouldRelayout(_TextSelectionPopupMenuLayout oldDelegate) {
-    return position != oldDelegate.position;
+    return position != oldDelegate.position || maxWidth != oldDelegate.maxWidth;
   }
 }
 
@@ -225,12 +249,17 @@ class _MaterialTextSelectionControls extends SelectionControls {
     // Will fit below?
     if (viewport.bottom - selectionRects.last.bottom >=
         _kHandleSize + _kPopupMenuHeight + _kPopupMenuContentDistance) {
-      secondaryY = math.max(
-        viewport.top + _kPopupMenuContentDistance + _kPopupMenuHeight,
-        selectionRects.last.bottom +
-            _kHandleSize +
-            _kPopupMenuHeight +
-            _kPopupMenuContentDistance,
+      // Note, `secondaryY` is the menu's bottom-edge y, capped so the menu
+      // keeps the minimum screen padding from the viewport bottom.
+      secondaryY = math.min(
+        viewport.bottom - _kPopupMenuScreenPadding,
+        math.max(
+          viewport.top + _kPopupMenuContentDistance + _kPopupMenuHeight,
+          selectionRects.last.bottom +
+              _kHandleSize +
+              _kPopupMenuHeight +
+              _kPopupMenuContentDistance,
+        ),
       );
     }
     // Show in center.
@@ -242,11 +271,26 @@ class _MaterialTextSelectionControls extends SelectionControls {
         (selectionRects.last.left + selectionRects.first.right) / 2.0;
 
     if (useExperimentalPopupMenu) {
-      // print('building menu at $arrowTipX, $localBarTopY');
+      // The menu renders above the primary anchor if it fits, otherwise
+      // below the secondary anchor. The anchors are in the Selectable's
+      // local coordinates, clamped to the visible viewport (which already
+      // accounts for `topOverlayHeight`).
       return delegate.buildMenu(
         context,
-        primaryAnchor: Offset(arrowTipX, primaryY + topOverlayHeight - 70),
-        secondaryAnchor: Offset(arrowTipX, secondaryY),
+        primaryAnchor: Offset(
+          arrowTipX,
+          (selectionRects.first.top - _kPopupMenuContentDistance).clamp(
+            viewport.top,
+            viewport.bottom,
+          ),
+        ),
+        secondaryAnchor: Offset(
+          arrowTipX,
+          (selectionRects.last.bottom +
+                  _kHandleSize +
+                  _kPopupMenuContentDistance)
+              .clamp(viewport.top, viewport.bottom),
+        ),
       );
     }
 

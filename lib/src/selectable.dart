@@ -148,9 +148,9 @@ class _SelectableState extends State<Selectable>
   void _refresh([VoidCallback? fn]) => !mounted
       ? null
       : isBuilding
-      ? WidgetsBinding.instance.addPostFrameCallback(
-          (timeStamp) => setState(fn ?? () {}),
-        )
+      ? WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          if (mounted) setState(fn ?? () {});
+        })
       : setState(fn ?? () {});
 
   void _selectionControllerListener() {
@@ -165,6 +165,9 @@ class _SelectableState extends State<Selectable>
       //     '${bToStr(_selections.main?.isHidden ?? false)} to '
       //     '${bToStr(sc.isHidden)}.');
       _selectionIsHidden = sc.getSelection()!.isHidden;
+      _selectionOpacityController.duration = sc
+          .getSelection()!
+          .animationDuration;
       if (_selectionIsHidden) {
         unawaited(_selectionOpacityController.reverse());
       } else {
@@ -216,11 +219,11 @@ class _SelectableState extends State<Selectable>
     if (_scrollPosition != null) {
       // dmPrint('Selectable: Removed listener from scroll controller.');
     }
-    if (_scrollController?.hasOneClient ?? false) {
-      _scrollController!.position.isScrollingNotifier.removeListener(
-        _isScrollingListener,
-      );
-    }
+    // Remove the listener from the position it was added to, which is not
+    // necessarily `_scrollController.position` — the controller may have
+    // gained clients or swapped in a new position since then. Note,
+    // `removeListener` is safe to call even if the position was disposed.
+    _scrollPosition?.isScrollingNotifier.removeListener(_isScrollingListener);
     _scrollController = null;
     _scrollPosition = null;
   }
@@ -402,8 +405,14 @@ class _SelectableState extends State<Selectable>
                   // dmPrint('update() returned with nothing selected');
 
                   // IgnorePointer needs to be refreshed because
-                  // _selectionPt == null now.
-                  Future.delayed(Duration.zero, _refresh);
+                  // _selectionPt == null now. Note, only refresh if text is
+                  // not selected — if it is (e.g. a custom rectifier
+                  // returned an empty rect list), rebuilding would change
+                  // nothing, and the deferred refresh would reschedule
+                  // itself forever.
+                  if (!(_selections.main?.isTextSelected ?? false)) {
+                    Future.delayed(Duration.zero, _refresh);
+                  }
 
                   return const SizedBox();
                 }

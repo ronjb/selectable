@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## [0.6.5] - July 6, 2026
+
+* Fixed a listener leak where the scroll listener was removed from the scroll controller's current `ScrollPosition` instead of the one it was added to, which leaked the listener if the controller gained clients or swapped positions.
+* Fixed stale selections: removing trailing paragraphs (or all paragraphs) now updates the paragraph cache version, so selections referencing text that no longer exists are cleared.
+* Fixed `IgnoreSelectable` so toggling `ignoring` at runtime updates the contained text immediately, without requiring an unrelated relayout.
+* Fixed an endless rebuild loop that occurred when a custom rectifier returned an empty rect list.
+* Fixed `SelectableController.hide(duration:)` and `unhide(duration:)` so the painted highlight animates with the provided duration (previously it always animated for one second).
+* Improved word selection around punctuation and whitespace: selecting at the first letter of a word preceded by a quote, punctuation, or multiple spaces now selects the word (previously nothing, or the punctuation, was selected), and selecting at the end of a wrapped line no longer includes the trailing space.
+* Fixed iOS popup menu placement: the top screen inset (e.g. the notch) no longer counts against the space below the selection, so the menu is placed just below the selection instead of jumping to the center of the viewport; also, the menu arrow position is now clamped in local coordinates, so the arrow stays attached to the menu when the Selectable doesn't span the full screen width.
+* Fixed the Material popup menu so, when placed below the selection, it keeps the minimum 8px padding from the bottom of the viewport.
+* Fixed the experimental popup menu (`useExperimentalPopupMenu: true`) anchors on both platforms, so the menu is placed just above the selection, or just below it when there is no room above.
+* Fixed the Cupertino popup menu so its buttons shrink and ellipsize to fit a narrow viewport instead of overflowing (matching the Material fix in 0.6.2).
+* Fixed the Material popup menu so a long menu-item title is no longer needlessly ellipsized when the menu fits the viewport — buttons now only shrink (proportionally to their content) when the menu would otherwise overflow.
+* Fixed the Material popup menu buttons to use the ambient app theme (previously ink effects and fonts came from a default light theme, even in dark mode).
+* The default menu item titles are now localized using `MaterialLocalizations` (falling back to `CupertinoLocalizations`). Note, in English, 'Define' is now 'Look Up' and 'WebSearch' is now 'Search Web'. Also, `SelectableMenuItem.title` is now null for the built-in types unless explicitly provided — custom menu builders can use the new `defaultTitleForMenuItemType` function to resolve default titles.
+* Fixed 'Look Up' and 'Search Web' silently doing nothing on Android 11+ in apps without a `<queries>` manifest entry, by calling `launchUrl` directly instead of gating on `canLaunchUrl`.
+* The 'Look Up' (define) menu item is now correctly disabled for selections of more than two words separated by any whitespace (e.g. newlines), not just spaces.
+* Hardened lifecycle and release-mode edge cases: menu items missing `isEnabled` or `handler` no longer crash release builds, and post-frame and gesture callbacks now guard against unmounted state.
+* Fixed the start selection point to be text-direction aware when anchors are refreshed after a layout change (RTL).
+* Performance: dragging a selection handle now computes the selection once per drag update instead of once per selection access, roughly a 4x reduction in work per drag frame.
+* Performance: the paragraph cache is now updated lazily on first access instead of on every layout, so layouts with no active selection (e.g. scrolling or keyboard animations) skip the full render-tree walk entirely.
+* Performance: cheaper per-frame selection equality checks, and the iOS popup menu's clip path is now cached at layout time and its clip layer reused, instead of being recomputed on every paint.
+
 ## [0.6.4] - June 19, 2026
 
 * Added the `containedTextLength` getter to `SelectableController`, which returns the number of characters (UTF-16 code units) in the combined text of all contained paragraphs without allocating the combined string. The result is memoized against the paragraph cache version, so repeated reads between content changes are O(1).

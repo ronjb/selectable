@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,7 +67,7 @@ mixin SelectionDelegate {
     required Offset primaryAnchor,
     Offset? secondaryAnchor,
   }) {
-    final buttonItems = _buttonItems();
+    final buttonItems = _buttonItems(context);
     // print('buildMenu: buttonItems=$buttonItems');
 
     return AdaptiveTextSelectionToolbar.buttonItems(
@@ -78,14 +79,20 @@ mixin SelectionDelegate {
     );
   }
 
-  List<ContextMenuButtonItem>? _buttonItems() {
+  List<ContextMenuButtonItem>? _buttonItems(BuildContext context) {
     return menuItems
         .expand<ContextMenuButtonItem>(
-          (e) => e.isEnabled!(controller)
+          // Note, items with a null handler or isEnabled are skipped, which
+          // can only happen in release builds, where the SelectableMenuItem
+          // constructor assert is not enforced.
+          (e) => e.handler != null && (e.isEnabled?.call(controller) ?? false)
               ? [
                   ContextMenuButtonItem(
-                    label: e.title ?? '',
-                    onPressed: () => e.handler!(controller),
+                    label:
+                        e.title ??
+                        defaultTitleForMenuItemType(context, e.type) ??
+                        '',
+                    onPressed: () => e.handler?.call(controller),
                   ),
                 ]
               : [],
@@ -104,22 +111,13 @@ class SelectableMenuItem {
   const SelectableMenuItem({
     this.type = SelectableMenuItemType.other,
     this.icon,
-    String? title,
+    this.title,
     SelectableMenuItemHandlerFunc? isEnabled,
     SelectableMenuItemHandlerFunc? handler,
   }) : assert(
          type != SelectableMenuItemType.other ||
              (title != null && isEnabled != null && handler != null),
        ),
-       title =
-           title ??
-           (type == SelectableMenuItemType.copy
-               ? 'Copy'
-               : type == SelectableMenuItemType.define
-               ? 'Define'
-               : type == SelectableMenuItemType.webSearch
-               ? 'WebSearch'
-               : null),
        isEnabled =
            isEnabled ??
            (type == SelectableMenuItemType.copy
@@ -141,9 +139,67 @@ class SelectableMenuItem {
 
   final SelectableMenuItemType type;
   final IconData? icon;
+
+  /// The title, or null to use the localized default title for the [type]
+  /// (see [defaultTitleForMenuItemType]).
   final String? title;
+
   final SelectableMenuItemHandlerFunc? isEnabled;
   final SelectableMenuItemHandlerFunc? handler;
+}
+
+/// Returns the localized default title for menu items of [type], or null if
+/// [type] is [SelectableMenuItemType.other].
+String? defaultTitleForMenuItemType(
+  BuildContext context,
+  SelectableMenuItemType type,
+) {
+  // Prefer MaterialLocalizations, fall back to CupertinoLocalizations (for
+  // CupertinoApp-only apps), then to English strings.
+  final material = Localizations.of<MaterialLocalizations>(
+    context,
+    MaterialLocalizations,
+  );
+  if (material != null) {
+    switch (type) {
+      case SelectableMenuItemType.copy:
+        return material.copyButtonLabel;
+      case SelectableMenuItemType.define:
+        return material.lookUpButtonLabel;
+      case SelectableMenuItemType.webSearch:
+        return material.searchWebButtonLabel;
+      case SelectableMenuItemType.other:
+        return null;
+    }
+  }
+
+  final cupertino = Localizations.of<CupertinoLocalizations>(
+    context,
+    CupertinoLocalizations,
+  );
+  if (cupertino != null) {
+    switch (type) {
+      case SelectableMenuItemType.copy:
+        return cupertino.copyButtonLabel;
+      case SelectableMenuItemType.define:
+        return cupertino.lookUpButtonLabel;
+      case SelectableMenuItemType.webSearch:
+        return cupertino.searchWebButtonLabel;
+      case SelectableMenuItemType.other:
+        return null;
+    }
+  }
+
+  switch (type) {
+    case SelectableMenuItemType.copy:
+      return 'Copy';
+    case SelectableMenuItemType.define:
+      return 'Define';
+    case SelectableMenuItemType.webSearch:
+      return 'WebSearch';
+    case SelectableMenuItemType.other:
+      return null;
+  }
 }
 
 //
@@ -167,11 +223,10 @@ bool _handleCopy(SelectableController? controller) {
 
 bool _canDefine(SelectableController? controller) {
   final text = _selectedText(controller);
-  if (text.isNotEmpty && (!text.contains(' ') || text.split(' ').length <= 2)) {
-    return true;
-  }
-  return false;
+  return text.isNotEmpty && text.split(_whitespaceRun).length <= 2;
 }
+
+final _whitespaceRun = RegExp(r'\s+');
 
 bool _handleDefine(SelectableController? controller) {
   final text = _selectedText(controller);
@@ -203,10 +258,17 @@ String _selectedText(SelectableController? controller) {
 }
 
 Future<void> _launchBrowserWithUrl(String url) async {
+  // Note, `launchUrl` is called directly, without first checking
+  // `canLaunchUrl`, because `canLaunchUrl` can return a false negative for
+  // web URLs (e.g. on Android 11+ if the app does not declare a `<queries>`
+  // manifest entry).
   try {
-    final uri = Uri.parse(url);
-    if (await launcher.canLaunchUrl(uri)) {
-      await launcher.launchUrl(uri);
+    final launched = await launcher.launchUrl(Uri.parse(url));
+    if (!launched) {
+      dmPrint(
+        'WARNING: Selectable is unable to launch the browser with '
+        'url "$url"',
+      );
     }
   } catch (e) {
     dmPrint(

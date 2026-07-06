@@ -32,19 +32,22 @@ class Selection extends Equatable {
     this.rectifier = SelectionRectifiers.identity,
   });
 
+  // Note, the props are ordered cheapest-to-compare first, so that equality
+  // checks of unequal selections bail before comparing the potentially large
+  // `rects` and `text` values.
   @override
   List<Object?> get props => [
     version,
-    text,
-    start,
-    end,
+    isHidden,
+    animationDuration,
     startPt,
     endPt,
+    start,
+    end,
     startAnchor,
     endAnchor,
     rects,
-    isHidden,
-    animationDuration,
+    text,
     rectifier,
   ];
 
@@ -150,18 +153,47 @@ class Selection extends Equatable {
 ///
 class SelectionDragInfo {
   SelectionDragInfo({
-    this.selectionPt,
-    this.handleType,
+    Offset? selectionPt,
+    SelectionHandleType? handleType,
     this.areAnchorsSwapped = false,
-  });
+  }) : _selectionPt = selectionPt,
+       _handleType = handleType;
 
   /// The local offset of the long press, double-tap, or drag; or null if none.
-  Offset? selectionPt;
+  Offset? get selectionPt => _selectionPt;
+  Offset? _selectionPt;
+  set selectionPt(Offset? value) {
+    _selectionPt = value;
+    _needsCompute = true;
+  }
 
-  SelectionHandleType? handleType;
+  SelectionHandleType? get handleType => _handleType;
+  SelectionHandleType? _handleType;
+  set handleType(SelectionHandleType? value) {
+    _handleType = value;
+    _needsCompute = true;
+  }
+
+  // Note, this is a plain field because it is mutated by the selection
+  // computation itself, so it must not invalidate the computation.
   bool areAnchorsSwapped;
 
   bool get isSelectingWordOrDraggingHandle => selectionPt != null;
   bool get isSelectingWord => selectionPt != null && handleType == null;
   bool get isDraggingHandle => selectionPt != null && handleType != null;
+
+  /// Returns `true` if the selection needs to be recomputed for the current
+  /// drag state and paragraph cache [version]. For internal use.
+  bool needsComputeForVersion(int version) =>
+      _needsCompute || _computedVersion != version;
+
+  /// Records that the selection was computed for the current drag state and
+  /// paragraph cache [version]. For internal use.
+  void markComputedForVersion(int version) {
+    _needsCompute = false;
+    _computedVersion = version;
+  }
+
+  bool _needsCompute = true;
+  int _computedVersion = 0;
 }

@@ -201,6 +201,21 @@ class _PopupMenuRenderBox extends RenderShiftedBox {
       _barTopY!,
     );
     childParentData.arrowXOffsetFromCenter = _arrowTipX! - adjustedCenterX;
+
+    // The clip path only changes with layout, so cache it here rather than
+    // running the expensive Path.combine on every paint.
+    _cachedClipPath = _clipPath();
+  }
+
+  Path? _cachedClipPath;
+
+  final LayerHandle<ClipPathLayer> _clipPathLayerHandle =
+      LayerHandle<ClipPathLayer>();
+
+  @override
+  void dispose() {
+    _clipPathLayerHandle.layer = null;
+    super.dispose();
   }
 
   // The path is described in the popup menu's coordinate system.
@@ -240,18 +255,20 @@ class _PopupMenuRenderBox extends RenderShiftedBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (child == null) {
+      _clipPathLayerHandle.layer = null;
       return;
     }
 
     final _PopupMenuParentData childParentData =
         (child!.parentData as _PopupMenuParentData?)!;
-    context.pushClipPath(
+    _clipPathLayerHandle.layer = context.pushClipPath(
       needsCompositing,
       offset + childParentData.offset,
       Offset.zero & child!.size,
-      _clipPath(),
+      _cachedClipPath ?? _clipPath(),
       (PaintingContext innerContext, Offset innerOffset) =>
           innerContext.paintChild(child!, innerOffset),
+      oldLayer: _clipPathLayerHandle.layer,
     );
   }
 
@@ -349,8 +366,17 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     // TextSelectionPoint(rects.first.bottomLeft, TextDirection.ltr),
     // TextSelectionPoint(rects.last.bottomRight, TextDirection.ltr)
 
-    final double popupMenuHeightNeeded =
+    // The space needed above the selection includes `padding.top` to keep
+    // the menu from underlapping the status bar when the Selectable extends
+    // edge-to-edge under it.
+    final double popupMenuHeightNeededAbove =
         padding.top +
+        _kPopupMenuScreenPadding +
+        _kPopupMenuHeight +
+        _kPopupMenuContentDistance;
+
+    // The top screen inset is irrelevant to the space below the selection.
+    const double popupMenuHeightNeededBelow =
         _kPopupMenuScreenPadding +
         _kPopupMenuHeight +
         _kPopupMenuContentDistance;
@@ -365,7 +391,8 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     double? secondaryY;
 
     // Will fit below?
-    if (viewport.bottom - selectionRects.last.bottom >= popupMenuHeightNeeded) {
+    if (viewport.bottom - selectionRects.last.bottom >=
+        popupMenuHeightNeededBelow) {
       secondaryY = math.max(
         viewport.top + _kPopupMenuContentDistance,
         selectionRects.last.bottom + _kPopupMenuContentDistance,
@@ -376,20 +403,37 @@ class _CupertinoTextSelectionControls extends SelectionControls {
       secondaryY = viewport.center.dy - (_kPopupMenuHeight / 2.0);
     }
 
+    // Note, the clamp bounds are in the Selectable's local coordinates, like
+    // `selectionRects` and the popup menu's render box. The min/max keeps the
+    // bounds ordered when the viewport is narrower than twice the arrow
+    // padding.
     final double arrowTipX =
         ((selectionRects.last.left + selectionRects.first.right) / 2.0).clamp(
-          _kArrowScreenPadding + padding.left,
-          MediaQuery.sizeOf(context).width -
-              padding.right -
-              _kArrowScreenPadding,
+          math.min(_kArrowScreenPadding, viewport.width / 2),
+          math.max(viewport.width - _kArrowScreenPadding, viewport.width / 2),
         );
 
     if (useExperimentalPopupMenu) {
-      // print('building menu at $arrowTipX, $localBarTopY');
+      // The menu renders above the primary anchor if it fits, otherwise
+      // below the secondary anchor. The anchors are in the Selectable's
+      // local coordinates, clamped to the visible viewport (which already
+      // accounts for `topOverlayHeight`).
       return delegate.buildMenu(
         context,
-        primaryAnchor: Offset(arrowTipX, primaryY + topOverlayHeight - 40),
-        secondaryAnchor: Offset(arrowTipX, secondaryY),
+        primaryAnchor: Offset(
+          arrowTipX,
+          (selectionRects.first.top - _kPopupMenuContentDistance).clamp(
+            viewport.top,
+            viewport.bottom,
+          ),
+        ),
+        secondaryAnchor: Offset(
+          arrowTipX,
+          (selectionRects.last.bottom + _kPopupMenuContentDistance).clamp(
+            viewport.top,
+            viewport.bottom,
+          ),
+        ),
       );
     }
 
@@ -397,11 +441,12 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     var localBarTopY = 0.0;
 
     // Will fit above?
-    if (selectionRects.first.top - viewport.top >= popupMenuHeightNeeded) {
+    if (selectionRects.first.top - viewport.top >= popupMenuHeightNeededAbove) {
       localBarTopY = primaryY;
     } else
     // Will fit below?
-    if (viewport.bottom - selectionRects.last.bottom >= popupMenuHeightNeeded) {
+    if (viewport.bottom - selectionRects.last.bottom >=
+        popupMenuHeightNeededBelow) {
       localBarTopY = secondaryY;
       isArrowPointingDown = false;
     }
@@ -423,10 +468,14 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     void addPopupMenuButtonIfNeeded(
       IconData? icon,
       String text,
-      bool Function(SelectableController?) predicate,
+      bool Function(SelectableController?)? predicate,
       bool Function(SelectableController?)? onPressed,
     ) {
-      if (!predicate(delegate.controller)) {
+      // Note, items with a null onPressed or predicate are skipped, which
+      // can only happen in release builds, where the SelectableMenuItem
+      // constructor assert is not enforced.
+      if (onPressed == null ||
+          !(predicate?.call(delegate.controller) ?? false)) {
         // dmPrint('NOT showing $text menu because isEnabled returned `false`');
         return;
       }
@@ -440,27 +489,52 @@ class _CupertinoTextSelectionControls extends SelectionControls {
           icon == null ? text : ' $text',
           maxLines: 1,
           softWrap: false,
+          overflow: TextOverflow.ellipsis,
           style: _kPopupMenuButtonFontStyle,
         ),
       );
 
+      // Measure the button's natural width so its flex factor is
+      // proportional to it — with equal flex factors, a long label can be
+      // needlessly truncated when its siblings don't use their equal shares
+      // of the available width.
+      final painter = TextPainter(
+        text: TextSpan(
+          text: icon == null ? text : ' $text',
+          style: _kPopupMenuButtonFontStyle,
+        ),
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+      )..layout();
+      final naturalWidth =
+          painter.width +
+          _kPopupMenuButtonPadding.horizontal +
+          (icon == null ? 0.0 : 18.0);
+      painter.dispose();
+
+      // Note, the buttons are wrapped in Flexible, and their labels
+      // ellipsize, so the menu shrinks to fit a narrow viewport instead of
+      // overflowing.
       items.add(
-        CupertinoButton(
-          color: _kPopupMenuBackgroundColor,
-          padding: _kPopupMenuButtonPadding.add(arrowPadding),
-          borderRadius: BorderRadius.zero,
-          pressedOpacity: 0.7,
-          onPressed: () => onPressed!(delegate.controller),
-          minimumSize: const Size(_kPopupMenuHeight, _kPopupMenuHeight),
-          child: icon == null
-              ? textWidget()
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 18.0, color: const Color(0xffffffff)),
-                    textWidget(),
-                  ],
-                ),
+        Flexible(
+          flex: math.max(1, naturalWidth.ceil()),
+          child: CupertinoButton(
+            color: _kPopupMenuBackgroundColor,
+            padding: _kPopupMenuButtonPadding.add(arrowPadding),
+            borderRadius: BorderRadius.zero,
+            pressedOpacity: 0.7,
+            onPressed: () => onPressed(delegate.controller),
+            minimumSize: const Size(0, _kPopupMenuHeight),
+            child: icon == null
+                ? textWidget()
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 18.0, color: const Color(0xffffffff)),
+                      Flexible(child: textWidget()),
+                    ],
+                  ),
+          ),
         ),
       );
     }
@@ -468,8 +542,8 @@ class _CupertinoTextSelectionControls extends SelectionControls {
     for (final item in delegate.menuItems) {
       addPopupMenuButtonIfNeeded(
         item.icon,
-        item.title ?? '',
-        item.isEnabled!,
+        item.title ?? defaultTitleForMenuItemType(context, item.type) ?? '',
+        item.isEnabled,
         item.handler,
       );
     }

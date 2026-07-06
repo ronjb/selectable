@@ -159,11 +159,14 @@ class RenderSelectableWidget extends RenderProxyBox {
       // dmPrint('RenderSelectableWidget: new selections, needs repaint.');
       markNeedsPaint();
     } else {
-      // If the list of non-empty selections changed, need to repaint.
+      // If the list of non-empty selections changed, need to repaint. Note,
+      // the new list is compared to the raw `_selectionList` (not the
+      // `selectionList` getter, which would just compute the same new list)
+      // and cached either way, so it isn't computed again on next access.
       final newSelectionList = value.nonEmptySelections.toList();
-      if (!areEqualLists(newSelectionList, selectionList)) {
-        _selectionList = newSelectionList;
-
+      final changed = !areEqualLists(newSelectionList, _selectionList);
+      _selectionList = newSelectionList;
+      if (changed) {
         // dmPrint('RenderSelectableWidget: selection list changed, '
         //     'needs repaint.');
         markNeedsPaint();
@@ -318,11 +321,22 @@ class RenderSelectableWidget extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     if (child != null) {
-      _paragraphs.updateCachedParagraphsWithRenderBox(child!);
+      // Mark the paragraph cache as needing an update, which happens lazily
+      // on first access — often not at all, e.g. when nothing is selected.
+      _paragraphs.invalidateWithRenderBox(child!);
 
-      // Paragraphs changed, so the selection list is no longer up-to-date.
+      // Paragraphs may have changed, so the selection list is no longer
+      // up-to-date.
       _selectionList = null;
     }
+  }
+
+  @override
+  void dispose() {
+    // Drop the paragraph cache's reference to the child, so that a pending
+    // lazy update doesn't walk a disposed render tree.
+    _paragraphs.detachRenderBox();
+    super.dispose();
   }
 
   @override

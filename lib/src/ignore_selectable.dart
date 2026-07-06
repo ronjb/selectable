@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import 'selectable_render_widget.dart';
+
 /// A widget that is invisible to selection via its [Selectable] ancestor
 /// widget.
 ///
@@ -95,6 +97,14 @@ class RenderIgnoreSelectable extends RenderProxyBox {
     if (_ignoringSemantics == null || !_ignoringSemantics!) {
       markNeedsSemanticsUpdate();
     }
+
+    // The ancestor RenderSelectableWidget's paragraph cache is rebuilt in its
+    // performLayout, so it needs to be marked as needing layout.
+    var node = parent;
+    while (node != null && node is! RenderSelectableWidget) {
+      node = node.parent;
+    }
+    node?.markNeedsLayout();
   }
 
   bool? get ignoringSemantics => _ignoringSemantics;

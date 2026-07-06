@@ -59,7 +59,9 @@ Selection updatedSelectionWith(
     var clearSelection = false;
     if (startAnchor != null) {
       startAnchor = paragraphs.updateAnchor(startAnchor);
-      startSelPt = startAnchor?.rects.first.center;
+      startSelPt = startAnchor?.textDirection == TextDirection.rtl
+          ? startAnchor?.rects.first.centerRight
+          : startAnchor?.rects.first.centerLeft;
       clearSelection = (startAnchor == null);
     }
 
@@ -84,14 +86,6 @@ Selection updatedSelectionWith(
       (p) => p.rect.contains(selectionPt!),
     );
     return indexOfParagraphContainingSelectionPt;
-  }
-
-  // Local func that returns `true` if the selection point is in, to the left
-  // of, or to the right of [paragraph].
-  bool selectionPtIsInOrNextTo(SelectionParagraph paragraph) {
-    return (paragraph.rect.contains(selectionPt!) ||
-        (selectionPt.dy.isInRange(paragraph.rect.top, paragraph.rect.bottom) &&
-            paragraphContainingSelectionPt() == -1));
   }
 
   // Iterate through the render paragraphs, collecting the selected `rects`
@@ -138,8 +132,12 @@ Selection updatedSelectionWith(
           assert(anchor != null);
         }
 
-        // If the selection point is in this paragraph...
-        if (anchor == null && selectionPtIsInOrNextTo(paragraph)) {
+        // If the selection point is in this paragraph... Note, points in
+        // the margin next to the paragraph intentionally get no anchor here,
+        // and fall through to the paragraph-edge branches: the leading
+        // margin selects to the first word (above), and the trailing margin
+        // selects to the last word (below).
+        if (anchor == null && paragraph.rect.contains(selectionPt)) {
           anchor = paragraph.anchorAtPt(selectionPt, trim: false);
         }
 

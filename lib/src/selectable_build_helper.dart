@@ -51,7 +51,7 @@ class SelectableBuildHelper {
   ) {
     assert(scrollController?.hasOneClient ?? false);
 
-    final renderObject = globalKey.currentContext!.findRenderObject();
+    final renderObject = globalKey.currentContext?.findRenderObject();
     if (!(renderObject is RenderBox && renderObject.hasSize)) {
       return;
     }
@@ -357,7 +357,7 @@ class _SelectionHandle extends StatelessWidget {
       _onPan(details.globalPosition, null);
 
   void _onPan(Offset globalPosition, PointerDeviceKind? pointerKind) {
-    final mainKeyRenderObject = mainKey.currentContext!.findRenderObject();
+    final mainKeyRenderObject = mainKey.currentContext?.findRenderObject();
     if (mainKeyRenderObject is RenderBox) {
       final offset = mainKeyRenderObject.globalToLocal(globalPosition);
       delegate.onDragSelectionHandleUpdate(
