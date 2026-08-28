@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.6.6] - August 28, 2026
+
+* Updated selection to exclude a paragraph’s clipped, hidden trailing lines — lines rendered entirely below the bounds of a paragraph with `TextOverflow.clip`. Notably, this supports float_column 4.1.2, which justifies text at wrapping boundaries by appending a hidden copy of the next part’s leading word on an extra clipped line; previously, the hidden word could appear in selected text (e.g. via select all, or a selection that spans a boundary), and extending a selection across a boundary could incorrectly stop at the hidden word.
+* Updated the `float_column` dependency constraint to `^4.1.2`.
+
 ## [0.6.5] - July 6, 2026
 
 * Fixed a listener leak where the scroll listener was removed from the scroll controller's current `ScrollPosition` instead of the one it was added to, which leaked the listener if the controller gained clients or swapped positions.

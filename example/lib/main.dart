@@ -187,8 +187,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                     child: Container(
                       padding: const EdgeInsets.all(20),
-                      child:
-                          FloatColumn(children: [TextSpan(children: _spans)]),
+                      child: DefaultTextStyle.merge(
+                          style: const TextStyle(),
+                          textAlign: TextAlign.justify,
+                          child: FloatColumn(
+                              children: [TextSpan(children: _spans)])),
                     ),
                   ),
                   ..._selectionController.getSelection()?.rects?.map((r) {

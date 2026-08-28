@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   cupertino_icons: ^1.0.5
-  float_column: ^4.0.2
+  float_column: ^4.1.2
   flutter:
     sdk: flutter
   selectable:
@@ -20,6 +20,5 @@ dev_dependencies:
   flutter_lints_plus: ^3.2.0
   flutter_test:
     sdk: flutter
-
 flutter:
   uses-material-design: true

@@ -4,6 +4,7 @@
 
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show precisionErrorTolerance;
 import 'package:flutter/rendering.dart';
 
 import 'common.dart';
@@ -62,20 +63,34 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     try {
       final span = rp.text;
       if (span is TextSpan) {
-        final text = span.toPlainText(
+        var text = span.toPlainText(
           includeSemanticsLabels: false,
           includePlaceholders: true,
         );
+        final size = rp.textSize;
+        var height = size.height;
+
+        // If the paragraph clips overflowing lines, they are invisible, so
+        // exclude them from selection by truncating the text at the start of
+        // the first clipped line and limiting the height to the clip bounds.
+        // For example, float_column renders a justified paragraph that wraps
+        // at floated widget boundaries as multiple text widgets, appending a
+        // hidden copy of the next part's leading word on an extra clipped
+        // line to all but the last, to force justification of the line
+        // before it.
+        if (rp.overflow == TextOverflow.clip &&
+            height > rp.size.height + precisionErrorTolerance) {
+          height = rp.size.height;
+          text = text.substring(
+            0,
+            _indexOfFirstClippedCharacter(rp, height, text.length),
+          );
+        }
+
         final trimmedSel = createTextSelection(text);
         if (trimmedSel != null) {
           final offset = rp.getTransformTo(ancestor).getTranslation();
-          final size = rp.textSize;
-          final rect = Rect.fromLTWH(
-            offset.x,
-            offset.y,
-            size.width,
-            size.height,
-          );
+          final rect = Rect.fromLTWH(offset.x, offset.y, size.width, height);
           return SelectionParagraph(
             rp: rp,
             rect: rect,
@@ -192,17 +207,23 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
       // If the `pt` is on the right side of the last letter of a word,
       // `getPositionForOffset` returns the position AFTER the word, so
       // we subtract 1 from the position to counteract that.
-      final range = rp!.getWordBoundary(
-        textPosition.offset == 0
-            ? textPosition
-            : TextPosition(offset: textPosition.offset - 1),
+      //
+      // Note, word boundary ranges are clamped to the length of [text]
+      // because they can extend into clipped hidden trailing text, which
+      // [from] excludes from [text].
+      final range = _clampedToTextLength(
+        rp!.getWordBoundary(
+          textPosition.offset == 0
+              ? textPosition
+              : TextPosition(offset: textPosition.offset - 1),
+        ),
       );
       if (range.start >= 0 && range.end > range.start) {
         // If the `pt` is on the left side of the first letter of a word,
         // the range will be of the whitespace or punctuation before the
         // word, so check for that...
         if (textPosition.offset > 0 && _isNonWordRange(range)) {
-          final next = rp!.getWordBoundary(textPosition);
+          final next = _clampedToTextLength(rp!.getWordBoundary(textPosition));
           if (!_isNonWordRange(next)) {
             return next;
           }
@@ -215,7 +236,9 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
             return range;
           }
           if (range.start > 0) {
-            return rp!.getWordBoundary(TextPosition(offset: range.start - 1));
+            return _clampedToTextLength(
+              rp!.getWordBoundary(TextPosition(offset: range.start - 1)),
+            );
           }
         }
         return range;
@@ -244,14 +267,26 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     return range.end > range.start;
   }
 
+  /// Returns the given [range] clamped to the length of [text], which
+  /// excludes clipped hidden trailing text, if any.
+  TextRange _clampedToTextLength(TextRange range) => range.end <= text.length
+      ? range
+      : TextRange(start: math.min(range.start, text.length), end: text.length);
+
   /// Walks this paragraph's `InlineSpan` and its descendants in pre-order and
   /// calls [visitor] for each span that has text.
   ///
   /// When [visitor] returns `true`, the walk will continue. When [visitor]
   /// returns `false`, then the walk will end.
+  ///
+  /// Note, spans at or past the end of [text] (i.e. spans of clipped hidden
+  /// trailing text, which [from] excludes from [text]) are skipped, without
+  /// ending the walk.
   bool visitChildSpans(InlineSpanVisitorWithIndex visitor) {
     try {
-      return rp!.text.visitChildrenEx(visitor);
+      return rp!.text.visitChildrenEx(
+        (span, index) => index >= text.length || visitor(span, index),
+      );
     } catch (e) {
       dmPrint('Error in SelectionParagraph.visitChildSpans(): $e');
       return true;
@@ -325,4 +360,28 @@ extension SelectableExtOnListOfSelectionParagraph on List<SelectionParagraph> {
 
 bool _shouldSkip(int rune) {
   return rune == objectReplacementCharacterCode || isWhitespaceCharacter(rune);
+}
+
+/// Returns the index of the first character in [rp]'s text that is rendered
+/// entirely at or below [height] (i.e. the first clipped hidden character),
+/// or [textLength] if there is none.
+int _indexOfFirstClippedCharacter(
+  RenderParagraph rp,
+  double height,
+  int textLength,
+) {
+  // A character's line top is non-decreasing with its index, so binary
+  // search for the first character whose line top is at or below [height].
+  var low = 0;
+  var high = textLength;
+  while (low < high) {
+    final mid = (low + high) ~/ 2;
+    final dy = rp.getOffsetForCaret(TextPosition(offset: mid), Rect.zero).dy;
+    if (dy >= height - precisionErrorTolerance) {
+      high = mid;
+    } else {
+      low = mid + 1;
+    }
+  }
+  return low;
 }
