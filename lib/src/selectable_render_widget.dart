@@ -119,18 +119,14 @@ class SelectableRenderWidget extends SingleChildRenderObjectWidget {
 class RenderSelectableWidget extends RenderProxyBox {
   /// Creates a render object that delegates its painting.
   RenderSelectableWidget({
-    required Paragraphs paragraphs,
-    required Selections selections,
-    SelectionPainter? painter,
-    SelectionPainter? foregroundPainter,
+    required this._paragraphs,
+    required this._selections,
+    this._painter,
+    this._foregroundPainter,
     this.isComplex = false,
     this.willChange = false,
     RenderBox? child,
-  }) : _paragraphs = paragraphs,
-       _selections = selections,
-       _painter = painter,
-       _foregroundPainter = foregroundPainter,
-       super(child);
+  }) : super(child);
 
   /// The paragraphs.
   Paragraphs get paragraphs => _paragraphs;

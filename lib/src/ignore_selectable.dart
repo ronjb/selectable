@@ -83,11 +83,9 @@ class IgnoreSelectable extends SingleChildRenderObjectWidget {
 class RenderIgnoreSelectable extends RenderProxyBox {
   RenderIgnoreSelectable({
     RenderBox? child,
-    bool ignoring = true,
-    bool? ignoringSemantics,
-  }) : _ignoring = ignoring,
-       _ignoringSemantics = ignoringSemantics,
-       super(child);
+    this._ignoring = true,
+    this._ignoringSemantics,
+  }) : super(child);
 
   bool get ignoring => _ignoring;
   bool _ignoring;

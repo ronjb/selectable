@@ -154,11 +154,10 @@ class Selection extends Equatable {
 ///
 class SelectionDragInfo {
   SelectionDragInfo({
-    Offset? selectionPt,
-    SelectionHandleType? handleType,
+    this._selectionPt,
+    this._handleType,
     this.areAnchorsSwapped = false,
-  }) : _selectionPt = selectionPt,
-       _handleType = handleType;
+  });
 
   /// The local offset of the long press, double-tap, or drag; or null if none.
   Offset? get selectionPt => _selectionPt;

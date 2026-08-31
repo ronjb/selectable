@@ -73,13 +73,11 @@ const EdgeInsets _kPopupMenuButtonPadding = EdgeInsets.symmetric(
 ///    popup menu.
 class _CupertinoTextSelectionPopupMenu extends SingleChildRenderObjectWidget {
   const _CupertinoTextSelectionPopupMenu._({
-    double? barTopY,
-    double? arrowTipX,
-    bool? isArrowPointingDown,
+    this._barTopY,
+    this._arrowTipX,
+    this._isArrowPointingDown,
     super.child,
-  }) : _barTopY = barTopY,
-       _arrowTipX = arrowTipX,
-       _isArrowPointingDown = isArrowPointingDown;
+  });
 
   // The y-coordinate of popup menu's top edge, in global coordinate system.
   final double? _barTopY;

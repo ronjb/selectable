@@ -45,7 +45,7 @@ abstract class SelectionPainter extends Listenable {
   /// Creates a custom selection painter.
   ///
   /// The painter will repaint whenever `repaint` notifies its listeners.
-  const SelectionPainter({Listenable? repaint}) : _repaint = repaint;
+  const SelectionPainter({this._repaint});
 
   final Listenable? _repaint;
 
