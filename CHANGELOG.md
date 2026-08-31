@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [0.7.0] - August 31, 2026
+
+* Breaking change: this package now uses the standalone `package:material_ui` and `package:cupertino_ui` packages instead of Flutter's in-framework `material.dart` and `cupertino.dart` libraries, which are moving out of the Flutter SDK. Your code does not need to change, because the public API of this package exposes no Material or Cupertino types, but the popup menu gets its theme and its localized labels from those packages, so your app has to provide them. Apps that have migrated to `material_ui` and `cupertino_ui` work as-is; in apps that still import `package:flutter/material.dart`, the popup menu throws `No MaterialLocalizations found`. See the README for the two options: stay on the 0.6.x line, or wrap your `Selectable` in `material_ui`'s theme and localizations. Note that `MaterialUiCompatibilityBridge` does not help, because it maps in the opposite direction.
+* Breaking change: raised the minimum SDK constraints to Dart `>=3.12.0` and Flutter `>=3.44.0`, as required by `material_ui` and `cupertino_ui`.
+* Updated the `float_column` dependency constraint to `^4.1.3`, which no longer imports Flutter's Material library.
+* The 0.6.x line continues on the `release-0.6.x` branch, for projects that have not migrated.
+
 ## [0.6.7] - August 31, 2026
 
 * Narrowed the `package:flutter/material.dart` imports in `ignore_selectable.dart` and `selection.dart` to the layers those files actually use. No Material symbols were used, so this change is behavior-neutral. It reduces the package's Material and Cupertino surface to the four files that genuinely need it, ahead of Material and Cupertino moving out of the Flutter SDK into the standalone `package:material_ui` and `package:cupertino_ui`.

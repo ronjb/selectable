@@ -3,8 +3,8 @@
 // LICENSE file.
 
 import 'package:float_column/float_column.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:selectable/selectable.dart';
 
 // The default test font renders every glyph as a square with sides equal to

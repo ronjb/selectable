@@ -40,10 +40,41 @@ Add `selectable` to your app's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
+  selectable: ^0.7.0
+```
+
+Requires Dart `>=3.12.0` and Flutter `>=3.44.0`.
+
+### Material and Cupertino packages
+
+As of 0.7.0, `selectable` uses the standalone [`material_ui`](https://pub.dev/packages/material_ui) and [`cupertino_ui`](https://pub.dev/packages/cupertino_ui) packages instead of Flutter's in-framework `material.dart` and `cupertino.dart` libraries, which are moving out of the SDK (see [Flutter's migration guide](https://docs.flutter.dev/release/breaking-changes/material-ui-and-cupertino-ui)).
+
+Your own code does not need to change, because `selectable`'s public API exposes no Material or Cupertino types. The popup menu, however, gets its theme and its localized labels from `material_ui` and `cupertino_ui`, so your app has to provide them. If your app has migrated to those packages, this works as-is. If your app still imports `package:flutter/material.dart`, the popup menu throws `No MaterialLocalizations found`.
+
+If your app has not migrated yet, you can stay on the 0.6.x line, which continues to use Flutter's in-framework libraries:
+
+```yaml
+dependencies:
   selectable: ^0.6.7
 ```
 
-Requires Dart `>=3.10.0` and Flutter `>=3.28.0`.
+Or you can provide `material_ui`'s theme and localizations around your `Selectable`:
+
+```dart
+import 'package:material_ui/material_ui.dart' as mui;
+
+Localizations(
+  locale: Localizations.localeOf(context),
+  delegates: mui.GlobalMaterialLocalizations.delegates,
+  child: mui.Theme(
+    // Configure this to match your app's theme.
+    data: mui.ThemeData(),
+    child: Selectable(child: myContent),
+  ),
+)
+```
+
+Note that `MaterialUiCompatibilityBridge` does not help here: it maps a migrated app's theme back to the in-framework libraries, which is the opposite direction.
 
 ## Usage
 
