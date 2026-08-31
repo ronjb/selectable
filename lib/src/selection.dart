@@ -3,7 +3,8 @@
 // LICENSE file.
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 
 import 'common.dart';
 import 'selection_anchor.dart';

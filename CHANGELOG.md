@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.6.7] - August 31, 2026
+
+* Narrowed the `package:flutter/material.dart` imports in `ignore_selectable.dart` and `selection.dart` to the layers those files actually use. No Material symbols were used, so this change is behavior-neutral. It reduces the package's Material and Cupertino surface to the four files that genuinely need it, ahead of Material and Cupertino moving out of the Flutter SDK into the standalone `package:material_ui` and `package:cupertino_ui`.
+
 ## [0.6.6] - August 28, 2026
 
 * Updated selection to exclude a paragraph’s clipped, hidden trailing lines — lines rendered entirely below the bounds of a paragraph with `TextOverflow.clip`. Notably, this supports float_column 4.1.2, which justifies text at wrapping boundaries by appending a hidden copy of the next part’s leading word on an extra clipped line; previously, the hidden word could appear in selected text (e.g. via select all, or a selection that spans a boundary), and extending a selection across a boundary could incorrectly stop at the hidden word.
