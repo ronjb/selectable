@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.7.1] - September 1, 2026
+
+* Fixed the paragraph cache so it is cleared when the `Selectable`'s render object is disposed. Previously the cache kept `SelectionParagraph`s that referenced disposed render paragraphs, so a `SelectableController` that outlived its `Selectable` — e.g. one held by a widget that conditionally wraps its child in a `Selectable` — walked a disposed render tree, and `visitContainedSpans`, `getContainedText`, and `containedTextLength` either logged `Null check operator used on a null value` for every paragraph or returned stale text.
+
 ## [0.7.0] - August 31, 2026
 
 * Breaking change: this package now uses the standalone `package:material_ui` and `package:cupertino_ui` packages instead of Flutter's in-framework `material.dart` and `cupertino.dart` libraries, which are moving out of the Flutter SDK. Your code does not need to change, because the public API of this package exposes no Material or Cupertino types, but the popup menu gets its theme and its localized labels from those packages, so your app has to provide them. Apps that have migrated to `material_ui` and `cupertino_ui` work as-is; in apps that still import `package:flutter/material.dart`, the popup menu throws `No MaterialLocalizations found`. See the README for the two options: stay on the 0.6.x line, or wrap your `Selectable` in `material_ui`'s theme and localizations. Note that `MaterialUiCompatibilityBridge` does not help, because it maps in the opposite direction.

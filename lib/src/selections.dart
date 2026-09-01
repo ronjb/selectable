@@ -186,11 +186,16 @@ class Paragraphs {
     _needsUpdate = true;
   }
 
-  /// Drops the reference to the render box, so that a pending update doesn't
-  /// walk a disposed render tree. Called when the render object is disposed.
+  /// Drops the reference to the render box, and clears the cached paragraphs,
+  /// because they reference render paragraphs in the render tree being
+  /// disposed. Called when the render object is disposed.
   void detachRenderBox() {
     _renderBox = null;
     _needsUpdate = false;
+    if (_paragraphList.isNotEmpty) {
+      _paragraphList = <SelectionParagraph>[];
+      _incVersion();
+    }
   }
 
   RenderBox? _renderBox;
