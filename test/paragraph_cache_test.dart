@@ -88,6 +88,39 @@ void main() {
     },
   );
 
+  testWidgets(
+    'the cached paragraphs are cleared when the Selectable is removed',
+    (tester) async {
+      final controller = SelectableController();
+      addTearDown(controller.dispose);
+
+      await _pumpTexts(tester, controller, ['alpha alpha', 'bravo bravo']);
+      expect(controller.selectWordAtIndex(0), isTrue);
+      await tester.pump();
+      expect(controller.isTextSelected, isTrue);
+
+      // Remove the Selectable, keeping the controller. Its cached paragraphs
+      // reference render paragraphs in the disposed render tree, so they must
+      // not be walked.
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: Text('alpha alpha'))),
+      );
+      await tester.pumpAndSettle();
+
+      var spanCount = 0;
+      expect(
+        () => controller.visitContainedSpans((paragraph, span, index) {
+          spanCount++;
+          return true;
+        }),
+        returnsNormally,
+      );
+      expect(spanCount, 0);
+      expect(controller.getContainedText(), isEmpty);
+      expect(controller.containedTextLength, 0);
+    },
+  );
+
   testWidgets('toggling IgnoreSelectable updates the contained text', (
     tester,
   ) async {

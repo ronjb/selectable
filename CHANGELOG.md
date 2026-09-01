@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.6.8] - September 1, 2026
+
+* Fixed the paragraph cache so it is cleared when the `Selectable`'s render object is disposed. Previously the cache kept `SelectionParagraph`s that referenced disposed render paragraphs, so a `SelectableController` that outlived its `Selectable` — e.g. one held by a widget that conditionally wraps its child in a `Selectable` — walked a disposed render tree, and `visitContainedSpans`, `getContainedText`, and `containedTextLength` either logged `Null check operator used on a null value` for every paragraph or returned stale text.
+
 ## [0.6.7] - August 31, 2026
 
 * Narrowed the `package:flutter/material.dart` imports in `ignore_selectable.dart` and `selection.dart` to the layers those files actually use. No Material symbols were used, so this change is behavior-neutral. It reduces the package's Material and Cupertino surface to the four files that genuinely need it, ahead of Material and Cupertino moving out of the Flutter SDK into the standalone `package:material_ui` and `package:cupertino_ui`.
