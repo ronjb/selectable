@@ -40,7 +40,7 @@ Add `selectable` to your app's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  selectable: ^0.7.0
+  selectable: ^0.7.2
 ```
 
 Requires Dart `>=3.12.0` and Flutter `>=3.44.0`.

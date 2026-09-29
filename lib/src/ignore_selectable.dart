@@ -12,9 +12,6 @@ import 'selectable_render_widget.dart';
 class IgnoreSelectable extends SingleChildRenderObjectWidget {
   /// Creates a widget that is invisible to selection via its [Selectable]
   /// ancestor widget.
-  ///
-  /// The [ignoring] argument must not be null. If [ignoringSemantics] is null,
-  /// this render object will be ignored for semantics if [ignoring] is true.
   const IgnoreSelectable({
     super.key,
     this.ignoring = true,
@@ -32,7 +29,8 @@ class IgnoreSelectable extends SingleChildRenderObjectWidget {
   /// Whether the semantics of this widget is ignored when compiling the
   /// semantics tree.
   ///
-  /// If null, defaults to value of [ignoring].
+  /// If null, defaults to `false`: text that can't be selected can still be
+  /// read, so [ignoring] doesn't hide it from assistive technologies.
   ///
   /// See [SemanticsNode] for additional information about the semantics tree.
   final bool? ignoringSemantics;
@@ -79,7 +77,7 @@ class IgnoreSelectable extends SingleChildRenderObjectWidget {
 ///
 /// When [ignoringSemantics] is true, the subtree will be invisible to the
 /// semantics layer (and thus e.g. accessibility tools). If [ignoringSemantics]
-/// is null, it uses the value of [ignoring].
+/// is null, it is visible to it, regardless of [ignoring].
 class RenderIgnoreSelectable extends RenderProxyBox {
   RenderIgnoreSelectable({
     RenderBox? child,
@@ -92,9 +90,6 @@ class RenderIgnoreSelectable extends RenderProxyBox {
   set ignoring(bool value) {
     if (value == _ignoring) return;
     _ignoring = value;
-    if (_ignoringSemantics == null || !_ignoringSemantics!) {
-      markNeedsSemanticsUpdate();
-    }
 
     // The ancestor RenderSelectableWidget's paragraph cache is rebuilt in its
     // performLayout, so it needs to be marked as needing layout.
@@ -118,7 +113,7 @@ class RenderIgnoreSelectable extends RenderProxyBox {
     }
   }
 
-  bool get _effectiveIgnoringSemantics => ignoringSemantics ?? ignoring;
+  bool get _effectiveIgnoringSemantics => ignoringSemantics ?? false;
 
   @override
   void visitChildrenForSemantics(RenderObjectVisitor visitor) {

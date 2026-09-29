@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.7.2] - September 28, 2026
+
+* Fixed `Selectable`'s gestures being offered to assistive technologies. They act on the text at the pointer's position, and a semantics action is at the center of the `Selectable`, so a screen reader's long press selected whichever word was there. Offering them also merged all of the child text into a single semantics node, so a screen reader read everything in a `Selectable` as one element and couldn't move through it paragraph by paragraph.
+* Fixed `IgnoreSelectable` hiding its child from assistive technologies. Making text unselectable is no reason to keep it from being read, so `ignoringSemantics` now defaults to `false` rather than to the value of `ignoring`. Pass `ignoringSemantics: true` for the previous behavior.
+
 ## [0.7.1] - September 1, 2026
 
 * Fixed the paragraph cache so it is cleared when the `Selectable`'s render object is disposed. Previously the cache kept `SelectionParagraph`s that referenced disposed render paragraphs, so a `SelectableController` that outlived its `Selectable` — e.g. one held by a widget that conditionally wraps its child in a `Selectable` — walked a disposed render tree, and `visitContainedSpans`, `getContainedText`, and `containedTextLength` either logged `Null check operator used on a null value` for every paragraph or returned stale text.

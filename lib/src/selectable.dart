@@ -289,6 +289,12 @@ class _SelectableState extends State<Selectable>
       children: <Widget>[
         GestureDetector(
           behavior: HitTestBehavior.translucent,
+          // These gestures act on the text at the pointer's position, and a
+          // semantics action is at the center of the Selectable — a semantic
+          // long press would select whichever word is there. Offering them
+          // also merged all of the child text into this one node, so a screen
+          // reader couldn't move through it paragraph by paragraph.
+          excludeFromSemantics: true,
           onLongPressStart: widget.selectWordOnLongPress
               ? (details) => _localTapOrLongPressPt = details.localPosition
               : null,
