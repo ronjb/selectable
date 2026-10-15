@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [0.7.3] - October 14, 2026
+
+* Added `InlineSelectable`, which makes the text in a `WidgetSpan`'s widget part of the paragraph containing the `WidgetSpan`. Flutter can only raise or lower text, e.g. a superscript or subscript, by drawing it in a `WidgetSpan`, and the text in a `WidgetSpan`'s widget is a paragraph of its own, listed after the paragraph containing the `WidgetSpan`, so a superscript was copied after that paragraph's text: "line whereby the 5". With an `InlineSelectable` anywhere in the `WidgetSpan`'s widget, the text is copied where it is drawn, "line5 whereby the", it is selected by a long press and highlighted where it is drawn, and a selection that ends with it includes it. It is selected as a unit, like a character of the paragraph, so `InlineSelectable` is meant for short text. The paragraph's text, which `getContainedText()` and character indexes refer to, holds it as a U+FFFC, `visitContainedSpans()` doesn't visit the spans in it, and a selection that starts or ends at it reports the `WidgetSpan` in `start` or `end` (its tag, if it is a `TaggedWidgetSpan`, and a U+FFFC as its text).
+* Fixed a `WidgetSpan` being copied as a U+FFFC, e.g. "line￼ whereby the". It is now left out of copied text, and the text in its widget, if any, is still copied as a paragraph of its own.
+* Fixed `selectAll()` failing when the first paragraph starts with a `WidgetSpan`. Fixed `selectWordAtIndex()` and `selectWordsBetweenIndexes()` failing at a `WidgetSpan`'s character index.
+* Added `SelectionPlaceholder`, `SelectionParagraph.placeholders`, `SelectionParagraph.textInSelection`, and `SelectionParagraph.indexOfPlaceholderAtPt`, and a `placeholders` parameter to `createTextSelection`, which trims placeholders without text.
+
 ## [0.7.2] - September 28, 2026
 
 * Fixed `Selectable`'s gestures being offered to assistive technologies. They act on the text at the pointer's position, and a semantics action is at the center of the `Selectable`, so a screen reader's long press selected whichever word was there. Offering them also merged all of the child text into a single semantics node, so a screen reader read everything in a `Selectable` as one element and couldn't move through it paragraph by paragraph.

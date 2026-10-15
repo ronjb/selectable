@@ -4,6 +4,7 @@
 
 import 'dart:math' as math;
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart' show precisionErrorTolerance;
 import 'package:flutter/rendering.dart';
 
@@ -24,6 +25,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     required this.trimmedSel,
     required this.paragraphIndex,
     required this.firstCharIndex,
+    this.placeholders = const {},
   });
 
   final RenderParagraph? rp;
@@ -32,6 +34,10 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   final TextSelection trimmedSel;
   final int paragraphIndex;
   final int firstCharIndex;
+
+  /// This paragraph's placeholders — the widgets of its `WidgetSpan`s, each a
+  /// U+FFFC in [text] — keyed by their index in [text], in index order.
+  final Map<int, SelectionPlaceholder> placeholders;
 
   /// Accepts nullable [other] intentionally. Returns positive when [other]
   /// is null.
@@ -57,6 +63,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     required RenderObject ancestor,
     int paragraphIndex = 0,
     int firstCharIndex = 0,
+    Map<int, SelectionPlaceholder> placeholders = const {},
   }) {
     if (!rp.hasSize) return null;
 
@@ -87,7 +94,10 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
           );
         }
 
-        final trimmedSel = createTextSelection(text);
+        final trimmedSel = createTextSelection(
+          text,
+          placeholders: placeholders,
+        );
         if (trimmedSel != null) {
           final offset = rp.getTransformTo(ancestor).getTranslation();
           final rect = Rect.fromLTWH(offset.x, offset.y, size.width, height);
@@ -98,6 +108,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
             trimmedSel: trimmedSel,
             paragraphIndex: paragraphIndex,
             firstCharIndex: firstCharIndex,
+            placeholders: placeholders,
           );
         }
       }
@@ -117,6 +128,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     TextSelection? trimmedSel,
     int? paragraphIndex,
     int? firstCharIndex,
+    Map<int, SelectionPlaceholder>? placeholders,
   }) => SelectionParagraph(
     rp: rp ?? this.rp,
     rect: rect ?? this.rect,
@@ -124,7 +136,25 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
     trimmedSel: trimmedSel ?? this.trimmedSel,
     paragraphIndex: paragraphIndex ?? this.paragraphIndex,
     firstCharIndex: firstCharIndex ?? this.firstCharIndex,
+    placeholders: placeholders ?? this.placeholders,
   );
+
+  /// Returns the text in [selection], with each placeholder's U+FFFC replaced
+  /// by the text in its widget, so the text reads as it is drawn.
+  String textInSelection(TextSelection selection) {
+    final buff = StringBuffer();
+    var start = selection.start;
+    for (final MapEntry(key: i, value: placeholder) in placeholders.entries) {
+      if (i >= selection.end) break;
+      if (i < selection.start) continue;
+      buff
+        ..write(text.substring(start, i))
+        ..write(placeholder.text);
+      start = i + 1;
+    }
+    buff.write(text.substring(start, selection.end));
+    return buff.toString();
+  }
 
   /// Returns a new [SelectionAnchor] at the provided [Offset].
   SelectionAnchor? anchorAtPt(
@@ -145,7 +175,8 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
 
     // If trimming whitespace, skip whitespace.
     if (trim) {
-      while (offset < trimmedSel.end && _shouldSkip(text.codeUnitAt(offset))) {
+      while (offset < trimmedSel.end &&
+          _shouldSkip(text, offset, placeholders)) {
         offset++;
       }
 
@@ -164,6 +195,7 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
         baseOffset: range.start,
         extentOffset: range.end,
         trim: trim,
+        placeholders: placeholders,
       );
       if (ts != null && ts.isValid && (!trim || !ts.isCollapsed)) {
         final rects = rectsForSelection(ts);
@@ -185,20 +217,42 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
   }
 
   /// Returns the list of [Rect]s for the [selection].
+  ///
+  /// A selected placeholder's rect is where the text in its widget is drawn,
+  /// which can differ from its place in the line (e.g. a raised superscript).
   List<Rect> rectsForSelection(TextSelection selection) {
     if (rp == null) return [];
-    final textBoxes = rp!.getBoxesForSelection(selection);
-    if (textBoxes.isNotEmpty) {
-      return textBoxes
-          .map((r) => r.toRect().translate(rect.left, rect.top))
-          .toList();
+    final rects = <Rect>[];
+    void addBoxes(int start, int end) {
+      if (start >= end) return;
+      final textBoxes = rp!.getBoxesForSelection(
+        TextSelection(baseOffset: start, extentOffset: end),
+      );
+      rects.addAll(
+        textBoxes.map((r) => r.toRect().translate(rect.left, rect.top)),
+      );
     }
-    return [];
+
+    var start = selection.start;
+    for (final MapEntry(key: i, value: placeholder) in placeholders.entries) {
+      if (i >= selection.end) break;
+      if (i < selection.start || placeholder.rect == null) continue;
+      addBoxes(start, i);
+      rects.add(placeholder.rect!);
+      start = i + 1;
+    }
+    addBoxes(start, selection.end);
+    return rects;
   }
 
   /// Returns the [TextRange] for the text at the provided [Offset].
   TextRange? wordBoundaryAtPt(Offset pt, {bool onlyIfInRect = true}) {
     assert(rp != null);
+
+    // A placeholder's text is selected as a unit, and can be drawn apart from
+    // its place in the line, so check where it is drawn first.
+    final i = indexOfPlaceholderAtPt(pt);
+    if (i >= 0) return TextRange(start: i, end: i + 1);
 
     if (rp != null && (!onlyIfInRect || rect.contains(pt))) {
       // Get the text position closest to the provided [Offset].
@@ -247,6 +301,18 @@ class SelectionParagraph implements Comparable<SelectionParagraph> {
       }
     }
     return null;
+  }
+
+  /// Returns the index in [text] of the placeholder whose text is drawn at the
+  /// provided [Offset], which can be outside this paragraph's [rect] (e.g. a
+  /// raised superscript), or -1 if none is.
+  int indexOfPlaceholderAtPt(Offset pt) {
+    for (final MapEntry(key: i, value: placeholder) in placeholders.entries) {
+      if (i < text.length && (placeholder.rect?.contains(pt) ?? false)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   /// Returns `true` if [range] is non-empty and contains only non-word
@@ -302,7 +368,8 @@ extension SelectableExtOnObject on Object {
       this is RenderParagraph ? this as RenderParagraph : null;
 }
 
-/// Returns a new TextSelection, trimming whitespace characters if specified.
+/// Returns a new TextSelection, trimming whitespace characters, and
+/// placeholders without text, if specified.
 ///
 /// Returns null if the resulting string would be empty.
 TextSelection? createTextSelection(
@@ -310,21 +377,42 @@ TextSelection? createTextSelection(
   int? baseOffset,
   int? extentOffset,
   bool trim = true,
+  Map<int, SelectionPlaceholder> placeholders = const {},
 }) {
   if (str.isEmpty) return null;
   final len = str.length;
   var first = baseOffset ?? 0;
   var last = extentOffset != null ? math.min(extentOffset, len) - 1 : len - 1;
   if (trim) {
-    while (first < len && _shouldSkip(str.codeUnitAt(first))) {
+    while (first < len && _shouldSkip(str, first, placeholders)) {
       first++;
     }
-    while (last > first && _shouldSkip(str.codeUnitAt(last))) {
+    while (last > first && _shouldSkip(str, last, placeholders)) {
       last--;
     }
   }
   if (last < first) return null;
   return TextSelection(baseOffset: first, extentOffset: last + 1);
+}
+
+///
+/// A placeholder in a [SelectionParagraph]: the widget of a `WidgetSpan`.
+///
+class SelectionPlaceholder extends Equatable {
+  /// Returns a new [SelectionPlaceholder].
+  const SelectionPlaceholder({this.text = '', this.rect});
+
+  /// The text in the widget — the text of the paragraphs it contains — if the
+  /// widget has an `InlineSelectable`, otherwise an empty string, as the text
+  /// is then a paragraph of its own.
+  final String text;
+
+  /// Where the text in the widget is drawn, relative to the `Selectable`, or
+  /// null if [text] is empty.
+  final Rect? rect;
+
+  @override
+  List<Object?> get props => [text, rect];
 }
 
 extension SelectableExtOnListOfSelectionParagraph on List<SelectionParagraph> {
@@ -358,7 +446,16 @@ extension SelectableExtOnListOfSelectionParagraph on List<SelectionParagraph> {
 // MARK: Private
 //
 
-bool _shouldSkip(int rune) {
+/// Returns `true` if the character at [index] in [str] is whitespace, or a
+/// placeholder without text.
+bool _shouldSkip(
+  String str,
+  int index,
+  Map<int, SelectionPlaceholder> placeholders,
+) {
+  final placeholder = placeholders[index];
+  if (placeholder != null) return placeholder.text.isEmpty;
+  final rune = str.codeUnitAt(index);
   return rune == objectReplacementCharacterCode || isWhitespaceCharacter(rune);
 }
 

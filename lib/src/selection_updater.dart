@@ -6,7 +6,6 @@ import 'package:flutter/painting.dart';
 
 import 'common.dart';
 import 'selection.dart';
-import 'selection_anchor.dart';
 import 'selection_controls.dart';
 import 'selection_paragraph.dart';
 import 'selections.dart';
@@ -88,6 +87,16 @@ Selection updatedSelectionWith(
     return indexOfParagraphContainingSelectionPt;
   }
 
+  // Local func to cache the index of the paragraph with a placeholder whose
+  // text is drawn at the selection point, if any. The text can be drawn
+  // outside its paragraph, even over the paragraph before it (e.g. a raised
+  // superscript), so the paragraphs before it get no anchor at the point.
+  int? indexOfParagraphWithPlaceholderAtSelectionPt;
+  int paragraphWithPlaceholderAtSelectionPt() =>
+      indexOfParagraphWithPlaceholderAtSelectionPt ??= paragraphs.indexWhere(
+        (p) => p.indexOfPlaceholderAtPt(selectionPt!) >= 0,
+      );
+
   // Iterate through the render paragraphs, collecting the selected `rects`
   // and a string buffer with the selected string to support `Copy`.
   //
@@ -105,40 +114,39 @@ Selection updatedSelectionWith(
     // If selecting a word (e.g. via long press).
     //
     if (isSelectingWord) {
-      final anchor = paragraph.anchorAtPt(selectionPt!);
+      final anchor = i < paragraphWithPlaceholderAtSelectionPt()
+          ? null
+          : paragraph.anchorAtPt(selectionPt!);
       if (anchor?.containsPoint(selectionPt) ?? false) {
         dragInfo!.areAnchorsSwapped = false;
         startAnchor = endAnchor = anchor;
         startSelPt = endSelPt = selectionPt;
         rects.addAll(anchor!.rects);
-        buff.write(
-          paragraph.text.substring(anchor.textSel.start, anchor.textSel.end),
-        );
+        buff.write(paragraph.textInSelection(anchor.textSel));
         break; // ------------------------------------------------>
       }
     } else {
       //
       // If dragging the start or end selection handle.
       //
-      if (startAnchor == null || endAnchor == null) {
-        SelectionAnchor? anchor;
+      if ((startAnchor == null || endAnchor == null) &&
+          i >= paragraphWithPlaceholderAtSelectionPt()) {
+        // If the selection point is in this paragraph, or on the text in one
+        // of its placeholders, which can be drawn outside it (e.g. a raised
+        // superscript)... Note, points in the margin next to the paragraph
+        // intentionally get no anchor here, and fall through to the
+        // paragraph-edge branches: the leading margin selects to the first
+        // word, and the trailing margin selects to the last word (below).
+        var anchor = paragraph.anchorAtPt(selectionPt!, trim: false);
 
         // If the selection point is above or before the starting edge of the
         // paragraph, set `anchor` to the first word in the paragraph.
-        if (selectionPt!.isAbove(paragraph) ||
-            (selectionPt.isBeforeStartingEdgeOf(paragraph) &&
-                selectionPt.dyIsInRangeOf(paragraph))) {
+        if (anchor == null &&
+            (selectionPt.isAbove(paragraph) ||
+                (selectionPt.isBeforeStartingEdgeOf(paragraph) &&
+                    selectionPt.dyIsInRangeOf(paragraph)))) {
           anchor = paragraph.anchorAtCharIndex(0, trim: false);
           assert(anchor != null);
-        }
-
-        // If the selection point is in this paragraph... Note, points in
-        // the margin next to the paragraph intentionally get no anchor here,
-        // and fall through to the paragraph-edge branches: the leading
-        // margin selects to the first word (above), and the trailing margin
-        // selects to the last word (below).
-        if (anchor == null && paragraph.rect.contains(selectionPt)) {
-          anchor = paragraph.anchorAtPt(selectionPt, trim: false);
         }
 
         // If the selection point is below the top of and past the starting
@@ -211,10 +219,14 @@ Selection updatedSelectionWith(
           rects.addAll(selectionRects);
 
           // Append the text to buff, adding zero or more carriage returns
-          // depending on the position of this paragraph to the next one.
+          // depending on the position of this paragraph to the next one,
+          // measured with the boxes of the paragraph's lines rather than
+          // `selectionRects`, in which a placeholder's rect is where the text
+          // in its widget is drawn (e.g. a subscript below its line).
           final j = i + 1;
-          final paragraphText = paragraph.text.substring(ts.start, ts.end);
-          final paragraphBottom = selectionRects.last.bottom;
+          final paragraphText = paragraph.textInSelection(ts);
+          final lineBoxes = paragraph.rp!.getBoxesForSelection(ts);
+          final paragraphBottom = paragraph.rect.top + lineBoxes.last.bottom;
           final nextParagraphTop =
               paragraphs[j < paragraphs.length ? j : i].rect.top;
           if (isEndAnchorParagraph ||
@@ -227,7 +239,7 @@ Selection updatedSelectionWith(
               buff.write(' ');
             }
           } else if (nextParagraphTop <
-              paragraphBottom + selectionRects.first.height) {
+              paragraphBottom + lineBoxes.first.toRect().height) {
             // One carriage return: next paragraph is on the next line.
             buff.writeln(paragraphText);
           } else {

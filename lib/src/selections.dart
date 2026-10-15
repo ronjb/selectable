@@ -5,9 +5,12 @@
 import 'package:collection/collection.dart' as collection;
 import 'package:float_column/float_column.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart' show WidgetSpan;
 
 import 'common.dart';
 import 'ignore_selectable.dart';
+import 'inline_selectable.dart';
+import 'inline_span_ext.dart';
 import 'selection.dart';
 import 'selection_paragraph.dart';
 
@@ -228,9 +231,9 @@ class Paragraphs {
       final rp = ro.asRenderParagraph();
       if (rp != null) {
         final paragraphIndex = newParagraphs.length;
-        final paragraph = SelectionParagraph.from(
+        final paragraph = _paragraphWith(
           rp,
-          ancestor: renderBox,
+          renderBox,
           paragraphIndex: paragraphIndex,
           firstCharIndex: charIndex,
         );
@@ -249,7 +252,11 @@ class Paragraphs {
               // dmPrint('Selections: paragraph $paragraphIndex’s first '
               //     'character index changed from '
               //     '${cachedParagraph.firstCharIndex} to $charIndex');
-            } else if (cachedParagraph.text != paragraph.text) {
+            } else if (cachedParagraph.text != paragraph.text ||
+                !areEqualMaps(
+                  cachedParagraph.placeholders,
+                  paragraph.placeholders,
+                )) {
               paragraphsHaveChanged = true;
               // dmPrint('Selections: paragraph $paragraphIndex’s text '
               //     'changed from "${cachedParagraph.text}" to '
@@ -330,6 +337,13 @@ extension on RenderObject {
 
       if (object is VisitChildrenOfAnyTypeMixin) {
         canceled = !object.visitChildrenOfAnyType(recursiveObjectVisitor);
+      } else if (object is RenderParagraph) {
+        // A paragraph's children are the widgets of its `WidgetSpan`s, and the
+        // text in those with an `InlineSelectable` is part of the paragraph
+        // (see `SelectionPlaceholder`).
+        object.visitChildren((child) {
+          if (!child._hasInlineSelectable) recursiveRenderObjectVisitor(child);
+        });
       } else if (object is RenderObject) {
         object.visitChildren(recursiveRenderObjectVisitor);
       }
@@ -338,4 +352,69 @@ extension on RenderObject {
     visitChildrenRecursively(this);
     return !canceled;
   }
+
+  /// Returns `true` if this render object, or its subtree, has an
+  /// `InlineSelectable`, other than in the `WidgetSpan`s of its paragraphs.
+  bool get _hasInlineSelectable =>
+      this is RenderInlineSelectable ||
+      !_visitChildrenAndTextRenderers((ro) => ro is! RenderInlineSelectable);
 }
+
+extension on RenderParagraph {
+  /// Returns this paragraph's placeholders — the widgets of its `WidgetSpan`s
+  /// — keyed by their index in its text. A placeholder has the text in its
+  /// widget only if the widget has an `InlineSelectable`.
+  Map<int, SelectionPlaceholder> _placeholders(RenderBox ancestor) {
+    if (childCount == 0) return const {};
+
+    // Flutter makes each WidgetSpan's widget a child of the paragraph, in the
+    // order of the spans.
+    final indices = <int>[];
+    text.visitChildrenEx((span, index) {
+      if (span is WidgetSpan) indices.add(index);
+      return true;
+    });
+
+    final placeholders = <int, SelectionPlaceholder>{};
+    visitChildren((child) {
+      if (placeholders.length == indices.length) return;
+      final texts = <String>[];
+      Rect? rect;
+      if (child._hasInlineSelectable) {
+        child._visitChildrenAndTextRenderers((ro) {
+          final rp = ro.asRenderParagraph();
+          final paragraph = rp == null ? null : _paragraphWith(rp, ancestor);
+          if (paragraph != null) {
+            texts.add(paragraph.textInSelection(paragraph.trimmedSel));
+            final paragraphRect = MatrixUtils.transformRect(
+              rp!.getTransformTo(ancestor),
+              rp.paintBounds,
+            );
+            rect = rect?.expandToInclude(paragraphRect) ?? paragraphRect;
+          }
+          return true; // Continue walking the render tree.
+        });
+      }
+      placeholders[indices[placeholders.length]] = SelectionPlaceholder(
+        text: texts.join(' '),
+        rect: rect,
+      );
+    });
+    return placeholders;
+  }
+}
+
+/// Returns a [SelectionParagraph] for [rp], with its placeholders, or `null`
+/// if it has no text.
+SelectionParagraph? _paragraphWith(
+  RenderParagraph rp,
+  RenderBox ancestor, {
+  int paragraphIndex = 0,
+  int firstCharIndex = 0,
+}) => SelectionParagraph.from(
+  rp,
+  ancestor: ancestor,
+  paragraphIndex: paragraphIndex,
+  firstCharIndex: firstCharIndex,
+  placeholders: rp._placeholders(ancestor),
+);

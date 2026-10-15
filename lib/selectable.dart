@@ -4,6 +4,7 @@
 
 export 'src/common.dart' show SelectionRectifiers;
 export 'src/ignore_selectable.dart';
+export 'src/inline_selectable.dart';
 export 'src/inline_span_ext.dart';
 export 'src/selectable.dart';
 export 'src/selectable_controller_base.dart';

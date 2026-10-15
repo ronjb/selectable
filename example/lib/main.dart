@@ -300,10 +300,27 @@ final _span1 = TextSpan(
             'nostrud exercitation ullamco laboris nisi ut aliquip ex ea '
             'commodo consequat. Duis aute irure dolor in reprehenderit in '
             'voluptate velit esse cillum dolore eu fugiat nulla pariatur. '
-            'Excepteur sint occaecat cupidatat non proident, sunt in culpa '
-            'qui officia deserunt mollit anim id est laborum.'),
+            'Excepteur sint occaecat cupidatat'),
+    _superscript('1'),
+    const TextSpan(
+        text: ' non proident, sunt in culpa qui officia deserunt mollit anim '
+            'id est laborum.'),
   ],
 );
+
+// A superscript, which Flutter can only raise by drawing it in a WidgetSpan.
+// Its InlineSelectable makes it part of the paragraph containing it, so it is
+// copied and highlighted where it is drawn.
+WidgetSpan _superscript(String text) => WidgetSpan(
+      alignment: PlaceholderAlignment.baseline,
+      baseline: TextBaseline.alphabetic,
+      child: Transform.translate(
+        offset: const Offset(0, -8),
+        child: InlineSelectable(
+          child: Text(text, style: const TextStyle(fontSize: 12)),
+        ),
+      ),
+    );
 
 const TextStyle _textStyle1 = TextStyle(
   fontSize: 20,

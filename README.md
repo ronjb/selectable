@@ -33,6 +33,8 @@ Try it out at: [https://ronjb.github.io/selectable](https://ronjb.github.io/sele
 * Customizable selection appearance via `selectionColor`, selection rect
   "rectifiers", and fully custom selection painters.
 * `IgnoreSelectable` for excluding subtrees from selection.
+* `InlineSelectable` for making the text in a `WidgetSpan`, such as a
+  superscript, part of the paragraph containing it.
 
 ## Getting started
 
@@ -40,7 +42,7 @@ Add `selectable` to your app's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  selectable: ^0.7.2
+  selectable: ^0.7.3
 ```
 
 Requires Dart `>=3.12.0` and Flutter `>=3.44.0`.
@@ -144,6 +146,33 @@ Wrap widgets that shouldn't be selectable in `IgnoreSelectable`:
 ```dart
 IgnoreSelectable(
   child: Text('This text is not selectable.'),
+)
+```
+
+### Selecting the text in a `WidgetSpan` with its paragraph
+
+The text in a `WidgetSpan`'s widget is a paragraph of its own, selected apart
+from the paragraph containing the `WidgetSpan`. To make short text, such as a
+superscript, part of the paragraph instead, so it is copied and highlighted
+where it is drawn, put an `InlineSelectable` in the `WidgetSpan`'s widget:
+
+```dart
+Text.rich(
+  TextSpan(
+    children: [
+      const TextSpan(text: 'E = mc'),
+      WidgetSpan(
+        alignment: PlaceholderAlignment.baseline,
+        baseline: TextBaseline.alphabetic,
+        child: Transform.translate(
+          offset: const Offset(0, -6),
+          child: const InlineSelectable(
+            child: Text('2', style: TextStyle(fontSize: 10)),
+          ),
+        ),
+      ),
+    ],
+  ),
 )
 ```
 

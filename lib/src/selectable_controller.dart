@@ -90,27 +90,26 @@ class SelectableController extends SelectableControllerBase {
     var lastCharIndexInLastParagraph = 0;
 
     visitContainedSpans((paragraph, span, index) {
-      if (span is TextSpan) {
-        // `s` is `start` in the context of the current paragraph.
-        final s = start - paragraph.firstCharIndex;
-        if (startAnchor == null &&
-            s >= index &&
-            s < index + span.text!.length) {
-          startAnchor = paragraph.anchorAtCharIndex(s);
-        }
+      // A placeholder (e.g. a `WidgetSpan`) is one character, a U+FFFC.
+      final length = span is TextSpan ? span.text!.length : 1;
 
-        if (startAnchor != null) {
-          if (end == null) {
-            lastParagraph = paragraph;
-            lastCharIndexInLastParagraph = index + span.text!.length;
-          } else if (end == start) {
-            endAnchor = startAnchor;
-          } else {
-            // `e` is `end` in the context of the current paragraph.
-            final e = end - paragraph.firstCharIndex - 1;
-            if (e >= index && e < index + span.text!.length) {
-              endAnchor = paragraph.anchorAtCharIndex(e);
-            }
+      // `s` is `start` in the context of the current paragraph.
+      final s = start - paragraph.firstCharIndex;
+      if (startAnchor == null && s >= index && s < index + length) {
+        startAnchor = paragraph.anchorAtCharIndex(s);
+      }
+
+      if (startAnchor != null) {
+        if (end == null) {
+          lastParagraph = paragraph;
+          lastCharIndexInLastParagraph = index + length;
+        } else if (end == start) {
+          endAnchor = startAnchor;
+        } else {
+          // `e` is `end` in the context of the current paragraph.
+          final e = end - paragraph.firstCharIndex - 1;
+          if (e >= index && e < index + length) {
+            endAnchor = paragraph.anchorAtCharIndex(e);
           }
         }
       }
