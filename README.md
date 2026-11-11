@@ -22,6 +22,7 @@ Try it out at: [https://ronjb.github.io/selectable](https://ronjb.github.io/sele
 * Long-press (and optionally double-tap) a word to select it, then drag the
   selection handles to adjust the selection, with autoscroll when dragging
   near the top or bottom of a scrollable viewport.
+* Optionally, press and drag with a mouse to select, as on a desktop.
 * Platform-adaptive selection controls and popup menu: Cupertino style on
   iOS and macOS, Material style elsewhere.
 * A default popup menu with Copy, Look Up, and Search Web items — localized
@@ -138,6 +139,22 @@ Selectable(
   child: child,
 )
 ```
+
+To select by pressing the primary mouse button on the text and dragging, as
+text is selected on a desktop, set `selectByMouseDrag` to true:
+
+```dart
+Selectable(
+  selectByMouseDrag: true,
+  child: child,
+)
+```
+
+The words from the one that was pressed to the one at the pointer are
+selected, in either direction. Only a mouse does this, so a touch drag still
+scrolls, and a click that moves a few pixels is still a click for the child.
+Leave it off where a mouse drag does something else, e.g. in a scrollable
+that a mouse can drag.
 
 ### Excluding widgets from selection
 

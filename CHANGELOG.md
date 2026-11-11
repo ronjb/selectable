@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.7.4] - November 10, 2026
+
+* Added `Selectable.selectByMouseDrag`, which defaults to `false`. When `true`, pressing the primary mouse button on the text and dragging selects the words from the one that was pressed to the one at the pointer, in either direction, as text is selected with a mouse on a desktop. A drag that starts off a word (in a margin, or between paragraphs) selects from the first word the pointer reaches, a new drag replaces the selection, and the viewport autoscrolls when the pointer is near its top or bottom. The popup menu is hidden during the drag and shown when the button is released. Only a mouse does this, so a touch drag still scrolls, and the pointer has to move 8 logical pixels before it is a drag, so a click still reaches the child.
+
 ## [0.7.3] - October 14, 2026
 
 * Added `InlineSelectable`, which makes the text in a `WidgetSpan`'s widget part of the paragraph containing the `WidgetSpan`. Flutter can only raise or lower text, e.g. a superscript or subscript, by drawing it in a `WidgetSpan`, and the text in a `WidgetSpan`'s widget is a paragraph of its own, listed after the paragraph containing the `WidgetSpan`, so a superscript was copied after that paragraph's text: "line whereby the 5". With an `InlineSelectable` anywhere in the `WidgetSpan`'s widget, the text is copied where it is drawn, "line5 whereby the", it is selected by a long press and highlighted where it is drawn, and a selection that ends with it includes it. It is selected as a unit, like a character of the paragraph, so `InlineSelectable` is meant for short text. The paragraph's text, which `getContainedText()` and character indexes refer to, holds it as a U+FFFC, `visitContainedSpans()` doesn't visit the spans in it, and a selection that starts or ends at it reports the `WidgetSpan` in `start` or `end` (its tag, if it is a `TaggedWidgetSpan`, and a U+FFFC as its text).
