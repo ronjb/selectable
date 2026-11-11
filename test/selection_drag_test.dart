@@ -91,12 +91,104 @@ void main() {
       );
     },
   );
+
+  group('selectByMouseDrag', () {
+    // Points in the middle of words: 'aaa' and 'ccc' are on line 1, 'eee' is
+    // on line 2.
+    const aaa = Offset(_leadingMargin + _fontSize * 1.5, _fontSize / 2);
+    const ccc = Offset(_leadingMargin + _fontSize * 9.5, _fontSize / 2);
+    const eee = Offset(_leadingMargin + _fontSize * 5.5, _fontSize * 1.5);
+
+    Future<void> drag(
+      WidgetTester tester,
+      Offset from,
+      Offset to, {
+      PointerDeviceKind kind = PointerDeviceKind.mouse,
+    }) async {
+      final topLeft = tester.getTopLeft(find.byType(Selectable));
+      final gesture = await tester.startGesture(topLeft + from, kind: kind);
+      await tester.pump();
+      // In steps, as a drag arrives: the first move only wins the gesture.
+      for (var i = 1; i <= 4; i++) {
+        await gesture.moveTo(topLeft + Offset.lerp(from, to, i / 4)!);
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a mouse drag selects from the pressed word to the pointer', (
+      tester,
+    ) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      await drag(tester, aaa, eee);
+      expect(controller.getSelection()!.text, 'aaa bbb ccc ddd eee');
+    });
+
+    testWidgets('a mouse drag backward selects the same words', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      await drag(tester, eee, aaa);
+      expect(controller.getSelection()!.text, 'aaa bbb ccc ddd eee');
+    });
+
+    testWidgets('a mouse drag that starts in the margin selects to the '
+        'pointer', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      // Pressed in the margin to the left of line 1.
+      await drag(tester, const Offset(50, _fontSize / 2), ccc);
+      expect(controller.getSelection()!.text, 'aaa bbb ccc');
+    });
+
+    testWidgets('a new mouse drag replaces the selection', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      await drag(tester, aaa, ccc);
+      expect(controller.getSelection()!.text, 'aaa bbb ccc');
+      // Starts below the selection's handles, which take a press on them.
+      await drag(
+        tester,
+        eee,
+        const Offset(_leadingMargin + _fontSize * 9.5, _fontSize * 1.5),
+      );
+      expect(controller.getSelection()!.text, 'eee fff');
+    });
+
+    testWidgets('a mouse click selects nothing', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      final topLeft = tester.getTopLeft(find.byType(Selectable));
+      final gesture = await tester.startGesture(
+        topLeft + aaa,
+        kind: PointerDeviceKind.mouse,
+      );
+      // A click's few pixels of movement.
+      await gesture.moveBy(const Offset(3, 2));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(controller.getSelection()!.isTextSelected, isFalse);
+    });
+
+    testWidgets('a touch drag selects nothing', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      await drag(tester, aaa, eee, kind: PointerDeviceKind.touch);
+      expect(controller.getSelection()!.isTextSelected, isFalse);
+    });
+
+    testWidgets('a mouse drag selects nothing unless asked for', (
+      tester,
+    ) async {
+      final controller = await _pump(tester);
+      await drag(tester, aaa, eee);
+      expect(controller.getSelection()!.isTextSelected, isFalse);
+    });
+  });
 }
 
 /// Pumps a Selectable containing a two-line paragraph that is inset from
 /// the Selectable's left edge, so there are margins on both sides of the
 /// paragraph.
-Future<SelectableController> _pump(WidgetTester tester) async {
+Future<SelectableController> _pump(
+  WidgetTester tester, {
+  bool selectByMouseDrag = false,
+}) async {
   final controller = SelectableController();
   addTearDown(controller.dispose);
 
@@ -105,6 +197,7 @@ Future<SelectableController> _pump(WidgetTester tester) async {
       home: Scaffold(
         body: Selectable(
           selectionController: controller,
+          selectByMouseDrag: selectByMouseDrag,
           child: const Align(
             alignment: Alignment.topLeft,
             child: Padding(

@@ -134,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   Selectable(
                     selectWordOnDoubleTap: true,
+                    selectByMouseDrag: true,
                     topOverlayHeight:
                         kToolbarHeight + MediaQuery.paddingOf(context).top,
                     selectionController: _selectionController,

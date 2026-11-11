@@ -33,6 +33,7 @@ class Selectable extends StatefulWidget {
     this.showSelection = true,
     this.selectWordOnLongPress = true,
     this.selectWordOnDoubleTap = false,
+    this.selectByMouseDrag = false,
     this.showPopup = true,
     this.showSelectionControls = true,
     this.popupMenuItems,
@@ -47,6 +48,16 @@ class Selectable extends StatefulWidget {
   final bool showSelection;
   final bool selectWordOnLongPress;
   final bool selectWordOnDoubleTap;
+
+  /// Whether pressing the primary mouse button on the text and dragging selects
+  /// the words between where it was pressed and where the pointer is, as text
+  /// is selected with a mouse on a desktop. Defaults to `false`.
+  ///
+  /// Only a mouse (or a trackpad's click and drag) does this; a touch drag is
+  /// left alone, so it scrolls. Don't turn it on where a mouse drag does
+  /// something else, e.g. in a scrollable that a mouse can drag.
+  final bool selectByMouseDrag;
+
   final bool showPopup;
   final bool showSelectionControls;
   final Iterable<SelectableMenuItem>? popupMenuItems;
@@ -287,53 +298,55 @@ class _SelectableState extends State<Selectable>
     final result = Stack(
       key: _globalKey,
       children: <Widget>[
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          // These gestures act on the text at the pointer's position, and a
-          // semantics action is at the center of the Selectable — a semantic
-          // long press would select whichever word is there. Offering them
-          // also merged all of the child text into this one node, so a screen
-          // reader couldn't move through it paragraph by paragraph.
-          excludeFromSemantics: true,
-          onLongPressStart: widget.selectWordOnLongPress
-              ? (details) => _localTapOrLongPressPt = details.localPosition
-              : null,
-          onLongPress: widget.selectWordOnLongPress
-              ? () => _onLongPressOrDoubleTap(_localTapOrLongPressPt)
-              : null,
-          onTapDown: ignoreTap
-              ? null
-              : (details) => _localTapOrLongPressPt = details.localPosition,
-          onTap: ignoreTap ? null : () => _onTap(_localTapOrLongPressPt),
-          onDoubleTapDown: widget.selectWordOnDoubleTap
-              ? (details) => _localTapOrLongPressPt = details.localPosition
-              : null,
-          onDoubleTap: widget.selectWordOnDoubleTap
-              ? () => _onLongPressOrDoubleTap(_localTapOrLongPressPt)
-              : null,
-          child: SelectableRenderWidget(
-            paragraphs: _selections.cachedParagraphs,
-            selections: _selections,
-            foregroundPainter: widget.showSelection
-                ? _selectionController?.getCustomPainter() ??
-                      DefaultSelectionPainter(
-                        color: selectionColor,
-                        opacityAnimation:
-                            _selectionIsHidden ==
-                                (_selections.main?.isHidden ?? false)
-                            ? _selectionOpacityController
-                            : (_selections.main?.isHidden ?? false)
-                            ? kAlwaysDismissedAnimation
-                            : kAlwaysCompleteAnimation,
-                      )
+        _mouseDragSelectable(
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            // These gestures act on the text at the pointer's position, and a
+            // semantics action is at the center of the Selectable — a semantic
+            // long press would select whichever word is there. Offering them
+            // also merged all of the child text into this one node, so a screen
+            // reader couldn't move through it paragraph by paragraph.
+            excludeFromSemantics: true,
+            onLongPressStart: widget.selectWordOnLongPress
+                ? (details) => _localTapOrLongPressPt = details.localPosition
                 : null,
-            child: IgnorePointer(
-              // Ignore gestures (e.g. taps) on the child if text is selected.
-              ignoring:
-                  widget.showSelectionControls &&
-                  (_selections.dragInfo.isSelectingWordOrDraggingHandle ||
-                      (_selections.main?.isTextSelected ?? false)),
-              child: widget.child,
+            onLongPress: widget.selectWordOnLongPress
+                ? () => _onLongPressOrDoubleTap(_localTapOrLongPressPt)
+                : null,
+            onTapDown: ignoreTap
+                ? null
+                : (details) => _localTapOrLongPressPt = details.localPosition,
+            onTap: ignoreTap ? null : () => _onTap(_localTapOrLongPressPt),
+            onDoubleTapDown: widget.selectWordOnDoubleTap
+                ? (details) => _localTapOrLongPressPt = details.localPosition
+                : null,
+            onDoubleTap: widget.selectWordOnDoubleTap
+                ? () => _onLongPressOrDoubleTap(_localTapOrLongPressPt)
+                : null,
+            child: SelectableRenderWidget(
+              paragraphs: _selections.cachedParagraphs,
+              selections: _selections,
+              foregroundPainter: widget.showSelection
+                  ? _selectionController?.getCustomPainter() ??
+                        DefaultSelectionPainter(
+                          color: selectionColor,
+                          opacityAnimation:
+                              _selectionIsHidden ==
+                                  (_selections.main?.isHidden ?? false)
+                              ? _selectionOpacityController
+                              : (_selections.main?.isHidden ?? false)
+                              ? kAlwaysDismissedAnimation
+                              : kAlwaysCompleteAnimation,
+                        )
+                  : null,
+              child: IgnorePointer(
+                // Ignore gestures (e.g. taps) on the child if text is selected.
+                ignoring:
+                    widget.showSelectionControls &&
+                    (_selections.dragInfo.isSelectingWordOrDraggingHandle ||
+                        (_selections.main?.isTextSelected ?? false)),
+                child: widget.child,
+              ),
             ),
           ),
         ),
@@ -458,6 +471,82 @@ class _SelectableState extends State<Selectable>
     }
   }
 
+  //
+  // Selecting by dragging with a mouse
+  //
+
+  /// Where the mouse button was pressed, in local coordinates, during a drag
+  /// that selects.
+  Offset? _mouseDragStartPt;
+
+  /// Wraps [child] so a mouse drag over it selects, if the widget asks for it.
+  Widget _mouseDragSelectable(Widget child) {
+    if (!widget.selectByMouseDrag) return child;
+    return RawGestureDetector(
+      behavior: HitTestBehavior.translucent,
+      // As for the gestures below it: it acts on the text at the pointer.
+      excludeFromSemantics: true,
+      gestures: {
+        _MouseDragGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<_MouseDragGestureRecognizer>(
+              () => _MouseDragGestureRecognizer(debugOwner: this),
+              (instance) {
+                instance
+                  ..onStart = _onMouseDragStart
+                  ..onUpdate = _onMouseDragUpdate
+                  ..onEnd = ((_) => _onMouseDragEnd())
+                  ..onCancel = _onMouseDragEnd;
+              },
+            ),
+      },
+      child: child,
+    );
+  }
+
+  void _onMouseDragStart(DragStartDetails details) {
+    if (!mounted) return;
+    _mouseDragStartPt = details.localPosition;
+    if (_buildHelper.showPopupMenu) {
+      _refresh(() => _buildHelper.showPopupMenu = false);
+    }
+  }
+
+  void _onMouseDragUpdate(DragUpdateDetails details) {
+    final startPt = _mouseDragStartPt;
+    final controller = _selectionController;
+    if (!mounted || startPt == null || controller == null) return;
+
+    final pt = details.localPosition;
+    _buildHelper.showPopupMenu = false;
+
+    // From the word that was pressed to the pointer. If the press wasn't on a
+    // word (it was in a margin, or between paragraphs), then from the word at
+    // the pointer back to where it was pressed, which selects the same words.
+    // If neither is on a word, the selection stays as it is.
+    if (!controller.selectWordsBetweenPoints(startPt, pt)) {
+      controller.selectWordsBetweenPoints(pt, startPt);
+    }
+
+    final paragraphs = _selections.cachedParagraphs.list;
+    if (paragraphs.isNotEmpty) {
+      _buildHelper.maybeAutoscroll(
+        widget.scrollController,
+        _globalKey,
+        pt,
+        paragraphs.last.rect.bottom,
+        widget.topOverlayHeight,
+      );
+    }
+  }
+
+  void _onMouseDragEnd() {
+    _mouseDragStartPt = null;
+    if (!mounted) return;
+    if (widget.showPopup && (_selections.main?.isTextSelected ?? false)) {
+      _refresh(() => _buildHelper.showPopupMenu = true);
+    }
+  }
+
   void _onTap(Offset? localPosition) {
     if (!mounted) return;
     final pt = localPosition;
@@ -563,6 +652,26 @@ class _SelectableState extends State<Selectable>
 //
 // MARK: Private
 //
+
+/// How far the mouse has to move with its button down to be selecting, in
+/// logical pixels. A mouse's own drag slop is a couple of pixels, which a click
+/// easily moves, and winning the gesture then takes the click from the child.
+const _mouseDragSelectSlop = 8.0;
+
+/// A drag with the primary mouse button, reported from where the button was
+/// pressed.
+class _MouseDragGestureRecognizer extends PanGestureRecognizer {
+  _MouseDragGestureRecognizer({super.debugOwner})
+    : super(supportedDevices: const {PointerDeviceKind.mouse}) {
+    dragStartBehavior = DragStartBehavior.down;
+  }
+
+  @override
+  bool hasSufficientGlobalDistanceToAccept(
+    PointerDeviceKind pointerDeviceKind,
+    double? deviceTouchSlop,
+  ) => globalDistanceMoved.abs() > _mouseDragSelectSlop;
+}
 
 final _defaultMenuItems = [
   const SelectableMenuItem(type: SelectableMenuItemType.copy),
