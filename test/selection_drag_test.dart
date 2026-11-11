@@ -104,10 +104,11 @@ void main() {
       Offset from,
       Offset to, {
       PointerDeviceKind kind = PointerDeviceKind.mouse,
+      Duration hold = Duration.zero,
     }) async {
       final topLeft = tester.getTopLeft(find.byType(Selectable));
       final gesture = await tester.startGesture(topLeft + from, kind: kind);
-      await tester.pump();
+      await tester.pump(hold);
       // In steps, as a drag arrives: the first move only wins the gesture.
       for (var i = 1; i <= 4; i++) {
         await gesture.moveTo(topLeft + Offset.lerp(from, to, i / 4)!);
@@ -179,6 +180,89 @@ void main() {
       await drag(tester, aaa, eee);
       expect(controller.getSelection()!.isTextSelected, isFalse);
     });
+
+    testWidgets('a mouse drag selects after the button is held still', (
+      tester,
+    ) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      // Held long enough to be a long press, which a mouse that drags to
+      // select doesn't do.
+      await drag(
+        tester,
+        aaa,
+        eee,
+        hold: kLongPressTimeout + const Duration(milliseconds: 100),
+      );
+      expect(controller.getSelection()!.text, 'aaa bbb ccc ddd eee');
+    });
+
+    testWidgets('a touch long press still selects a word', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      await tester.longPressAt(
+        tester.getTopLeft(find.byType(Selectable)) + aaa,
+      );
+      await tester.pumpAndSettle();
+      expect(controller.getSelection()!.text, 'aaa');
+    });
+
+    testWidgets('with it off, a mouse long press still selects a word', (
+      tester,
+    ) async {
+      final controller = await _pump(tester);
+      await tester.longPressAt(
+        tester.getTopLeft(find.byType(Selectable)) + aaa,
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pumpAndSettle();
+      expect(controller.getSelection()!.text, 'aaa');
+    });
+
+    testWidgets('with selectWordOnDoubleTap, a mouse double-click selects a '
+        'word', (tester) async {
+      final controller = await _pump(
+        tester,
+        selectByMouseDrag: true,
+        selectWordOnDoubleTap: true,
+      );
+      final pt = tester.getTopLeft(find.byType(Selectable)) + aaa;
+      await tester.tapAt(pt, kind: PointerDeviceKind.mouse);
+      await tester.pump(kDoubleTapMinTime);
+      await tester.tapAt(pt, kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      expect(controller.getSelection()!.text, 'aaa');
+    });
+
+    testWidgets('on iOS, a mouse click on the selection shows and hides the '
+        'popup menu', (tester) async {
+      await _pump(
+        tester,
+        selectByMouseDrag: true,
+        platform: TargetPlatform.iOS,
+      );
+      await drag(tester, aaa, ccc);
+      expect(_isShowingPopupMenu(tester), isTrue);
+
+      // Clicks in the middle of the selection, away from its handles.
+      final bbb = tester.getTopLeft(find.byType(Selectable)) + (aaa + ccc) / 2;
+      await tester.tapAt(bbb, kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      expect(_isShowingPopupMenu(tester), isFalse);
+
+      await tester.tapAt(bbb, kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      expect(_isShowingPopupMenu(tester), isTrue);
+    });
+
+    testWidgets('turning it on or off keeps the child', (tester) async {
+      await _pump(tester);
+      final child = tester.element(find.text(_paragraphText));
+
+      // A new element would be a new state for everything in the child.
+      await _pump(tester, selectByMouseDrag: true);
+      expect(tester.element(find.text(_paragraphText)), same(child));
+      await _pump(tester);
+      expect(tester.element(find.text(_paragraphText)), same(child));
+    });
   });
 }
 
@@ -188,16 +272,20 @@ void main() {
 Future<SelectableController> _pump(
   WidgetTester tester, {
   bool selectByMouseDrag = false,
+  bool selectWordOnDoubleTap = false,
+  TargetPlatform? platform,
 }) async {
   final controller = SelectableController();
   addTearDown(controller.dispose);
 
   await tester.pumpWidget(
     MaterialApp(
+      theme: ThemeData(platform: platform),
       home: Scaffold(
         body: Selectable(
           selectionController: controller,
           selectByMouseDrag: selectByMouseDrag,
+          selectWordOnDoubleTap: selectWordOnDoubleTap,
           child: const Align(
             alignment: Alignment.topLeft,
             child: Padding(
@@ -225,3 +313,18 @@ Future<SelectableController> _pump(
 
   return controller;
 }
+
+/// Whether the popup menu is showing. It is built while text is selected, and
+/// hidden by fading it out.
+bool _isShowingPopupMenu(WidgetTester tester) =>
+    tester
+        .widget<AnimatedOpacity>(
+          find
+              .ancestor(
+                of: find.text('Copy'),
+                matching: find.byType(AnimatedOpacity),
+              )
+              .first,
+        )
+        .opacity ==
+    1.0;
