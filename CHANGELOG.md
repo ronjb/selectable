@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [0.7.4] - November 10, 2026
+## [0.7.4] - November 11, 2026
 
 * Added `Selectable.selectByMouseDrag`, which defaults to `false`. When `true`, pressing the primary mouse button on the text and dragging selects the words from the one that was pressed to the one at the pointer, in either direction, as text is selected with a mouse on a desktop. A drag that starts off a word (in a margin, or between paragraphs) selects from the first word the pointer reaches, a new drag replaces the selection, and the viewport autoscrolls when the pointer is near its top or bottom. The popup menu is hidden during the drag and shown when the button is released. Only a mouse does this, so a touch drag still scrolls, and the pointer has to move 8 logical pixels before it is a drag, so a click still reaches the child. A mouse doesn't long press while it is on, as in Flutter's text fields, so holding the button still before dragging doesn't select just the word that was pressed. Thanks to @mtallenca for this (#31).
 
