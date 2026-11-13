@@ -99,12 +99,14 @@ void main() {
     const ccc = Offset(_leadingMargin + _fontSize * 9.5, _fontSize / 2);
     const eee = Offset(_leadingMargin + _fontSize * 5.5, _fontSize * 1.5);
 
-    Future<void> drag(
+    // Returns the gesture, which is still down if [release] is false.
+    Future<TestGesture> drag(
       WidgetTester tester,
       Offset from,
       Offset to, {
       PointerDeviceKind kind = PointerDeviceKind.mouse,
       Duration hold = Duration.zero,
+      bool release = true,
     }) async {
       final topLeft = tester.getTopLeft(find.byType(Selectable));
       final gesture = await tester.startGesture(topLeft + from, kind: kind);
@@ -114,8 +116,11 @@ void main() {
         await gesture.moveTo(topLeft + Offset.lerp(from, to, i / 4)!);
         await tester.pump();
       }
-      await gesture.up();
+      if (release) {
+        await gesture.up();
+      }
       await tester.pumpAndSettle();
+      return gesture;
     }
 
     testWidgets('a mouse drag selects from the pressed word to the pointer', (
@@ -181,12 +186,67 @@ void main() {
       expect(controller.getSelection()!.isTextSelected, isFalse);
     });
 
+    testWidgets('the popup menu is hidden during a mouse drag', (tester) async {
+      await _pump(tester, selectByMouseDrag: true);
+      final gesture = await drag(tester, aaa, eee, release: false);
+      expect(_isShowingPopupMenu(tester), isFalse);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(_isShowingPopupMenu(tester), isTrue);
+    });
+
+    testWidgets('a canceled mouse drag shows the popup menu', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      final gesture = await drag(tester, aaa, eee, release: false);
+      await gesture.cancel();
+      await tester.pumpAndSettle();
+      expect(controller.getSelection()!.text, 'aaa bbb ccc ddd eee');
+      expect(_isShowingPopupMenu(tester), isTrue);
+    });
+
     testWidgets('a mouse drag selects after the button is held still', (
       tester,
     ) async {
       final controller = await _pump(tester, selectByMouseDrag: true);
-      // Held long enough to be a long press, which a mouse that drags to
-      // select doesn't do.
+      // Held long enough to be a long press, which selects the pressed word,
+      // and dragging on from there selects as a drag does.
+      final gesture = await drag(
+        tester,
+        aaa,
+        eee,
+        hold: kLongPressTimeout + const Duration(milliseconds: 100),
+        release: false,
+      );
+      expect(controller.getSelection()!.text, 'aaa bbb ccc ddd eee');
+      expect(_isShowingPopupMenu(tester), isFalse);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(_isShowingPopupMenu(tester), isTrue);
+    });
+
+    testWidgets('a canceled mouse drag after the button is held still shows '
+        'the popup menu', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      final gesture = await drag(
+        tester,
+        aaa,
+        eee,
+        hold: kLongPressTimeout + const Duration(milliseconds: 100),
+        release: false,
+      );
+      await gesture.cancel();
+      await tester.pumpAndSettle();
+      expect(controller.getSelection()!.text, 'aaa bbb ccc ddd eee');
+      expect(_isShowingPopupMenu(tester), isTrue);
+    });
+
+    testWidgets('without selectWordOnLongPress, a mouse drag selects after the '
+        'button is held still', (tester) async {
+      final controller = await _pump(
+        tester,
+        selectByMouseDrag: true,
+        selectWordOnLongPress: false,
+      );
       await drag(
         tester,
         aaa,
@@ -194,6 +254,17 @@ void main() {
         hold: kLongPressTimeout + const Duration(milliseconds: 100),
       );
       expect(controller.getSelection()!.text, 'aaa bbb ccc ddd eee');
+      expect(_isShowingPopupMenu(tester), isTrue);
+    });
+
+    testWidgets('a mouse long press still selects a word', (tester) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      await tester.longPressAt(
+        tester.getTopLeft(find.byType(Selectable)) + aaa,
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pumpAndSettle();
+      expect(controller.getSelection()!.text, 'aaa');
     });
 
     testWidgets('a touch long press still selects a word', (tester) async {
@@ -202,6 +273,20 @@ void main() {
         tester.getTopLeft(find.byType(Selectable)) + aaa,
       );
       await tester.pumpAndSettle();
+      expect(controller.getSelection()!.text, 'aaa');
+    });
+
+    testWidgets('moving after a touch long press still selects only the word', (
+      tester,
+    ) async {
+      final controller = await _pump(tester, selectByMouseDrag: true);
+      await drag(
+        tester,
+        aaa,
+        eee,
+        kind: PointerDeviceKind.touch,
+        hold: kLongPressTimeout + const Duration(milliseconds: 100),
+      );
       expect(controller.getSelection()!.text, 'aaa');
     });
 
@@ -272,6 +357,7 @@ void main() {
 Future<SelectableController> _pump(
   WidgetTester tester, {
   bool selectByMouseDrag = false,
+  bool selectWordOnLongPress = true,
   bool selectWordOnDoubleTap = false,
   TargetPlatform? platform,
 }) async {
@@ -285,6 +371,7 @@ Future<SelectableController> _pump(
         body: Selectable(
           selectionController: controller,
           selectByMouseDrag: selectByMouseDrag,
+          selectWordOnLongPress: selectWordOnLongPress,
           selectWordOnDoubleTap: selectWordOnDoubleTap,
           child: const Align(
             alignment: Alignment.topLeft,
@@ -314,17 +401,13 @@ Future<SelectableController> _pump(
   return controller;
 }
 
-/// Whether the popup menu is showing. It is built while text is selected, and
-/// hidden by fading it out.
-bool _isShowingPopupMenu(WidgetTester tester) =>
-    tester
-        .widget<AnimatedOpacity>(
-          find
-              .ancestor(
-                of: find.text('Copy'),
-                matching: find.byType(AnimatedOpacity),
-              )
-              .first,
-        )
-        .opacity ==
-    1.0;
+/// Whether the popup menu is showing. It is hidden by fading it out, and while
+/// it is hidden, its items may not be built.
+bool _isShowingPopupMenu(WidgetTester tester) {
+  final menu = find.ancestor(
+    of: find.text('Copy'),
+    matching: find.byType(AnimatedOpacity),
+  );
+  return menu.evaluate().isNotEmpty &&
+      tester.widget<AnimatedOpacity>(menu.first).opacity == 1.0;
+}

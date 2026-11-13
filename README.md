@@ -43,7 +43,7 @@ Add `selectable` to your app's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  selectable: ^0.7.4
+  selectable: ^0.7.5
 ```
 
 Requires Dart `>=3.12.0` and Flutter `>=3.44.0`.
@@ -154,9 +154,10 @@ The words from the one that was pressed to the one at the pointer are
 selected, in either direction. Only a mouse does this, so a touch drag still
 scrolls, and a click that moves a few pixels is still a click for the child.
 Leave it off where a mouse drag does something else, e.g. in a scrollable
-that a mouse can drag. While it is on, a mouse doesn't long press, as in
-Flutter's text fields; a touch long press still selects a word. To select a
-word with a mouse double-click, also set `selectWordOnDoubleTap` to true.
+that a mouse can drag. A mouse long press still selects the pressed word, and
+dragging on from there selects as a drag does, so holding the button still
+before dragging selects the same words. To select a word with a mouse
+double-click, also set `selectWordOnDoubleTap` to true.
 
 ### Excluding widgets from selection
 

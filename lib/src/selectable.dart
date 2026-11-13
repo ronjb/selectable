@@ -57,10 +57,10 @@ class Selectable extends StatefulWidget {
   /// left alone, so it scrolls. Don't turn it on where a mouse drag does
   /// something else, e.g. in a scrollable that a mouse can drag.
   ///
-  /// When it is on, a mouse doesn't long press, as in Flutter's text fields, so
-  /// holding the button down before dragging selects by dragging rather than
-  /// selecting the pressed word. A touch long press still selects a word, and
-  /// with [selectWordOnDoubleTap], a mouse double-click does.
+  /// A mouse long press still selects the pressed word, and dragging on from
+  /// there selects as a drag does, so holding the button still before dragging
+  /// selects the same words. With [selectWordOnDoubleTap], a mouse double-click
+  /// also selects a word.
   final bool selectByMouseDrag;
 
   final bool showPopup;
@@ -478,13 +478,15 @@ class _SelectableState extends State<Selectable>
   //
 
   /// Where the mouse button was pressed, in local coordinates, during a drag
-  /// that selects.
+  /// that selects, or a long press that selects as it drags.
   Offset? _mouseDragStartPt;
+
+  /// The kind of device that pressed, for a long press.
+  PointerDeviceKind? _longPressKind;
 
   /// The long press and mouse drag gestures. They are recognized by a
   /// [RawGestureDetector], which is always built, so turning
-  /// [Selectable.selectByMouseDrag] on or off doesn't rebuild the child, and
-  /// so the long press can leave out a mouse.
+  /// [Selectable.selectByMouseDrag] on or off doesn't rebuild the child.
   Map<Type, GestureRecognizerFactory> _longPressAndMouseDragGestures() {
     // Read here, as GestureDetector does, rather than when a recognizer is
     // initialized.
@@ -496,17 +498,21 @@ class _SelectableState extends State<Selectable>
               () => LongPressGestureRecognizer(debugOwner: this),
               (instance) {
                 instance
-                  // A mouse that drags to select doesn't long press, as in
-                  // Flutter's text fields, or holding its button still before
-                  // dragging would select the word instead.
-                  ..supportedDevices = widget.selectByMouseDrag
-                      ? _allButMouse
-                      : null
                   ..gestureSettings = gestureSettings
-                  ..onLongPressStart = ((details) =>
-                      _localTapOrLongPressPt = details.localPosition)
-                  ..onLongPress = () =>
-                      _onLongPressOrDoubleTap(_localTapOrLongPressPt);
+                  ..onLongPressDown = ((details) =>
+                      _longPressKind = details.kind)
+                  ..onLongPressStart = _onLongPressStart
+                  ..onLongPress = (() =>
+                      _onLongPressOrDoubleTap(_localTapOrLongPressPt))
+                  ..onLongPressMoveUpdate = ((details) =>
+                      _onMouseDragUpdate(details.localPosition))
+                  ..onLongPressEnd = ((_) => _onLongPressEnd())
+                  // Also called if the pointer is canceled after the long
+                  // press, which doesn't call onLongPressEnd. It is called
+                  // too when a press ends before it is a long press, e.g. a
+                  // click, but _mouseDragStartPt is null then, so it does
+                  // nothing.
+                  ..onLongPressCancel = _onLongPressEnd;
               },
             ),
       if (widget.selectByMouseDrag)
@@ -516,11 +522,28 @@ class _SelectableState extends State<Selectable>
               (instance) {
                 instance
                   ..onStart = _onMouseDragStart
-                  ..onUpdate = _onMouseDragUpdate
+                  ..onUpdate = ((details) =>
+                      _onMouseDragUpdate(details.localPosition))
                   ..onEnd = (_) => _onMouseDragEnd();
               },
             ),
     };
+  }
+
+  void _onLongPressStart(LongPressStartDetails details) {
+    _localTapOrLongPressPt = details.localPosition;
+
+    // A mouse that drags to select selects the pressed word when it is held
+    // still, and dragging on from there selects as a drag does, so holding the
+    // button still before dragging selects the same words.
+    _mouseDragStartPt =
+        widget.selectByMouseDrag && _longPressKind == PointerDeviceKind.mouse
+        ? details.localPosition
+        : null;
+  }
+
+  void _onLongPressEnd() {
+    if (_mouseDragStartPt != null) _onMouseDragEnd();
   }
 
   void _onMouseDragStart(DragStartDetails details) {
@@ -531,12 +554,11 @@ class _SelectableState extends State<Selectable>
     }
   }
 
-  void _onMouseDragUpdate(DragUpdateDetails details) {
+  void _onMouseDragUpdate(Offset pt) {
     final startPt = _mouseDragStartPt;
     final controller = _selectionController;
     if (!mounted || startPt == null || controller == null) return;
 
-    final pt = details.localPosition;
     _buildHelper.showPopupMenu = false;
 
     // From the word that was pressed to the pointer. If the press wasn't on a
@@ -677,10 +699,6 @@ class _SelectableState extends State<Selectable>
 /// logical pixels. A mouse's own drag slop is a couple of pixels, which a click
 /// easily moves, and winning the gesture then takes the click from the child.
 const _mouseDragSelectSlop = 8.0;
-
-/// The devices that long press when a mouse drags to select.
-final _allButMouse = {...PointerDeviceKind.values}
-  ..remove(PointerDeviceKind.mouse);
 
 /// A drag with the primary mouse button, reported from where the button was
 /// pressed.
